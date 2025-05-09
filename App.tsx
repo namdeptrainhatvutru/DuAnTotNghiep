@@ -4,7 +4,7 @@ import React from 'react'
 const App = () => {
   return (
    <View>
-    <Text>dasds</Text>
+    <Text>Mu vo dich c2</Text>
    </View>
   )
 }
