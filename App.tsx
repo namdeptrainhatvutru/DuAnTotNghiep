@@ -8,7 +8,6 @@ import store from './redux/store/store';
 import Login from './LoginScreen/Login';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Register from './LoginScreen/Register';
-
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -77,6 +76,7 @@ const App = () => {
             component={Register}
             options={{ headerShown: false }}
           />
+         
           
         </Stack.Navigator>
       </NavigationContainer>

@@ -1,4 +1,4 @@
-import {Alert, Button, StyleSheet, Text, TextInput, TouchableOpacity, View, Animated, Image} from 'react-native';
+import {Alert, Button, StyleSheet, Text, TextInput, TouchableOpacity, View, Animated, Image, Linking} from 'react-native';
 import React, {useState, useRef} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -106,7 +106,7 @@ const Login = () => {
           />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => { Linking.openURL('http://192.168.1.9:3000') }}>
         <Text style={{color: '#373FE2', margin: 20,textDecorationLine:'underline'}}>Quên mật khẩu?</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={handleLogin} style={{backgroundColor: '#BB0000', width: '85%', height: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 50}}>

@@ -18,6 +18,7 @@
     "@react-navigation/native-stack": "^7.3.12",
     "@react-navigation/stack": "^7.3.1",
     "@reduxjs/toolkit": "^2.8.1",
+    "emailjs-com": "^3.2.0",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-elements": "^3.4.3",

@@ -16,6 +16,8 @@ const Register = ({ navigation }) => {
   const [gioi_tinh, setGioi_tinh] = useState('')
   const [ngay_sinh, setNgay_sinh] = useState('')
   const [checked, setChecked] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
 
   const handleRegister = async () => {
     if (!ho_ten || !email || !mat_khau || !so_dien_thoai) {
@@ -84,8 +86,16 @@ const Register = ({ navigation }) => {
           placeholder="Mật khẩu"
           value={mat_khau}
           onChangeText={setMatKhau}
-          secureTextEntry
+          secureTextEntry={!showPassword}
         />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Icon
+            name={showPassword ? 'eye' : 'eye-slash'}
+            size={22}
+            color="#666"
+            style={{marginLeft: 10}}
+          />
+        </TouchableOpacity>
       </View>
       <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
         <Icon name="lock" size={24} color="#666" />
@@ -94,8 +104,16 @@ const Register = ({ navigation }) => {
           placeholder="Nhập lại mật khẩu"
           value={mat_khau2}
           onChangeText={setMatKhau2}
-          secureTextEntry
+          secureTextEntry={!showPassword2}
         />
+        <TouchableOpacity onPress={() => setShowPassword2(!showPassword2)}>
+          <Icon
+            name={showPassword2 ? 'eye' : 'eye-slash'}
+            size={22}
+            color="#666"
+            style={{marginLeft: 10}}
+          />
+        </TouchableOpacity>
       </View>
       <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
         <Icon name="phone" size={24} color="#666" />
@@ -130,7 +148,6 @@ const Register = ({ navigation }) => {
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10, alignSelf: 'flex-start' }}>
         <CheckBox
-      
           checked={checked}
           onPress={() => setChecked(!checked)}
         />

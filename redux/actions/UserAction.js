@@ -32,3 +32,14 @@ export const addUser = createAsyncThunk(
         }
     }
 )
+export const checkUserEmail = async (email) => {
+  try {
+    const response = await fetch(api_khach_hang);
+    const users = await response.json();
+    const user = users.find(u => u.email === email);
+    return user || null;
+  } catch (error) {
+    console.error("Lỗi khi kiểm tra email:", error);
+    return null;
+  }
+};
