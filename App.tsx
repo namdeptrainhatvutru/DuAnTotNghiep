@@ -8,6 +8,11 @@ import store from './redux/store/store';
 import Login from './LoginScreen/Login';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Register from './LoginScreen/Register';
+import HomeScreen from './UserScreen/HomeScreen';
+import LocationScreen from './UserScreen/LocationScreen';
+import VoucherScreen from './UserScreen/VoucherScreen';
+import PromotionalScreen from './UserScreen/PromotionalScreen';
+import DifferentScreen from './UserScreen/DifferentScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -46,11 +51,11 @@ tabBarIcon: ({ focused }) => {
 },
       })}
     >
-      <Tab.Screen name="Film" options={{ headerShown: false }} component={Login} />
-      <Tab.Screen name="Location" options={{ headerShown: false }} component={Login} />
-      <Tab.Screen name="Voucher" options={{ headerShown: false }} component={Login} />
-      <Tab.Screen name="Khuyến mãi" options={{ headerShown: false }} component={Login} />
-      <Tab.Screen name="Khác" options={{ headerShown: false }} component={Login} />
+      <Tab.Screen name="Film" options={{ headerShown: false }} component={HomeScreen} />
+      <Tab.Screen name="Location" options={{ headerShown: false }} component={LocationScreen} />
+      <Tab.Screen name="Voucher" options={{ headerShown: false }} component={VoucherScreen} />
+      <Tab.Screen name="Khuyến mãi" options={{ headerShown: false }} component={PromotionalScreen} />
+      <Tab.Screen name="Khác" options={{ headerShown: false }} component={DifferentScreen} />
     </Tab.Navigator>
   );
 };
