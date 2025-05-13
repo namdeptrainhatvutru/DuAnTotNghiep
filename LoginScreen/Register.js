@@ -128,13 +128,13 @@ const Register = ({ navigation }) => {
           <Picker.Item label="Nữ" value="Nữ" />
         </Picker>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10, alignSelf: 'flex-start', marginLeft: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10, alignSelf: 'flex-start' }}>
         <CheckBox
       
           checked={checked}
           onPress={() => setChecked(!checked)}
         />
-        <Text style={{ marginLeft: 8 }}>Tôi cam kết tuân theo chính sách bảo mật và điều khoản sử dụng của Movix</Text>
+        <Text style={{ marginRight:40 }}>Tôi cam kết tuân theo chính sách bảo mật và điều khoản sử dụng của Movix</Text>
       </View>
       <TouchableOpacity
         onPress={handleRegister}
