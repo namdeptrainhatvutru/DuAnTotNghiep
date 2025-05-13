@@ -16,7 +16,7 @@ const Login = () => {
 
   const toggleShowPassword = () => {
     Animated.timing(handAnim, {
-      toValue: showPassword ? 0 : 1, // 1: ẩn mật khẩu (hiện kính), 0: hiện mật khẩu (ẩn kính)
+      toValue: showPassword ? 1 : 0, // 1: ẩn mật khẩu (hiện kính), 0: hiện mật khẩu (ẩn kính)
       duration: 250,
       useNativeDriver: false,
     }).start();
@@ -74,7 +74,7 @@ const Login = () => {
         borderRadius: 10,
         opacity: handAnim, // opacity động
       }} />
-      <Image style={{position:'absolute' , bottom:showPassword?'-130':'200',left:-50}} source={showPassword ? require('../img/mouth.png') : require('../img/mouth2.png')}/>
+      <Image style={{position:'absolute' , bottom:showPassword?'-130':'200',left:-55}} source={showPassword ? require('../img/mouth.png') : require('../img/mouth2.png')}/>
     </View>
       <Text style={st.text}>Đăng nhập</Text>
       <View style={[st.textInput, {flexDirection: 'row', alignItems: 'center'}]}>
