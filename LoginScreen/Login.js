@@ -12,7 +12,7 @@ const Login = () => {
   const [mat_khau, setMatKhau] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
-  const handAnim = useRef(new Animated.Value(0)).current;
+  const handAnim = useRef(new Animated.Value(1)).current;
 
   const toggleShowPassword = () => {
     Animated.timing(handAnim, {
@@ -55,11 +55,12 @@ const Login = () => {
       <Animated.View style={{
         position: 'absolute',
         top: 80,
-        left: 90,
-        width: 50,
+        left: 95,
+        width: 45,
         height: 30,
         backgroundColor: 'black',
-        borderRadius: 10,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
         opacity: handAnim, // opacity động
       }} />
       {/* Kính phải */}
@@ -68,10 +69,11 @@ const Login = () => {
        
         top: 80,
         left: 160,
-        width: 50,
+        width: 45,
         height: 30,
         backgroundColor: 'black',
-        borderRadius: 10,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
         opacity: handAnim, // opacity động
       }} />
       <Image style={{position:'absolute' , bottom:showPassword?'-130':'200',left:-55}} source={showPassword ? require('../img/mouth.png') : require('../img/mouth2.png')}/>
@@ -104,13 +106,23 @@ const Login = () => {
           />
         </TouchableOpacity>
       </View>
-      <Button title="Login" onPress={handleLogin} />
-      <Button
-        title="Register"
-        onPress={() => {
+      <TouchableOpacity>
+        <Text style={{color: '#373FE2', margin: 20,textDecorationLine:'underline'}}>Quên mật khẩu?</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={handleLogin} style={{backgroundColor: '#BB0000', width: '85%', height: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 50}}>
+        <Text style={{color: 'white'}}>Đăng nhập</Text>
+      </TouchableOpacity>
+      <View style={{flexDirection: 'row', alignItems: 'center', marginVertical: 20}}>
+        <View style={st.line} />
+        <Text style={{}}>Hoặc đăng nhập với</Text>
+        <View style={st.line} />
+      </View>
+      <TouchableOpacity onPress={() => {
           nav.navigate('Register');
-        }}
-      />
+        }} style={{backgroundColor: 'white', width: '85%', height: 60, justifyContent: 'center', alignItems: 'center', borderRadius: 50}}>
+        <Text style={{color: 'black'}}>Đăng ký tài khoản Movix</Text>
+      </TouchableOpacity>
+      
     </View>
   );
 };
@@ -135,5 +147,10 @@ const st = StyleSheet.create({
     borderRadius: 10,
     margin: 10,
     paddingLeft: 10,
+  },
+    line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ccc',
   },
 });

@@ -19,7 +19,7 @@ const MyTabs = () => {
         tabBarActiveTintColor: 'red', 
         tabBarInactiveTintColor: 'gray', 
         tabBarStyle: {
-          backgroundColor:  '#333', 
+          backgroundColor:  'white', 
           height: 60, 
         },
         tabBarLabelStyle: { fontSize: 14, },
