@@ -34,6 +34,15 @@ const Login = () => {
       const user = users.find(
         u => u.email === email && u.mat_khau === mat_khau,
       );
+      //nếu vai_tro == 3 thì chuyển sang admin
+      if (user && user.vai_tro == 3) {
+        nav.navigate('AdminScreen');
+        return
+      }
+      if (user && user.vai_tro == 2) {
+        nav.navigate('StaffScreen');
+        return
+      }
       if (user) {
         dispatch(setUser(user))
         Alert.alert('Thành công', 'Đăng nhập thành công!');

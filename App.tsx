@@ -13,6 +13,11 @@ import LocationScreen from './UserScreen/LocationScreen';
 import VoucherScreen from './UserScreen/VoucherScreen';
 import PromotionalScreen from './UserScreen/PromotionalScreen';
 import DifferentScreen from './UserScreen/DifferentScreen';
+import AdminScreen from './AdminScreen/AdminScreen';
+import StaffScreen from './StaffScreen/StaffScreen';
+import AddStaff from './AdminScreen/AddStaff';
+import QuanLyVoucher from './AdminScreen/QuanLyVoucher';
+import QuanLyRapChieu from './AdminScreen/QuanLyRapChieu';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -79,6 +84,31 @@ const App = () => {
           <Stack.Screen
             name="Register"
             component={Register}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AdminScreen"
+            component={AdminScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StaffScreen"
+            component={StaffScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AddStaff"
+            component={AddStaff}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="QuanLyVoucher"
+            component={QuanLyVoucher}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="QuanLyRapChieu"
+            component={QuanLyRapChieu}
             options={{ headerShown: false }}
           />
          
