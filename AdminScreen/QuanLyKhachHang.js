@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addUser } from '../redux/actions/UserAction';
 
-const AddStaff = () => {
+const QuanLyKhachHang = () => {
   const dispatch = useDispatch();
   const [ho_ten, setHoTen] = useState('');
   const [email, setEmail] = useState('');
@@ -30,7 +30,7 @@ const AddStaff = () => {
   });
 
   const getListStaff = async () => {
-    const res = await fetch('https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang?vai_tro=2');
+    const res = await fetch('https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang?vai_tro=1');
     const data = await res.json();
     setStaff(data);
   };
@@ -66,12 +66,12 @@ const AddStaff = () => {
     try {
       const resultAction = await dispatch(addUser(user));
       if (addUser.fulfilled.match(resultAction)) {
-        Alert.alert('Thành công', 'Thêm nhân viên thành công!');
+        Alert.alert('Thành công', 'Thêm user thành công!');
         resetForm();
         setAddModalVisible(false);
         getListStaff();
       } else {
-        Alert.alert('Lỗi', 'Thêm nhân viên thất bại!');
+        Alert.alert('Lỗi', 'Thêm user thất bại!');
       }
     } catch (error) {
       Alert.alert('Lỗi', 'Có lỗi xảy ra!');
@@ -123,7 +123,7 @@ const AddStaff = () => {
   const handleDelete = async (id) => {
     Alert.alert(
       "Xác nhận",
-      "Bạn có chắc muốn xóa nhân viên này?",
+      "Bạn có chắc muốn xóa user này?",
       [
         { text: "Hủy", style: "cancel" },
         {
@@ -136,7 +136,7 @@ const AddStaff = () => {
               });
               if (res.ok) {
                 getListStaff();
-                Alert.alert('Đã xóa nhân viên!');
+                Alert.alert('Đã xóa user!');
               }
             } catch (error) {
               Alert.alert('Lỗi', 'Không xóa được!');
@@ -184,7 +184,7 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
 
   return (
     <View style={{ flex: 1, justifyContent:'center' }}>
-      <Text style={styles.title}>Danh sách nhân viên</Text>
+      <Text style={styles.title}>Danh sách khách hàng</Text>
       <TextInput style={{borderWidth:1,margin:10}} value={searchText} onChangeText={setSearchText} placeholder='tìm kiếm'/>
       <FlatList data={search} keyExtractor={item => item.khach_hang_id} renderItem={renderItem} />
 
@@ -196,10 +196,10 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
         <Text style={styles.fabIcon}>+</Text>
       </TouchableOpacity>
 
-      {/* Modal thêm nhân viên */}
+    
       <Modal visible={addModalVisible} animationType="slide">
         <ScrollView contentContainerStyle={{ padding: 20 }}>
-          <Text style={styles.title}>Thêm nhân viên</Text>
+          <Text style={styles.title}>Thêm Khách hàng</Text>
           <TextInput style={styles.input} placeholder="Họ tên" value={ho_ten} onChangeText={setHoTen} />
           <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
           <TextInput style={styles.input} placeholder="Mật khẩu" value={mat_khau} onChangeText={setMatKhau} secureTextEntry />
@@ -207,7 +207,7 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
           <TextInput style={styles.input} placeholder="Ngày sinh" value={ngay_sinh} onChangeText={setNgay_sinh} />
           <TextInput style={styles.input} placeholder="Giới tính" value={gioi_tinh} onChangeText={setGioi_tinh} />
           <TouchableOpacity onPress={handleAddStaff} style={styles.button}>
-            <Text style={{ color: 'white' }}>Thêm nhân viên</Text>
+            <Text style={{ color: 'white' }}>Thêm khách hàng</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setAddModalVisible(false)} style={[styles.button, { backgroundColor: 'gray', marginTop: 10 }]}>
             <Text style={{ color: 'white' }}>Đóng</Text>
@@ -215,10 +215,10 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
         </ScrollView>
       </Modal>
 
-      {/* Modal sửa nhân viên */}
+
       <Modal visible={editModalVisible} animationType="slide">
         <ScrollView contentContainerStyle={{ padding: 20 }}>
-          <Text style={styles.title}>Sửa nhân viên</Text>
+          <Text style={styles.title}>Sửa khách hàng</Text>
           <TextInput style={styles.input} placeholder="Họ tên" value={editData.ho_ten} onChangeText={(text) => setEditData({ ...editData, ho_ten: text })} />
           <TextInput style={styles.input} placeholder="Email" value={editData.email} onChangeText={(text) => setEditData({ ...editData, email: text })} keyboardType="email-address" />
           <TextInput style={styles.input} placeholder="Mật khẩu" value={editData.mat_khau} onChangeText={(text) => setEditData({ ...editData, mat_khau: text })} secureTextEntry />
@@ -237,11 +237,11 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
   );
 };
 
-export default AddStaff;
+export default QuanLyKhachHang;
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 24, fontWeight: 'bold',margin:20
+    fontSize: 20, fontWeight: 'bold',margin:20
   },
   input: {
     width: '100%', height: 48, borderWidth: 1, borderColor: '#ccc', borderRadius: 8,

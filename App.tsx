@@ -18,6 +18,7 @@ import StaffScreen from './StaffScreen/StaffScreen';
 import AddStaff from './AdminScreen/AddStaff';
 import QuanLyVoucher from './AdminScreen/QuanLyVoucher';
 import QuanLyRapChieu from './AdminScreen/QuanLyRapChieu';
+import QuanLyKhachHang from './AdminScreen/QuanLyKhachHang';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -111,6 +112,12 @@ const App = () => {
             component={QuanLyRapChieu}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="QuanLyKhachHang"
+            component={QuanLyKhachHang}
+            options={{ headerShown: false }}
+          />
+          
          
           
         </Stack.Navigator>
