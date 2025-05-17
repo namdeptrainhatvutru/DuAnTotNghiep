@@ -19,6 +19,8 @@ import AddStaff from './AdminScreen/AddStaff';
 import QuanLyVoucher from './AdminScreen/QuanLyVoucher';
 import QuanLyRapChieu from './AdminScreen/QuanLyRapChieu';
 import QuanLyKhachHang from './AdminScreen/QuanLyKhachHang';
+import Chatbot from './UserScreen/Chatbot';
+import { Alert } from 'react-native';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -26,42 +28,57 @@ const MyTabs = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: 'red', 
-        tabBarInactiveTintColor: 'gray', 
+        tabBarActiveTintColor: 'red',
+        tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          backgroundColor:  'white', 
-          height: 60, 
+          backgroundColor: 'white',
+          height: 60,
         },
         tabBarLabelStyle: { fontSize: 14, },
-tabBarIcon: ({ focused }) => {
-  let iconName = '';
-  if (route.name === 'Film') {
-    iconName = 'film';
-  } else if (route.name === 'Location') {
-    iconName = 'location-arrow';
-  } else if (route.name === 'Voucher') {
-    iconName = 'ticket';
-  } else if (route.name === 'Khuyến mãi') {
-    iconName = 'gift';
-  }else if (route.name === 'Khác') {
-    iconName = 'info-circle';
-  }
-  return (
-    <Icon
-      name={iconName}
-      size={focused ? 30 : 24}
-      color={focused ? 'red' : 'gray'}
-      style={{ opacity: focused ? 1 : 0.5 }}
-    />
-  );
-},
+        tabBarIcon: ({ focused }) => {
+          let iconName = '';
+          if (route.name === 'Film') {
+            iconName = 'film';
+          } else if (route.name === 'Location') {
+            iconName = 'location-arrow';
+          } else if (route.name === 'Voucher') {
+            iconName = 'ticket';
+          } else if (route.name === 'Khuyến mãi') {
+            iconName = 'gift';
+          } else if (route.name === 'Khác') {
+            iconName = 'info-circle';
+          }
+          return (
+            <Icon
+              name={iconName}
+              size={focused ? 30 : 24}
+              color={focused ? 'red' : 'gray'}
+              style={{ opacity: focused ? 2 : 0.5 }}
+            />
+          );
+        },
       })}
     >
-      <Tab.Screen name="Film" options={{ headerShown: false }} component={HomeScreen} />
-      <Tab.Screen name="Location" options={{ headerShown: false }} component={LocationScreen} />
-      <Tab.Screen name="Voucher" options={{ headerShown: false }} component={VoucherScreen} />
-      <Tab.Screen name="Khuyến mãi" options={{ headerShown: false }} component={PromotionalScreen} />
-      <Tab.Screen name="Khác" options={{ headerShown: false }} component={DifferentScreen} />
+      <Tab.Screen name="Film" options={{
+        headerShown: true
+        , headerTitle: 'Trang chủ', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#EA5A5A' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },headerRight:()=>(<Icon name="comments" size={25} color="black" style={{ marginRight: 10 }} onPress={() => Alert.alert('Chatbot')} />)
+      }} component={HomeScreen} />
+      <Tab.Screen name="Location" options={{
+        headerShown: true
+        , headerTitle: 'Location', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#EA5A5A' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+      }} component={LocationScreen} />
+      <Tab.Screen name="Voucher" options={{
+        headerShown: true
+        , headerTitle: 'Voucher', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#EA5A5A' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+      }} component={VoucherScreen} />
+      <Tab.Screen name="Khuyến mãi" options={{
+        headerShown: true
+        , headerTitle: 'Khuyến mãi', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#EA5A5A' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+      }} component={PromotionalScreen} />
+      <Tab.Screen name="Khác" options={{
+        headerShown: true
+        , headerTitle: 'Khác', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#EA5A5A' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+      }} component={DifferentScreen} />
     </Tab.Navigator>
   );
 };
@@ -69,7 +86,7 @@ tabBarIcon: ({ focused }) => {
 const App = () => {
   return (
     <Provider store={store}>
- 
+
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
@@ -117,9 +134,13 @@ const App = () => {
             component={QuanLyKhachHang}
             options={{ headerShown: false }}
           />
-          
-         
-          
+          <Stack.Screen
+            name="Chatbot"
+            component={Chatbot}
+            options={{ headerShown: false }}
+          />
+
+
         </Stack.Navigator>
       </NavigationContainer>
 
