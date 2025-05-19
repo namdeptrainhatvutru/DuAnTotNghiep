@@ -89,7 +89,7 @@ const App = () => {
     <Provider store={store}>
 
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="QuanLyRapChieu">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
             name="Login"
             component={Login}
