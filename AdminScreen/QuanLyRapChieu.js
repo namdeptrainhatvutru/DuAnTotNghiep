@@ -88,7 +88,8 @@ const QuanLyRapChieu = () => {
           <Text style={styles.cardTitle}>{item.ten_rap}</Text>
           <Text style={styles.cardAddress}>{item.dia_chi}</Text>
         </View>
-        <TouchableOpacity style={{flex: 1, alignItems: 'flex-end'}} onPress={()=>{navigation.navigate('PhongChieu', {cinema_id: item.cinema_id, ten_rap: item.ten_rap})}}>
+        <TouchableOpacity style={{flex: 1, alignItems: 'flex-end'}} onPress={()=>{navigation.navigate('PhongChieu', {cinema_id: item.cinema_id, ten_rap: item.ten_rap})}} 
+          >
         <View >
           <Image
             style={{width: 50, height: 50}}

@@ -13,9 +13,7 @@ const RapChieuSlice = createSlice({
     setRapChieu: (state, action) => {
       state.listrapchieu = action.payload
     },
-    removeRapChieu: (state) => {
-      state.listrapchieu = []
-    }
+    
   },
   extraReducers: builder => {
     builder.addCase(addRapChieu.fulfilled, (state, action) => {
