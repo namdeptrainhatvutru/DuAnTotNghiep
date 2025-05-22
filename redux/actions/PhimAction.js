@@ -1,14 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { setPhim } from "../reducers/PhimReducer"
 
-const PhimAction = () => {
-  return (
-    <View>
-      <Text>PhimAction</Text>
-    </View>
-  )
+
+
+const api_phim = 'https://67b5f43207ba6e59083f3354.mockapi.io/Phim'
+
+export const fetchPhim = () => {
+    return async dispatch => {
+        try {
+            const response = await fetch(api_phim)
+            const data = await response.json()
+            dispatch(setPhim(data))
+        } catch (error) {
+            console.error('Error fetching phong chieu:', error)
+        }
+    }
 }
-
-export default PhimAction
-
-const styles = StyleSheet.create({})

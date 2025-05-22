@@ -23,6 +23,8 @@ import Chatbot from './UserScreen/Chatbot';
 import { Alert } from 'react-native';
 import PhongChieu from './AdminScreen/PhongChieu';
 import SuatChieu from './AdminScreen/SuatChieu';
+import QuanLyPhim from './AdminScreen/QuanLyPhim';
+import ChiTietPhim from './AdminScreen/ChiTietPhim';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -90,7 +92,7 @@ const App = () => {
     <Provider store={store}>
 
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="QuanLyRapChieu">
+        <Stack.Navigator initialRouteName="AdminScreen">
           <Stack.Screen
             name="Login"
             component={Login}
@@ -151,6 +153,17 @@ const App = () => {
             component={SuatChieu}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="QuanLyPhim"
+            component={QuanLyPhim}
+            options={{ headerShown: false }}
+          />
+<Stack.Screen
+            name="ChiTietPhim"
+            component={ChiTietPhim}
+            options={{ headerShown: false }}
+          />
+
 
 
         </Stack.Navigator>

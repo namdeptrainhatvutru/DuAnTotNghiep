@@ -60,7 +60,7 @@ const QuanLyKhachHang = () => {
       so_dien_thoai,
       ngay_sinh,
       gioi_tinh,
-      vai_tro: 2,
+      vai_tro: 1,
       diem: 0,
     };
     try {
@@ -108,7 +108,7 @@ const QuanLyKhachHang = () => {
           so_dien_thoai,
           ngay_sinh,
           gioi_tinh,
-          vai_tro: 2,
+          vai_tro: 1,
           diem: 0,
         }),
       });

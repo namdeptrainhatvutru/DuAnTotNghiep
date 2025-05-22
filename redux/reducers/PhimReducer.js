@@ -1,14 +1,24 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { createSlice } from "@reduxjs/toolkit"
 
-const PhimReducer = () => {
-  return (
-    <View>
-      <Text>PhimReducer</Text>
-    </View>
-  )
+
+  const initialState = {
+  listphim: [],
 }
 
-export default PhimReducer
 
-const styles = StyleSheet.create({})
+const PhimSlice = createSlice({
+  name: "phim",
+  initialState,
+  reducers: {
+    setPhim: (state, action) => {
+      state.listphim = action.payload
+    },
+    
+  },
+  extraReducers: builder => {
+      
+  }
+})
+
+export const { setPhim } = PhimSlice.actions
+export default PhimSlice.reducer

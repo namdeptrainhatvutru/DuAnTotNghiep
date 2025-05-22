@@ -31,7 +31,16 @@ const AdminScreen = () => {
         <Text>Quản lý khách hàng</Text>
       </TouchableOpacity>
       </View>
-      
+      <View style={{flexDirection:'row', justifyContent:'space-around', width:'100%',marginBottom:20}}>
+      <TouchableOpacity style={{backgroundColor:'white', width:200, height:200, justifyContent:'center', alignItems:'center', borderRadius:10,alignContent:'center',padding:10}} onPress={()=>{nav.navigate('QuanLyPhim')}}>
+        <Image source={require('../img/phim.png')} style={{width:100,height:100}}/>
+        <Text>Quản lý phim</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={{backgroundColor:'white', width:200, height:200, justifyContent:'center', alignItems:'center', borderRadius:10,alignContent:'center',padding:10}} onPress={()=>{nav.navigate()}}>
+        <Image source={require('../img/users.png')} style={{width:100,height:100}}/>
+        <Text>Chưa có gì</Text>
+      </TouchableOpacity>
+      </View>
     </View>
   )
 }
