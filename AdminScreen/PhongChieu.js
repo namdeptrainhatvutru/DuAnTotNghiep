@@ -27,18 +27,22 @@ const PhongChieu = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const navigation = useNavigation()
+  const [loading,setLoading] = useState(true)
   useEffect(() => {
-    dispatch(fetchPhongChieu(cinema_id));
+    setLoading(true)
+    dispatch(fetchPhongChieu(cinema_id)).then(() => {
+      setLoading(false);
+    });
   }, [cinema_id, dispatch]);
 
-  if (!listPhongChieu || listPhongChieu.length === 0 || listPhongChieu === 'Not found') {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#EA5A5A" />
-        <Text style={styles.noRoomText}>Không có phòng chiếu nào</Text>
-      </View>
-    );
-  }
+  // if () {
+  //   return (
+  //     <View style={styles.centered}>
+  //       <ActivityIndicator size="large" color="#EA5A5A" />
+  //       <Text style={styles.noRoomText}>Không có phòng chiếu nào</Text>
+  //     </View>
+  //   );
+  // }
 
   const handleAdd = () => {
     if (ten_phong.trim() === '') {
@@ -107,12 +111,23 @@ const PhongChieu = ({ route }) => {
         <Text style={styles.addBtnText}>Thêm phòng chiếu</Text>
       </TouchableOpacity>
 
-      <FlatList
-        data={listPhongChieu}
-        keyExtractor={item => item.room_id.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
-      />
+      {loading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#EA5A5A" />
+          <Text style={styles.noRoomText}>Đang tải phòng chiếu...</Text>
+        </View>
+      ) : !listPhongChieu || listPhongChieu.length === 0 || listPhongChieu === 'Not found' ? (
+        <View style={styles.centered}>
+          <Text style={styles.noRoomText}>Không có phòng chiếu nào</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={listPhongChieu}
+          keyExtractor={item => item.room_id}
+          renderItem={renderItem}
+          contentContainerStyle={{ padding: 16 }}
+        />
+      )}
 
       <Modal visible={modalVisible} animationType="slide">
         {selectedRoom && (

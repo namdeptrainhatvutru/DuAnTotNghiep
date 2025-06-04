@@ -20,18 +20,13 @@ const QuanLyPhim = () => {
   const navigation = useNavigation();
   const listphim = useSelector(state => state.phim.listphim);
   const dispatch = useDispatch();
-  const [modalVisible, setModalVisible] = React.useState(false);
-  const [selectedPhim, setSelectedPhim] = React.useState(null);
-  const trailerUrl = 'https://www.youtube.com/watch?v=vO58-WSuDZU';
-  const getYouTubeEmbedUrl = url => {
-    const videoId = url.split('v=')[1];
-    return `https://www.youtube.com/embed/${videoId}`;
-  };
+
+ 
   useEffect(() => {
     dispatch(fetchPhim());
   }, []);
   const renderItem = ({item}) => (
-    <TouchableOpacity
+    <TouchableOpacity style={{margin:5}}
       activeOpacity={0.8}
       onPress={() => {
         navigation.navigate('ChiTietPhim', { phim: item });
@@ -47,7 +42,9 @@ const QuanLyPhim = () => {
       </View>
     </TouchableOpacity>
   );
-
+  const handleAddPhim = ()=>{
+      navigation.navigate('AddPhim')
+  }
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <FlatList
@@ -57,6 +54,9 @@ const QuanLyPhim = () => {
         renderItem={renderItem}
         contentContainerStyle={styles.listContainer}
       />
+      <TouchableOpacity style={{position:'absolute',bottom:20,right:20}} onPress={handleAddPhim}>
+        <Image style={{width:70,height:70}} source={require('../img/add.png')}/>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -77,21 +77,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
   card: {
-    flex: 1 / 2,
-    margin: 8,
+    flex: 1,
+    width:220,
+    margin: 5,
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 12,
     elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.08,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
     paddingBottom: 10,
-    minWidth: 150,
     padding: 5,
     position: 'relative',
     height: 350,
+  
   },
   posterWrapper: {
     width: '100%',

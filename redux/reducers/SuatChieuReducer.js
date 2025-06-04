@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { addSuatChieu, deleteSuatChieu, updateSuatChieu } from "../actions/SuatChieuAction"
 
 
 
@@ -17,8 +18,18 @@ const SuatChieuSlice = createSlice({
     
   },
   extraReducers: builder => {
-      
-   
+      builder.addCase(addSuatChieu.fulfilled,(state,action)=>{
+        state.listsuatchieu.push(action.payload)
+      })
+      builder.addCase(deleteSuatChieu.fulfilled,(state,action)=>{
+        state.listsuatchieu = state.listsuatchieu.filter(item => item.suat_chieu_id !== action.payload)
+      })
+      builder.addCase(updateSuatChieu.fulfilled,(state,action)=>{
+        const index = state.listsuatchieu.findIndex(item => item.suat_chieu_id === action.payload.suat_chieu_id)
+        if (index !== -1) {
+          state.listsuatchieu[index] = action.payload
+        }
+      })
   }
 })
 

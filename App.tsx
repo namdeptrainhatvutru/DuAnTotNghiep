@@ -25,6 +25,9 @@ import PhongChieu from './AdminScreen/PhongChieu';
 import SuatChieu from './AdminScreen/SuatChieu';
 import QuanLyPhim from './AdminScreen/QuanLyPhim';
 import ChiTietPhim from './AdminScreen/ChiTietPhim';
+import AddPhim from './AdminScreen/AddPhim';
+import CapNhatSuatChieu from './AdminScreen/CapNhatSuatChieu';
+import ChiTietPhimUser from './UserScreen/ChiTietPhimUser';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -64,8 +67,7 @@ const MyTabs = () => {
       })}
     >
       <Tab.Screen name="Film" options={{
-        headerShown: true
-        , headerTitle: 'Trang chủ', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#EA5A5A' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },headerRight:()=>(<Icon name="comments" size={25} color="black" style={{ marginRight: 10 }} onPress={() => Alert.alert('Chatbot')} />)
+        headerShown: false
       }} component={HomeScreen} />
       <Tab.Screen name="Location" options={{
         headerShown: true
@@ -92,7 +94,7 @@ const App = () => {
     <Provider store={store}>
 
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="AdminScreen">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
             name="Login"
             component={Login}
@@ -158,9 +160,24 @@ const App = () => {
             component={QuanLyPhim}
             options={{ headerShown: false }}
           />
-<Stack.Screen
+          <Stack.Screen
             name="ChiTietPhim"
             component={ChiTietPhim}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AddPhim"
+            component={AddPhim}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="CapNhatSuatChieu"
+            component={CapNhatSuatChieu}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ChiTietPhimUser"
+            component={ChiTietPhimUser}
             options={{ headerShown: false }}
           />
 

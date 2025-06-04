@@ -1,49 +1,175 @@
-import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
-import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  Button,
+  Modal,
+  TextInput,
+} from 'react-native';
+import React, {useState} from 'react';
 import WebView from 'react-native-webview';
+import {useDispatch} from 'react-redux';
+import {deletePhim, updatePhim} from '../redux/actions/PhimAction';
+import {useNavigation} from '@react-navigation/native';
 
 const getYouTubeEmbedUrl = url => {
   if (!url) return '';
   const videoId = url.split('v=')[1];
-  return `https://www.youtube.com/embed/${videoId}`;
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&showinfo=0`;
 };
 
-const ChiTietPhim = ({ route }) => {
-  const { phim } = route.params;
+const ChiTietPhim = ({route}) => {
+  const {phim} = route.params;
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const [modal, setModal] = useState(false);
+  const [editPhim, setEditPhim] = useState(phim);
+  const [currentPhim, setCurrentPhim] = useState(phim); // Dùng state này để hiển thị
+
+  const handleDelete = phim_id => {
+    dispatch(deletePhim(phim_id)).then(() => {
+      navigation.goBack();
+    });
+  };
+
+  const handleUpdate = () => {
+    dispatch(updatePhim(editPhim)).then(() => {
+      setCurrentPhim(editPhim); // cập nhật lại phim hiển thị
+      setModal(false);
+    });
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.modalScroll}>
       <View style={styles.modalContent}>
-        <Image style={styles.modalPoster} source={{ uri: phim.poster_url }} />
-        <View style={{ width: '100%', maxWidth: 320, alignItems: 'center', marginBottom: 10 }}>
-          <WebView
-            source={{ uri: getYouTubeEmbedUrl(phim.trailer_url) }}
-            allowsFullscreenVideo
-            javaScriptEnabled
-            domStorageEnabled
-            startInLoadingState
-            style={styles.webview}
-          />
+        <Image style={styles.modalPoster} source={{uri: currentPhim.poster_url}} />
+        <View
+          style={{
+            width: '100%',
+            maxWidth: 320,
+            alignItems: 'center',
+            marginBottom: 10,
+          }}>
+          {modal === false && (
+            <WebView
+              source={{uri: getYouTubeEmbedUrl(currentPhim.trailer_url)}}
+              allowsFullscreenVideo
+              javaScriptEnabled
+              domStorageEnabled
+              startInLoadingState
+              mediaPlaybackRequiresUserAction={false}
+              style={styles.webview}
+            />
+          )}
         </View>
-        <Text style={styles.modalTitle}>{phim.ten_phim}</Text>
+
+        <Text style={styles.modalTitle}>{currentPhim.ten_phim}</Text>
         <Text style={styles.modalLabel}>
-          Đạo diễn: <Text style={styles.modalValue}>{phim.dao_dien}</Text>
+          Đạo diễn: <Text style={styles.modalValue}>{currentPhim.dao_dien}</Text>
         </Text>
         <Text style={styles.modalLabel}>
-          Thể loại: <Text style={styles.modalValue}>{phim.the_loai}</Text>
+          Thể loại: <Text style={styles.modalValue}>{currentPhim.the_loai}</Text>
         </Text>
         <Text style={styles.modalLabel}>
-          Ngôn ngữ: <Text style={styles.modalValue}>{phim.ngon_ngu}</Text>
+          Ngôn ngữ: <Text style={styles.modalValue}>{currentPhim.ngon_ngu}</Text>
         </Text>
         <Text style={styles.modalLabel}>
-          Độ tuổi: <Text style={styles.modalValue}>{phim.do_tuoi}+</Text>
+          Độ tuổi: <Text style={styles.modalValue}>{currentPhim.do_tuoi}+</Text>
         </Text>
         <Text style={styles.modalLabel}>
-          Thời lượng: <Text style={styles.modalValue}>{phim.thoi_luong} phút</Text>
+          Thời lượng:{' '}
+          <Text style={styles.modalValue}>{currentPhim.thoi_luong} phút</Text>
         </Text>
         <Text style={styles.modalLabel}>Mô tả:</Text>
-        <Text style={styles.modalDesc}>{phim.mo_ta}</Text>
+        <Text style={styles.modalDesc}>{currentPhim.mo_ta}</Text>
+        <Button
+          title="xóa"
+          onPress={() => {
+            handleDelete(currentPhim.phim_id);
+          }}
+        />
+        <Button
+          title="cập nhật"
+          onPress={() => {
+            setModal(true);
+          }}
+        />
       </View>
+
+      <Modal visible={modal} animationType="slide" transparent={true}>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'white',
+              height: '100%',
+              width: '100%',
+              padding: 20,
+            }}>
+            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 10}}>Cập nhật phim</Text>
+            <TextInput
+              placeholder="Tên phim"
+              value={editPhim.ten_phim}
+              onChangeText={text => setEditPhim({...editPhim, ten_phim: text})}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Đạo diễn"
+              value={editPhim.dao_dien}
+              onChangeText={text => setEditPhim({...editPhim, dao_dien: text})}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Ngôn ngữ"
+              value={editPhim.ngon_ngu}
+              onChangeText={text => setEditPhim({...editPhim, ngon_ngu: text})}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Độ tuổi"
+              value={editPhim.do_tuoi.toString()}
+              onChangeText={text => setEditPhim({...editPhim, do_tuoi: text})}
+              style={styles.input}
+              keyboardType="numeric"
+            />
+            <TextInput
+              placeholder="Mô tả"
+              value={editPhim.mo_ta}
+              onChangeText={text => setEditPhim({...editPhim, mo_ta: text})}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Thời lượng"
+              value={editPhim.thoi_luong.toString()}
+              onChangeText={text => setEditPhim({...editPhim, thoi_luong: text})}
+              style={styles.input}
+              keyboardType="numeric"
+            />
+            <TextInput
+              placeholder="Poster URL"
+              value={editPhim.poster_url}
+              onChangeText={text => setEditPhim({...editPhim, poster_url: text})}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Trailer URL"
+              value={editPhim.trailer_url}
+              onChangeText={text => setEditPhim({...editPhim, trailer_url: text})}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Thể loại"
+              value={editPhim.the_loai}
+              onChangeText={text => setEditPhim({...editPhim, the_loai: text})}
+              style={styles.input}
+            />
+            <Button title="Cập nhật" onPress={handleUpdate} />
+            <Button title="Đóng" onPress={() => setModal(false)} />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -101,5 +227,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 10,
     textAlign: 'center',
+  },
+  input: {
+    borderWidth: 1,
+    marginBottom: 8,
+    padding: 6,
+    borderRadius: 6,
   },
 });
