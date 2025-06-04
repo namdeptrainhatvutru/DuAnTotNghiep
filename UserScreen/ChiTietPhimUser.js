@@ -1,4 +1,11 @@
-import {Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import WebView from 'react-native-webview';
 import {useDispatch, useSelector} from 'react-redux';
@@ -7,7 +14,7 @@ import {fetchSuatChieuByPhimId} from '../redux/actions/SuatChieuAction';
 const ChiTietPhimUser = ({route}) => {
   const {phim} = route.params;
   const listSuatChieu = useSelector(state => state.suatchieu.listsuatchieu);
-  const [selected,setSelected] = useState(false)
+  const [selected, setSelected] = useState(false);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchSuatChieuByPhimId(phim.phim_id));
@@ -51,7 +58,6 @@ const ChiTietPhimUser = ({route}) => {
             padding: 5,
           }}>
           <Text style={{fontSize: 9}}> {phim.thoi_luong} phút</Text>
-          
         </View>
         <View
           style={{
@@ -63,33 +69,43 @@ const ChiTietPhimUser = ({route}) => {
           }}>
           <Text style={{color: 'gray', fontSize: 10}}>{phim.mo_ta}</Text>
         </View>
-        <View style={{borderTopWidth: 1, paddingVertical: 10,padding:5}}>
+        <View style={{borderTopWidth: 1, paddingVertical: 10, padding: 5}}>
           <Text style={{fontSize: 12, marginBottom: 5}}>Suất chiếu :</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={{flexDirection: 'row'}}>
-              {listSuatChieu.map((item, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={()=>{
-                    setSelected(item);
-                    console.log('Selected Suat Chieu:', item);
-                  }}
-                  style={{
-                    borderWidth: 1,
-                    borderRadius: 8,
-                    padding: 10,
-                    marginRight: 10,
-                    backgroundColor: selected === item ? '#d3d3d3' : '#f5f5f5',
-                    minWidth: 100,
-                    alignItems: 'center',
-                  }}>
-                  <Text>
-                    {item.thoi_gian_bat_dau}h - {item.thoi_gian_ket_thuc}h
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
+          {Array.isArray(listSuatChieu) && listSuatChieu.length > 0 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={{flexDirection: 'row'}}>
+                {listSuatChieu.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => setSelected(item)}
+                    style={{
+                      borderWidth: 1,
+                      borderRadius: 8,
+                      padding: 10,
+                      marginRight: 10,
+                      backgroundColor:
+                        selected === item ? '#d3d3d3' : '#f5f5f5',
+                      minWidth: 100,
+                      alignItems: 'center',
+                    }}>
+                    <Text>
+                      {item.thoi_gian_bat_dau}h - {item.thoi_gian_ket_thuc}h
+                    </Text>
+                    {/* Nếu là suất chiếu đang chọn thì hiện thêm ngày chiếu */}
+                    {selected === item && (
+                      <Text style={{color: 'blue', marginTop: 4, fontSize: 12}}>
+                        Ngày chiếu: {item.ngay_chieu}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          ) : (
+            <Text style={{color: 'gray', fontStyle: 'italic'}}>
+              Không có suất chiếu
+            </Text>
+          )}
         </View>
         <View style={{borderWidth: 1, borderColor: 'gray'}}></View>
         <View>
@@ -139,7 +155,7 @@ const ChiTietPhimUser = ({route}) => {
           </View>
         </View>
         <View style={{borderWidth: 1, borderColor: 'gray'}}></View>
-        <View style={{height:300}}>
+        <View style={{height: 300}}>
           <Text>Tin tức</Text>
         </View>
       </ScrollView>
@@ -154,7 +170,6 @@ const ChiTietPhimUser = ({route}) => {
           alignItems: 'center',
           justifyContent: 'center',
           padding: 10,
-          
         }}>
         <TouchableOpacity style={styles.button}>
           <Text style={{color: 'white'}}>Đặt vé</Text>
@@ -170,7 +185,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: 'red',
     padding: 10,
-    borderRadius: 15,
+    borderRadius: 25,
     alignItems: 'center',
 
     width: '80%',

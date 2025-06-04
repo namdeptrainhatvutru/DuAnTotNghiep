@@ -4,6 +4,7 @@ import RapChieuReducer from "../reducers/RapChieuReducer"
 import PhongChieuReducer from "../reducers/PhongChieuReducer";
 import SuatChieuReducer from "../reducers/SuatChieuReducer";
 import PhimReducer from "../reducers/PhimReducer";
+import ThanhToanReducer from "../reducers/ThanhToanReducer"
 export default configureStore(
     {
         reducer:{
@@ -12,6 +13,7 @@ export default configureStore(
             phongchieu : PhongChieuReducer,
             suatchieu : SuatChieuReducer,
             phim : PhimReducer,
+            thanhtoan: ThanhToanReducer,
         }
     }
 )
