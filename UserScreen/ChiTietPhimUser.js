@@ -10,9 +10,11 @@ import React, {useEffect, useState} from 'react';
 import WebView from 'react-native-webview';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchSuatChieuByPhimId} from '../redux/actions/SuatChieuAction';
+import { useNavigation } from '@react-navigation/native';
 
 const ChiTietPhimUser = ({route}) => {
   const {phim} = route.params;
+  const navigation = useNavigation();
   const listSuatChieu = useSelector(state => state.suatchieu.listsuatchieu);
   const [selected, setSelected] = useState(false);
   const dispatch = useDispatch();
@@ -24,6 +26,16 @@ const ChiTietPhimUser = ({route}) => {
     const videoId = url.split('v=')[1];
     return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&showinfo=0`;
   };
+  const handleDatVe = () => {
+  if (!selected) {
+    alert('Vui lòng chọn suất chiếu!');
+    return;
+  }
+  navigation.navigate('ThongTinVe', {
+    suatChieu: selected,
+    phim,
+  });
+};
   return (
     <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={{paddingBottom: 100}}>
@@ -171,9 +183,9 @@ const ChiTietPhimUser = ({route}) => {
           justifyContent: 'center',
           padding: 10,
         }}>
-        <TouchableOpacity style={styles.button}>
-          <Text style={{color: 'white'}}>Đặt vé</Text>
-        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleDatVe}>
+  <Text style={{color: 'white'}}>Đặt vé</Text>
+</TouchableOpacity>
       </View>
     </View>
   );

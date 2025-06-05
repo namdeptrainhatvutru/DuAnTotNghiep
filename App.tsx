@@ -28,6 +28,7 @@ import ChiTietPhim from './AdminScreen/ChiTietPhim';
 import AddPhim from './AdminScreen/AddPhim';
 import CapNhatSuatChieu from './AdminScreen/CapNhatSuatChieu';
 import ChiTietPhimUser from './UserScreen/ChiTietPhimUser';
+import ThongTinVe from './UserScreen/ThongTinVe';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -180,7 +181,8 @@ const App = () => {
             component={ChiTietPhimUser}
             options={{ headerShown: false }}
           />
-
+          <Stack.Screen name="ThongTinVe"
+           component={ThongTinVe} />
 
 
         </Stack.Navigator>

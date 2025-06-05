@@ -15,6 +15,18 @@ export const fetchPhongChieu = (cinema_id) => {
         }
     }
 }
+//fetch tất cả phòng chiếu
+export const fetchAllPhongChieu = () => {
+    return async dispatch => {
+        try {
+            const response = await fetch(api_phong_chieu)
+            const data = await response.json()
+            dispatch(setPhongChieu(data))
+        } catch (error) {
+            console.error('Error fetching all phong chieu:', error)
+        }
+    }
+}
 
 export const addPhongChieu = createAsyncThunk(
     'phongchieu/addPhongChieu',
