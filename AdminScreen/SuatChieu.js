@@ -95,13 +95,13 @@ const SuatChieu = ({route}) => {
       </View>
     );
   };
-  if (!Array.isArray(listsuatchieu) || listsuatchieu.length === 0) {
-    return (
-      <View>
-        <Text>Không có suất chiếu nào</Text>
-      </View>
-    );
-  }
+  if (loading) {
+  return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <Text>Đang tải dữ liệu...</Text>
+    </View>
+  );
+}
 
   const handleAddSuatCHieu = () => {
     const suatchieu = {
@@ -126,22 +126,24 @@ const SuatChieu = ({route}) => {
   return (
     <View style={{flex: 1, padding: 10}}>
       <TouchableOpacity
-        onPress={() => {
-          setModal(true);
-        }}
-        style={{position: 'absolute', zIndex: 2, right: 20, bottom: 90}}>
-        <Image
-          style={{width: 80, height: 80}}
-          source={require('../img/add.png')}
-        />
-      </TouchableOpacity>
-      <Text>Phòng : {ten_phong}</Text>
-      <Text>Danh sách suất chiếu</Text>
+      onPress={() => setModal(true)}
+      style={{position: 'absolute', zIndex: 2, right: 20, bottom: 90}}>
+      <Image
+        style={{width: 80, height: 80}}
+        source={require('../img/add.png')}
+      />
+    </TouchableOpacity>
+    <Text>Phòng : {ten_phong}</Text>
+    <Text>Danh sách suất chiếu</Text>
+    {(!Array.isArray(listsuatchieu) || listsuatchieu.length === 0) ? (
+      <Text>Không có suất chiếu nào</Text>
+    ) : (
       <FlatList
         data={listsuatchieu}
         keyExtractor={item => item.suat_chieu_id}
         renderItem={renderItem}
       />
+    )}
       <Modal visible={modal} animationType="slide">
         <View
           style={{

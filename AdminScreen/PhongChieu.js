@@ -17,6 +17,7 @@ import {
   fetchPhongChieu,
   updatePhongChieu,
 } from '../redux/actions/PhongChieuAction';
+import { addGhe, deleteGheByRoomId } from '../redux/actions/GheAction';
 import { useNavigation } from '@react-navigation/native';
 
 const PhongChieu = ({ route }) => {
@@ -35,14 +36,6 @@ const PhongChieu = ({ route }) => {
     });
   }, [cinema_id, dispatch]);
 
-  // if () {
-  //   return (
-  //     <View style={styles.centered}>
-  //       <ActivityIndicator size="large" color="#EA5A5A" />
-  //       <Text style={styles.noRoomText}>Không có phòng chiếu nào</Text>
-  //     </View>
-  //   );
-  // }
 
   const handleAdd = () => {
     if (ten_phong.trim() === '') {
@@ -53,15 +46,29 @@ const PhongChieu = ({ route }) => {
       ten_phong: ten_phong,
       cinema_id: cinema_id,
     };
-    dispatch(addPhongChieu(newRoom)).then(() => {
+    dispatch(addPhongChieu(newRoom)).then((res) => {
       setTen_Phong('');
+      // Sau khi thêm phòng chiếu thành công, tạo 30 ghế
+      // res.payload là phòng vừa tạo, thường có room_id
+      const createdRoom = res.payload;
+      if (createdRoom && createdRoom.room_id) {
+        for (let i = 1; i <= 30; i++) {
+          const newGhe = {
+            vi_tri: `G${i}`,
+            room_id: createdRoom.room_id,
+            trang_thai:'trống',
+          };
+          dispatch(addGhe(newGhe));
+        }
+      }
     });
   };
 
   const handleDelete = room_id => {
     dispatch(deletePhongChieu(room_id));
+    // Xóa tất cả ghế liên quan đến phòng chiếu này
+    dispatch(deleteGheByRoomId(room_id))
   };
-
   const handleEdit = () => {
     const updatedRoom = {
       room_id: selectedRoom.room_id,

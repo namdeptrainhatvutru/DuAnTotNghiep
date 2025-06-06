@@ -29,6 +29,7 @@ import AddPhim from './AdminScreen/AddPhim';
 import CapNhatSuatChieu from './AdminScreen/CapNhatSuatChieu';
 import ChiTietPhimUser from './UserScreen/ChiTietPhimUser';
 import ThongTinVe from './UserScreen/ThongTinVe';
+import VeCuaBan from './UserScreen/VeCuaBan';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -182,8 +183,9 @@ const App = () => {
             options={{ headerShown: false }}
           />
           <Stack.Screen name="ThongTinVe"
-           component={ThongTinVe} />
-
+            component={ThongTinVe} />
+          <Stack.Screen name="VeCuaBan"
+            component={VeCuaBan} />
 
         </Stack.Navigator>
       </NavigationContainer>

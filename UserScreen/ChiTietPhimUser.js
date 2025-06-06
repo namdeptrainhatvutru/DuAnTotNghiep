@@ -183,9 +183,16 @@ const ChiTietPhimUser = ({route}) => {
           justifyContent: 'center',
           padding: 10,
         }}>
-        <TouchableOpacity style={styles.button} onPress={handleDatVe}>
-  <Text style={{color: 'white'}}>Đặt vé</Text>
-</TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            { backgroundColor: selected ? 'red' : 'gray' }
+          ]}
+          onPress={handleDatVe}
+          disabled={!selected}
+        >
+          <Text style={{color: 'white'}}>Đặt vé</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
