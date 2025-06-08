@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { SafeAreaView, Text, View, StyleSheet } from 'react-native';
-import { Camera, useCameraDevice, useCodeScanner } from 'react-native-vision-camera';
+import React, {useState} from 'react';
+import {SafeAreaView, Text, View, StyleSheet} from 'react-native';
+import {
+  Camera,
+  useCameraDevice,
+  useCodeScanner,
+} from 'react-native-vision-camera';
 
 const StaffScreen = () => {
   const device = useCameraDevice('back');
@@ -9,13 +13,13 @@ const StaffScreen = () => {
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
-    onCodeScanned: (codes) => {
+    onCodeScanned: codes => {
       for (const code of codes) {
         setIsScanning(false);
         try {
           setQrInfo(JSON.parse(code.value));
         } catch (e) {
-          setQrInfo({ error: 'Không phát hiện QR hợp lệ' });
+          setQrInfo({error: 'Không phát hiện QR hợp lệ'});
         }
       }
     },
@@ -41,19 +45,42 @@ const StaffScreen = () => {
       </View>
       <View style={styles.infoContainer}>
         <Text style={styles.infoTitle}>Thông tin QR:</Text>
-        <Text style={{ color: '#fff' }}>
-          {qrInfo && qrInfo.ten_phim ? qrInfo.ten_phim : ""}
+        <Text style={{color: '#fff'}}>
+          Phim : {qrInfo ? qrInfo.ten_phim : ''}
         </Text>
+        <Text style={{color: '#fff'}}>
+          Tên phòng : {qrInfo ? qrInfo.ten_phong : ''}
+        </Text>
+        <Text style={{color: '#fff'}}>
+          Vị trí ghế : {qrInfo ? qrInfo.vi_tri_ghe : ''}
+        </Text>
+        <Text style={{color: '#fff'}}>
+          Ngày chiếu : {qrInfo ? qrInfo.ngay_chieu : ''}
+        </Text>
+        <Text style={{color: '#fff'}}>
+          Địa chỉ : {qrInfo ? qrInfo.dia_chi_rap : ''}
+        </Text>
+        <Text style={{color: '#fff'}}>
+          Giờ chiếu : {qrInfo ? qrInfo.gio_chieu : ''}
+        </Text>
+        <Text style={{color: '#fff'}}>
+          Trạng thái:{' '}
+          {qrInfo && qrInfo.ngay_chieu
+            ? new Date(qrInfo.ngay_chieu.split('/').reverse().join('-')) <
+              new Date()
+              ? 'Quá hạn'
+              : 'Còn hạn'
+            : ''}
+        </Text>
+
         {!isScanning && (
-          <View style={{ marginTop: 20 }}>
-            <Text style={{ color: '#fff', marginBottom: 10 }}>Đã quét xong!</Text>
+          <View style={{marginTop: 20}}>
             <Text
               style={styles.scanAgainButton}
               onPress={() => {
                 setIsScanning(true);
                 setQrInfo(null);
-              }}
-            >
+              }}>
               Quét tiếp
             </Text>
           </View>
@@ -90,8 +117,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     marginHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   infoTitle: {
     color: '#fff',

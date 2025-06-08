@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { addSuatChieu, deleteSuatChieu, updateSuatChieu } from "../actions/SuatChieuAction"
+import { addSuatChieu, deleteAllSuatChieuByRoomId, deleteSuatChieu, updateSuatChieu } from "../actions/SuatChieuAction"
 
 
 
@@ -30,6 +30,12 @@ const SuatChieuSlice = createSlice({
           state.listsuatchieu[index] = action.payload
         }
       })
+      builder.addCase(deleteAllSuatChieuByRoomId.fulfilled, (state, action) => {
+    // action.payload là mảng suat_chieu_id đã xóa
+    state.listsuatchieu = state.listsuatchieu.filter(
+      suat => !action.payload.includes(suat.suat_chieu_id)
+    );
+  });
   }
 })
 

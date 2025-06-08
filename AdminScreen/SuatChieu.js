@@ -96,12 +96,12 @@ const SuatChieu = ({route}) => {
     );
   };
   if (loading) {
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>Đang tải dữ liệu...</Text>
-    </View>
-  );
-}
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <Text>Đang tải dữ liệu...</Text>
+      </View>
+    );
+  }
 
   const handleAddSuatCHieu = () => {
     const suatchieu = {
@@ -112,8 +112,13 @@ const SuatChieu = ({route}) => {
       phim_id: phim_id,
     };
     dispatch(addSuatChieu(suatchieu)).then(() => {
-      Alert.alert('thêm ok');
+      dispatch(fetchSuatChieu(room_id)); // fetch lại danh sách sau khi thêm
+      Alert.alert('Thêm thành công');
       setModal(false);
+      setngay_chieu('');
+      setthoi_gian_bat_dau('');
+      setthoi_gian_ket_thuc('');
+      setphim_id('');
     });
   };
   if (loading) {
@@ -126,24 +131,24 @@ const SuatChieu = ({route}) => {
   return (
     <View style={{flex: 1, padding: 10}}>
       <TouchableOpacity
-      onPress={() => setModal(true)}
-      style={{position: 'absolute', zIndex: 2, right: 20, bottom: 90}}>
-      <Image
-        style={{width: 80, height: 80}}
-        source={require('../img/add.png')}
-      />
-    </TouchableOpacity>
-    <Text>Phòng : {ten_phong}</Text>
-    <Text>Danh sách suất chiếu</Text>
-    {(!Array.isArray(listsuatchieu) || listsuatchieu.length === 0) ? (
-      <Text>Không có suất chiếu nào</Text>
-    ) : (
-      <FlatList
-        data={listsuatchieu}
-        keyExtractor={item => item.suat_chieu_id}
-        renderItem={renderItem}
-      />
-    )}
+        onPress={() => setModal(true)}
+        style={{position: 'absolute', zIndex: 2, right: 20, bottom: 90}}>
+        <Image
+          style={{width: 80, height: 80}}
+          source={require('../img/add.png')}
+        />
+      </TouchableOpacity>
+      <Text>Phòng : {ten_phong}</Text>
+      <Text>Danh sách suất chiếu</Text>
+      {!Array.isArray(listsuatchieu) || listsuatchieu.length === 0 ? (
+        <Text>Không có suất chiếu nào</Text>
+      ) : (
+        <FlatList
+          data={listsuatchieu}
+          keyExtractor={item => item.suat_chieu_id}
+          renderItem={renderItem}
+        />
+      )}
       <Modal visible={modal} animationType="slide">
         <View
           style={{
@@ -181,7 +186,8 @@ const SuatChieu = ({route}) => {
             onPress={() => setPhimModal(true)}>
             <Text>
               {phim_id
-                ? (listphim.find(p => p.phim_id === phim_id)?.ten_phim || 'Chọn phim')
+                ? listphim.find(p => p.phim_id === phim_id)?.ten_phim ||
+                  'Chọn phim'
                 : 'Chọn phim'}
             </Text>
           </TouchableOpacity>
@@ -207,7 +213,9 @@ const SuatChieu = ({route}) => {
               width: 320,
               maxHeight: 400,
             }}>
-            <Text style={{fontWeight: 'bold', marginBottom: 10}}>Chọn phim</Text>
+            <Text style={{fontWeight: 'bold', marginBottom: 10}}>
+              Chọn phim
+            </Text>
             <ScrollView horizontal={false}>
               {listphim.map(item => (
                 <TouchableOpacity

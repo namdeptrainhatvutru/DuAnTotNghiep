@@ -78,3 +78,23 @@ export const fetchSuatChieuByPhimId = (phim_id) => {
         }
     }
 }
+
+
+export const deleteAllSuatChieuByRoomId = createAsyncThunk(
+  'suatchieu/deleteAllByRoomId',
+  async (room_id, { getState, dispatch }) => {
+    // Lấy danh sách suất chiếu từ state
+    const { suatchieu } = getState();
+    const suatChieuList = suatchieu.listsuatchieu || [];
+    // Lọc các suất chiếu có room_id cần xóa
+    const toDelete = suatChieuList.filter(suat => suat.room_id === room_id);
+    // Xóa từng suất chiếu
+    await Promise.all(
+      toDelete.map(suat =>
+        fetch(`${api_suat_chieu}/${suat.suat_chieu_id}`, { method: 'DELETE' })
+      )
+    );
+    // Trả về mảng id đã xóa (nếu cần)
+    return toDelete.map(suat => suat.suat_chieu_id);
+  }
+);

@@ -9,33 +9,33 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   addPhongChieu,
   deletePhongChieu,
   fetchPhongChieu,
   updatePhongChieu,
 } from '../redux/actions/PhongChieuAction';
-import { addGhe, deleteGheByRoomId } from '../redux/actions/GheAction';
-import { useNavigation } from '@react-navigation/native';
+import {addGhe, deleteGheByRoomId} from '../redux/actions/GheAction';
+import {useNavigation} from '@react-navigation/native';
+import {deleteAllSuatChieuByRoomId, deleteSuatChieu} from '../redux/actions/SuatChieuAction';
 
-const PhongChieu = ({ route }) => {
-  const { cinema_id, ten_rap } = route.params;
+const PhongChieu = ({route}) => {
+  const {cinema_id, ten_rap} = route.params;
   const dispatch = useDispatch();
   const [ten_phong, setTen_Phong] = useState('');
   const listPhongChieu = useSelector(state => state.phongchieu.listphongchieu);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
-  const navigation = useNavigation()
-  const [loading,setLoading] = useState(true)
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     dispatch(fetchPhongChieu(cinema_id)).then(() => {
       setLoading(false);
     });
   }, [cinema_id, dispatch]);
-
 
   const handleAdd = () => {
     if (ten_phong.trim() === '') {
@@ -46,7 +46,7 @@ const PhongChieu = ({ route }) => {
       ten_phong: ten_phong,
       cinema_id: cinema_id,
     };
-    dispatch(addPhongChieu(newRoom)).then((res) => {
+    dispatch(addPhongChieu(newRoom)).then(res => {
       setTen_Phong('');
       // Sau khi thêm phòng chiếu thành công, tạo 30 ghế
       // res.payload là phòng vừa tạo, thường có room_id
@@ -56,7 +56,7 @@ const PhongChieu = ({ route }) => {
           const newGhe = {
             vi_tri: `G${i}`,
             room_id: createdRoom.room_id,
-            trang_thai:'trống',
+            trang_thai: 'trống',
           };
           dispatch(addGhe(newGhe));
         }
@@ -67,7 +67,9 @@ const PhongChieu = ({ route }) => {
   const handleDelete = room_id => {
     dispatch(deletePhongChieu(room_id));
     // Xóa tất cả ghế liên quan đến phòng chiếu này
-    dispatch(deleteGheByRoomId(room_id))
+    dispatch(deleteGheByRoomId(room_id));
+    dispatch(deleteAllSuatChieuByRoomId(room_id));
+    
   };
   const handleEdit = () => {
     const updatedRoom = {
@@ -87,18 +89,29 @@ const PhongChieu = ({ route }) => {
     setTen_Phong(item.ten_phong);
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({item}) => (
     <View style={styles.card}>
       <Text style={styles.roomTitle}>Phòng: {item.ten_phong}</Text>
       <Text style={styles.roomId}>ID: {item.room_id}</Text>
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.room_id)}>
+        <TouchableOpacity
+          style={styles.deleteBtn}
+          onPress={() => handleDelete(item.room_id)}>
           <Text style={styles.btnText}>Xóa</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.editBtn} onPress={() => openModal(item)}>
+        <TouchableOpacity
+          style={styles.editBtn}
+          onPress={() => openModal(item)}>
           <Text style={styles.btnText}>Cập nhật</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.editBtn,{backgroundColor:'green'}]} onPress={() => {navigation.navigate('SuatChieu', { room_id: item.room_id, ten_phong: item.ten_phong })}}>
+        <TouchableOpacity
+          style={[styles.editBtn, {backgroundColor: 'green'}]}
+          onPress={() => {
+            navigation.navigate('SuatChieu', {
+              room_id: item.room_id,
+              ten_phong: item.ten_phong,
+            });
+          }}>
           <Text style={styles.btnText}>Suất chiếu</Text>
         </TouchableOpacity>
       </View>
@@ -123,7 +136,9 @@ const PhongChieu = ({ route }) => {
           <ActivityIndicator size="large" color="#EA5A5A" />
           <Text style={styles.noRoomText}>Đang tải phòng chiếu...</Text>
         </View>
-      ) : !listPhongChieu || listPhongChieu.length === 0 || listPhongChieu === 'Not found' ? (
+      ) : !listPhongChieu ||
+        listPhongChieu.length === 0 ||
+        listPhongChieu === 'Not found' ? (
         <View style={styles.centered}>
           <Text style={styles.noRoomText}>Không có phòng chiếu nào</Text>
         </View>
@@ -132,7 +147,7 @@ const PhongChieu = ({ route }) => {
           data={listPhongChieu}
           keyExtractor={item => item.room_id}
           renderItem={renderItem}
-          contentContainerStyle={{ padding: 16 }}
+          contentContainerStyle={{padding: 16}}
         />
       )}
 
@@ -153,8 +168,7 @@ const PhongChieu = ({ route }) => {
               onPress={() => {
                 setModalVisible(false);
                 setTen_Phong('');
-              }}
-            >
+              }}>
               <Text style={styles.btnText}>Đóng</Text>
             </TouchableOpacity>
           </View>
@@ -208,7 +222,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,

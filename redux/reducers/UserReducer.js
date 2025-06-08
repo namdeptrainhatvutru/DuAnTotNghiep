@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { addUser } from "../actions/UserAction"
+import { addUser, deleteUser, updateUser } from "../actions/UserAction"
 
 
 const initialState ={
@@ -21,6 +21,12 @@ const UserSlice = createSlice(
         extraReducers: builder =>{
             builder.addCase(addUser.fulfilled, (state, action) => {
                 state.user = action.payload
+            })
+            builder.addCase(updateUser.fulfilled, (state, action) => {
+                state.user = action.payload
+            })
+            builder.addCase(deleteUser.fulfilled, (state, action) => {
+                state.user = null
             })
         }
     }

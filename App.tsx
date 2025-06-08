@@ -30,6 +30,7 @@ import CapNhatSuatChieu from './AdminScreen/CapNhatSuatChieu';
 import ChiTietPhimUser from './UserScreen/ChiTietPhimUser';
 import ThongTinVe from './UserScreen/ThongTinVe';
 import VeCuaBan from './UserScreen/VeCuaBan';
+import KhoVe from './UserScreen/KhoVe';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -186,6 +187,8 @@ const App = () => {
             component={ThongTinVe} />
           <Stack.Screen name="VeCuaBan"
             component={VeCuaBan} />
+            <Stack.Screen name="KhoVe"
+            component={KhoVe} />
 
         </Stack.Navigator>
       </NavigationContainer>

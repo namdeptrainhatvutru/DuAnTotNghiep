@@ -8,8 +8,8 @@ const DifferentScreen = () => {
     <View>
       <Text>DifferentScreen</Text>
 
-      <TouchableOpacity onPress={()=>{navigation.navigate('VeCuaBan')}}>
-        <Text>vé của bạn</Text>
+      <TouchableOpacity onPress={()=>{navigation.navigate('KhoVe')}}>
+        <Text>Kho vé của bạn</Text>
       </TouchableOpacity>
     </View>
   )

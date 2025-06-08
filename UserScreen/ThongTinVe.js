@@ -1,19 +1,24 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, ActivityIndicator, TouchableOpacity} from 'react-native';
+import {View, Text, ActivityIndicator, TouchableOpacity, ToastAndroid} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchAllPhongChieu} from '../redux/actions/PhongChieuAction';
 import {fetchRapChieu} from '../redux/actions/RapChieuAction';
 import QRCode from 'react-native-qrcode-svg';
-import {fetchGheByRoomId} from '../redux/actions/GheAction';
+import {fetchGheByRoomId, updateNhieuGhe} from '../redux/actions/GheAction';
+import {useNavigation} from '@react-navigation/native';
+import {addVe} from '../redux/actions/VeAction';
+import { tangDiemUser } from '../redux/actions/UserAction';
 
 const ThongTinVe = ({route}) => {
   const {suatChieu, phim} = route.params;
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const listRapChieu = useSelector(state => state.rapchieu.listrapchieu);
   const listPhongChieu = useSelector(state => state.phongchieu.listphongchieu);
   const listghe = useSelector(state => state.ghe.listghe);
   console.log(listghe);
-
+  // lấy khách hàng
+  const user = useSelector(state => state.user.user);
   const [loading, setLoading] = useState(true);
   const [gheSelected, setGheSelected] = useState([]);
   useEffect(() => {
@@ -57,14 +62,16 @@ const ThongTinVe = ({route}) => {
     return numA - numB;
   });
   const thongTinVe = {
+    khach_hang_id: user.khach_hang_id,
     ten_phim: phim.ten_phim,
     ngay_chieu: suatChieu.ngay_chieu,
     gio_chieu: `${suatChieu.thoi_gian_bat_dau}h - ${suatChieu.thoi_gian_ket_thuc}h`,
     ten_phong: phongchieu?.ten_phong,
     dia_chi_rap: rapchieu?.dia_chi,
     vi_tri_ghe: gheSelected.join(','),
+    trang_thai: 'chưa sử dụng',
   };
-  const qrData = JSON.stringify(thongTinVe);
+  thongTinVe.ma_qr = JSON.stringify(thongTinVe);
 
   return (
     <View style={{padding: 20}}>
@@ -118,20 +125,29 @@ const ThongTinVe = ({route}) => {
       </View>
 
       <TouchableOpacity
-  style={{
-    backgroundColor: gheSelected.length ==0? 'gray':'red',
-    padding: 20,
-    borderRadius: 15,
-    position: 'absolute',
-    // bottom: 30,
-    alignSelf: 'center',
-  }}
-  disabled={gheSelected.length ==0? true: false}
->
-  <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
-    Thanh toán: {gheSelected.length * 129000} đ
-  </Text>
-</TouchableOpacity>
+        style={{
+          backgroundColor: gheSelected.length == 0 ? 'gray' : 'red',
+          padding: 20,
+          borderRadius: 15,
+          position: 'absolute',
+          bottom: -90,
+          alignSelf: 'center',
+        }}
+        disabled={gheSelected.length == 0 ? true : false}
+        onPress={async () => {
+          await dispatch(updateNhieuGhe({listghe, gheSelected}));
+          await dispatch(addVe(thongTinVe));
+          await dispatch(tangDiemUser(user))
+          ToastAndroid.show("Tích điểm: +10 điểm",ToastAndroid.SHORT)
+          navigation.navigate('VeCuaBan', {
+            thongTinVe: thongTinVe,
+            qrData: thongTinVe.ma_qr,
+          });
+        }}>
+        <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>
+          Thanh toán: {gheSelected.length * 129000} đ
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };

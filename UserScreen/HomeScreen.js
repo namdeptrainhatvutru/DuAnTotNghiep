@@ -43,7 +43,7 @@ const HomeScreen = () => {
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: 50 }}>
           <Image style={{ width: 20, height: 20 }} source={require('../img/diem.png')} />
-          <Text style={{ fontSize: 8 }}>0</Text>
+          <Text style={{ fontSize: 8 }}>{user.diem}</Text>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: 50 }}>
           <Image style={{ width: 20, height: 20 }} source={require('../img/voucher.png')} />

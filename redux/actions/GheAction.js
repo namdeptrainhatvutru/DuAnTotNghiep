@@ -57,7 +57,9 @@ export const deleteGhe = createAsyncThunk(
 export const updateGhe = createAsyncThunk(
     'ghe/updateGhe',
     async (ghe) => {
-        const response = await fetch(`${link_ghe}/${ghe.id}`, {
+        // Sử dụng seat_id thay vì id nếu dữ liệu ghế có trường seat_id
+        const id = ghe.seat_id || ghe.id;
+        const response = await fetch(`${link_ghe}/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(ghe)
@@ -77,5 +79,22 @@ export const deleteGheByRoomId = createAsyncThunk(
       await dispatch(deleteGhe(ghe.seat_id));
     }
     return room_id;
+  }
+);
+
+export const updateNhieuGhe = createAsyncThunk(
+  'ghe/updateNhieuGhe',
+  async ({ listghe, gheSelected }, { dispatch }) => {
+    // listghe: danh sách tất cả ghế của phòng
+    // gheSelected: mảng các vị trí ghế đã chọn
+    const promises = gheSelected.map(vi_tri => {
+      const ghe = listghe.find(g => g.vi_tri === vi_tri);
+      if (ghe) {
+        return dispatch(updateGhe({ ...ghe, trang_thai: 'đã chọn' }));
+      }
+      return null;
+    });
+    await Promise.all(promises);
+    return gheSelected;
   }
 );
