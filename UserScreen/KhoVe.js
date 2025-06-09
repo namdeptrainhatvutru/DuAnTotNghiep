@@ -46,7 +46,7 @@ const KhoVe = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Kho Vé</Text>
+      <Text style={styles.header}>Kho vé của bạn</Text>
       <FlatList
         data={listve}
         keyExtractor={item => item.ve_id}

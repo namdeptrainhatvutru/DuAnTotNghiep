@@ -20,7 +20,7 @@ import QuanLyVoucher from './AdminScreen/QuanLyVoucher';
 import QuanLyRapChieu from './AdminScreen/QuanLyRapChieu';
 import QuanLyKhachHang from './AdminScreen/QuanLyKhachHang';
 import Chatbot from './UserScreen/Chatbot';
-import { Alert } from 'react-native';
+import { Alert, TouchableOpacity } from 'react-native';
 import PhongChieu from './AdminScreen/PhongChieu';
 import SuatChieu from './AdminScreen/SuatChieu';
 import QuanLyPhim from './AdminScreen/QuanLyPhim';
@@ -44,7 +44,14 @@ const MyTabs = () => {
           backgroundColor: 'white',
           height: 60,
         },
-        tabBarLabelStyle: { fontSize: 14, },
+        tabBarLabelStyle: { fontSize: 7, },
+        tabBarButton: (props) => {
+          const { delayLongPress, ...rest } = props;
+          const filteredProps = delayLongPress === null
+            ? rest
+            : { delayLongPress, ...rest };
+          return <TouchableOpacity activeOpacity={0.7} {...filteredProps} />;
+        },
         tabBarIcon: ({ focused }) => {
           let iconName = '';
           if (route.name === 'Film') {
@@ -61,7 +68,7 @@ const MyTabs = () => {
           return (
             <Icon
               name={iconName}
-              size={focused ? 30 : 24}
+              size={focused ? 25 : 20}
               color={focused ? 'red' : 'gray'}
               style={{ opacity: focused ? 2 : 0.5 }}
             />
