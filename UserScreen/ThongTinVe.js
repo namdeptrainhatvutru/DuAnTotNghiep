@@ -16,7 +16,6 @@ const ThongTinVe = ({route}) => {
   const listRapChieu = useSelector(state => state.rapchieu.listrapchieu);
   const listPhongChieu = useSelector(state => state.phongchieu.listphongchieu);
   const listghe = useSelector(state => state.ghe.listghe);
-  console.log(listghe);
   // lấy khách hàng
   const user = useSelector(state => state.user.user);
   const [loading, setLoading] = useState(true);
@@ -30,6 +29,7 @@ const ThongTinVe = ({route}) => {
     };
     fetchData();
   }, []);
+
   const handleSelectGhe = vi_tri => {
     setGheSelected(
       prev =>
@@ -55,12 +55,23 @@ const ThongTinVe = ({route}) => {
     );
   }
 
-  // Sắp xếp ghế theo số thứ tự trong vi_tri (G1, G2, ..., G30)
-  const sortedGhe = [...listghe].sort((a, b) => {
-    const numA = parseInt(a.vi_tri.replace('G', ''), 10);
-    const numB = parseInt(b.vi_tri.replace('G', ''), 10);
-    return numA - numB;
-  });
+  // Sắp xếp ghế theo số thứ tự trong vi_tri (G1, G2, ..., G30) và lọc trùng
+  const sortedGhe = [];
+  const seen = new Set();
+  [...listghe]
+    .sort((a, b) => {
+      const numA = parseInt(a.vi_tri.replace('G', ''), 10);
+      const numB = parseInt(b.vi_tri.replace('G', ''), 10);
+      return numA - numB;
+    })
+    .forEach(ghe => {
+      const key = ghe.room_id + '-' + ghe.vi_tri;
+      if (!seen.has(key)) {
+        sortedGhe.push(ghe);
+        seen.add(key);
+      }
+    });
+
   const thongTinVe = {
     khach_hang_id: user.khach_hang_id,
     ten_phim: phim.ten_phim,
@@ -98,7 +109,7 @@ const ThongTinVe = ({route}) => {
             }}>
             {sortedGhe.map((gheItem, index) => (
               <TouchableOpacity
-                key={index}
+                key={gheItem.room_id + '-' + gheItem.vi_tri}
                 onPress={() => handleSelectGhe(gheItem.vi_tri)}>
                 <View
                   style={{

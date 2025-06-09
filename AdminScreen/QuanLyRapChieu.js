@@ -1,4 +1,5 @@
 import {
+  Alert,
   FlatList,
   Image,
   Modal,
@@ -38,11 +39,14 @@ const QuanLyRapChieu = () => {
     }
     const rapchieu = {ten_rap, dia_chi};
     dispatch(addRapChieu(rapchieu)).then(() => {
-      setModalVisible(false);
-      setTenRap('');
-      setDiaChi('');
-      dispatch(fetchRapChieu());
-    });
+  setModalVisible(false);
+  setTenRap('');
+  setDiaChi('');
+  Alert.alert('thêm thành công')
+  setTimeout(() => {
+    dispatch(fetchRapChieu());
+  }, 300); // 300ms
+});
   };
 
   const handleDeleteRapChieu = id => {

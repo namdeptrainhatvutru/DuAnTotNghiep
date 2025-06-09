@@ -17,8 +17,12 @@ const RapChieuSlice = createSlice({
   },
   extraReducers: builder => {
     builder.addCase(addRapChieu.fulfilled, (state, action) => {
-      state.listrapchieu.push(action.payload)
-    })
+  if (state.listrapchieu && Array.isArray(state.listrapchieu)) {
+    state.listrapchieu.push(action.payload);
+  } else {
+    state.listrapchieu = [action.payload];
+  }
+});
     builder.addCase(deleteRapChieu.fulfilled,(state,action)=>{
         const id = action.payload
         state.listrapchieu = state.listrapchieu.filter(item => item.cinema_id !== id)

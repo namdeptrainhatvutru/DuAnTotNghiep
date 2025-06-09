@@ -17,9 +17,13 @@ const PhongChieuSlice = createSlice({
     
   },
   extraReducers: builder => {
-      builder.addCase(addPhongChieu.fulfilled,(state,action)=>{
-        state.listphongchieu.push(action.payload)
-      })
+      builder.addCase(addPhongChieu.fulfilled, (state, action) => {
+  if (state.listphongchieu && Array.isArray(state.listphongchieu)) {
+    state.listphongchieu.push(action.payload);
+  } else {
+    state.listphongchieu = [action.payload];
+  }
+});
       builder.addCase(deletePhongChieu.fulfilled,(state,action)=>{
         state.listphongchieu = state.listphongchieu.filter(item => item.room_id !== action.payload)
       })

@@ -17,6 +17,17 @@ export const fetchSuatChieu = (room_id) => {
         }
     }
 }
+export const fetchAllSuatChieu = () => {
+    return async dispatch => {
+        try {
+            const response = await fetch(`${api_suat_chieu}`)
+            const data = await response.json()
+            dispatch(setSuatChieu(data))
+        } catch (error) {
+            console.error('Error fetching suat chieu:', error)
+        }
+    }
+}
 
 export const addSuatChieu = createAsyncThunk(
     'suatchieu/addSuatChieu',

@@ -47,21 +47,22 @@ const PhongChieu = ({route}) => {
       cinema_id: cinema_id,
     };
     dispatch(addPhongChieu(newRoom)).then(res => {
-      setTen_Phong('');
-      // Sau khi thêm phòng chiếu thành công, tạo 30 ghế
-      // res.payload là phòng vừa tạo, thường có room_id
-      const createdRoom = res.payload;
-      if (createdRoom && createdRoom.room_id) {
-        for (let i = 1; i <= 30; i++) {
-          const newGhe = {
-            vi_tri: `G${i}`,
-            room_id: createdRoom.room_id,
-            trang_thai: 'trống',
-          };
-          dispatch(addGhe(newGhe));
-        }
+  setTen_Phong('');
+  const createdRoom = res.payload;
+  setTimeout(() => {
+    dispatch(fetchPhongChieu(cinema_id));
+    if (createdRoom && createdRoom.room_id) {
+      for (let i = 1; i <= 30; i++) {
+        const newGhe = {
+          vi_tri: `G${i}`,
+          room_id: createdRoom.room_id,
+          trang_thai: 'trống',
+        };
+        dispatch(addGhe(newGhe));
       }
-    });
+    }
+  }, 400); // 400ms, có thể tăng lên nếu vẫn chưa thấy
+});
   };
 
   const handleDelete = room_id => {

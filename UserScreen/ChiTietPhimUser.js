@@ -6,36 +6,59 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import WebView from 'react-native-webview';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchSuatChieuByPhimId} from '../redux/actions/SuatChieuAction';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 const ChiTietPhimUser = ({route}) => {
-  const {phim} = route.params;
+  const {phim, cinema_id} = route.params;
   const navigation = useNavigation();
   const listSuatChieu = useSelector(state => state.suatchieu.listsuatchieu);
-  const [selected, setSelected] = useState(false);
+  const listPhongChieu = useSelector(state => state.phongchieu.listphongchieu);
+  const [selected, setSelected] = useState(null);
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch(fetchSuatChieuByPhimId(phim.phim_id));
   }, []);
+
   const getYouTubeEmbedUrl = url => {
     if (!url) return '';
     const videoId = url.split('v=')[1];
     return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&showinfo=0`;
   };
+
+  // Lọc suất chiếu theo phim và cinema_id nếu có, không thì lấy toàn bộ suất chiếu của phim
+  const suatChieuRender = useMemo(() => {
+    if (!Array.isArray(listSuatChieu)) return [];
+    if (cinema_id) {
+      return listSuatChieu.filter(
+        suat =>
+          suat.phim_id === phim.phim_id &&
+          listPhongChieu.find(
+            phong =>
+              phong.room_id === suat.room_id &&
+              phong.cinema_id === cinema_id
+          )
+      );
+    }
+    // Không có cinema_id: lấy tất cả suất chiếu của phim
+    return listSuatChieu.filter(suat => suat.phim_id === phim.phim_id);
+  }, [listSuatChieu, listPhongChieu, cinema_id, phim.phim_id]);
+
   const handleDatVe = () => {
-  if (!selected) {
-    alert('Vui lòng chọn suất chiếu!');
-    return;
-  }
-  navigation.navigate('ThongTinVe', {
-    suatChieu: selected,
-    phim,
-  });
-};
+    if (!selected) {
+      alert('Vui lòng chọn suất chiếu!');
+      return;
+    }
+    navigation.navigate('ThongTinVe', {
+      suatChieu: selected,
+      phim,
+    });
+  };
+
   return (
     <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={{paddingBottom: 100}}>
@@ -83,10 +106,10 @@ const ChiTietPhimUser = ({route}) => {
         </View>
         <View style={{borderTopWidth: 1, paddingVertical: 10, padding: 5}}>
           <Text style={{fontSize: 12, marginBottom: 5}}>Suất chiếu :</Text>
-          {Array.isArray(listSuatChieu) && listSuatChieu.length > 0 ? (
+          {suatChieuRender.length > 0 ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={{flexDirection: 'row'}}>
-                {listSuatChieu.map((item, index) => (
+                {suatChieuRender.map((item, index) => (
                   <TouchableOpacity
                     key={index}
                     onPress={() => setSelected(item)}
@@ -103,7 +126,6 @@ const ChiTietPhimUser = ({route}) => {
                     <Text>
                       {item.thoi_gian_bat_dau}h - {item.thoi_gian_ket_thuc}h
                     </Text>
-                    {/* Nếu là suất chiếu đang chọn thì hiện thêm ngày chiếu */}
                     {selected === item && (
                       <Text style={{color: 'blue', marginTop: 4, fontSize: 12}}>
                         Ngày chiếu: {item.ngay_chieu}
@@ -186,11 +208,10 @@ const ChiTietPhimUser = ({route}) => {
         <TouchableOpacity
           style={[
             styles.button,
-            { backgroundColor: selected ? 'red' : 'gray' }
+            {backgroundColor: selected ? 'red' : 'gray'},
           ]}
           onPress={handleDatVe}
-          disabled={!selected}
-        >
+          disabled={!selected}>
           <Text style={{color: 'white'}}>Đặt vé</Text>
         </TouchableOpacity>
       </View>
@@ -206,13 +227,12 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 25,
     alignItems: 'center',
-
     width: '80%',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 6, // Android
+    elevation: 6,
     height: 60,
     marginLeft: 20,
   },
@@ -223,13 +243,12 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    // Đổ bóng
     marginLeft: 10,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 6, // Android
+    elevation: 6,
     borderRadius: 5,
   },
   webview: {
