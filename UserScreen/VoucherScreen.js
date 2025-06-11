@@ -1,14 +1,106 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchVoucher } from '../redux/actions/VoucherAction'
 
 const VoucherScreen = () => {
+  const dispatch = useDispatch();
+  const listvoucher = useSelector(state => state.voucher.listvoucher);
+
+  useEffect(() => {
+    dispatch(fetchVoucher());
+  }, [dispatch]);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.voucherBox}>
+      <Text style={styles.voucherTitle}>{item.ma_voucher}</Text>
+      <Text style={styles.voucherDiscount}>Giảm giá: {item.giam_gia}%</Text>
+      <Text style={styles.voucherExpire}>Hạn: {item.thoi_gian_het_han}</Text>
+      <TouchableOpacity
+        style={styles.exchangeBtn}
+        onPress={() => {
+          // Để trống chức năng đổi voucher
+          console.log('Đổi voucher:', item.ma_voucher);
+        }}
+      >
+        <Text style={styles.exchangeBtnText}>Đổi voucher</Text>
+        <View style={styles.pointBox}>
+          <Text style={styles.pointText}>{item.giam_gia}</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
-    <View>
-      <Text>VoucherScreen</Text>
+    <View style={{ flex: 1, backgroundColor: '#fff', padding: 10 }}>
+      <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Danh sách Voucher</Text>
+      <FlatList
+        data={listvoucher}
+        keyExtractor={item => item.voucher_id || item.id}
+        renderItem={renderItem}
+        numColumns={2}
+        columnWrapperStyle={{ justifyContent: 'space-between' }}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 30 }}>Chưa có voucher nào</Text>}
+      />
     </View>
   )
 }
 
 export default VoucherScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  voucherBox: {
+    backgroundColor: '#f7f7f7',
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 15,
+    width: '48%',
+    elevation: 2,
+    alignItems: 'center',
+  },
+  voucherTitle: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 6,
+    color: '#EA5A5A'
+  },
+  voucherDiscount: {
+    fontSize: 14,
+    marginBottom: 4,
+    color: '#333'
+  },
+  voucherExpire: {
+    fontSize: 12,
+    marginBottom: 10,
+    color: '#888'
+  },
+  exchangeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EA5A5A',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    marginTop: 8,
+  },
+  exchangeBtnText: {
+    color: 'white',
+    fontWeight: 'bold',
+    marginRight: 8,
+    fontSize: 14
+  },
+  pointBox: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pointText: {
+    color: '#EA5A5A',
+    fontWeight: 'bold',
+    fontSize: 14
+  }
+});

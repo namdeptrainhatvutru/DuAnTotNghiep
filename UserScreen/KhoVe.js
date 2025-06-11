@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View, Modal, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, Text, View, Modal, TouchableOpacity, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteVe, fetchVeByKhachHangId } from '../redux/actions/VeAction';
@@ -10,10 +10,21 @@ const KhoVe = () => {
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedVe, setSelectedVe] = useState(null);
+  const [tab, setTab] = useState('conhan'); // 'conhan' hoặc 'hethanh'
 
   useEffect(() => {
     dispatch(fetchVeByKhachHangId(user.khach_hang_id));
   }, []);
+
+  // Hàm kiểm tra vé còn hạn/hết hạn
+  const isVeConHan = (ve) => {
+    // Giả sử ngày chiếu dạng dd/MM/yyyy
+    const ngay = ve.ngay_chieu.split('/').reverse().join('-');
+    return new Date(ngay) >= new Date();
+  };
+
+  const veConHan = listve.filter(isVeConHan);
+  const veHetHan = listve.filter(ve => !isVeConHan(ve));
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -28,13 +39,8 @@ const KhoVe = () => {
       <Text>Ngày chiếu: {item.ngay_chieu}</Text>
       <Text>Giờ chiếu: {item.gio_chieu}</Text>
       <Text>
-  Trạng thái: {
-    new Date(item.ngay_chieu.split('/').reverse().join('-')) < new Date()
-      ? 'Hết hạn'
-      : 'Còn hạn'
-  }
-</Text>
-      
+        Trạng thái: {isVeConHan(item) ? 'Còn hạn' : 'Hết hạn'}
+      </Text>
       <Text
         style={styles.deleteBtn}
         onPress={() => dispatch(deleteVe(item.ve_id))}
@@ -44,58 +50,88 @@ const KhoVe = () => {
     </TouchableOpacity>
   );
 
+  const renderEmpty = () => (
+    <View style={{ alignItems: 'center', marginTop: 60 }}>
+      <Image
+        source={{ uri: 'https://cdn-icons-png.flaticon.com/512/4076/4076549.png' }}
+        style={{ width: 120, height: 120, marginBottom: 16 }}
+        resizeMode="contain"
+      />
+      <Text style={{ color: '#888', fontSize: 16, fontWeight: 'bold' }}>Không có dữ liệu !</Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Kho vé của bạn</Text>
+      <Text style={styles.header}>Vé của bạn</Text>
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tabBtn, tab === 'conhan' && styles.tabActive]}
+          onPress={() => setTab('conhan')}
+        >
+          <Text style={[styles.tabText, tab === 'conhan' && styles.tabTextActive]}>Phim sắp xem</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabBtn, tab === 'hethan' && styles.tabActive]}
+          onPress={() => setTab('hethan')}
+        >
+          <Text style={[styles.tabText, tab === 'hethan' && styles.tabTextActive]}>Phim đã xem</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.note}>
+        Chỉ hiển thị giao dịch online trong 3 tháng gần nhất.{"\n"}
+        Để kiểm tra lịch sử giao dịch tại quầy vui lòng liên hệ online: 0987 654 321
+      </Text>
       <FlatList
-        data={listve}
+        data={tab === 'conhan' ? veConHan : veHetHan}
         keyExtractor={item => item.ve_id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 40 }}
+        ListEmptyComponent={renderEmpty}
       />
       <Modal
-  visible={modalVisible}
-  transparent
-  animationType="fade"
-  onRequestClose={() => setModalVisible(false)}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalContent}>
-      <Text style={styles.modalTitle}>Chi tiết vé</Text>
-      {selectedVe && (
-        <>
-          <Text style={styles.modalText}>
-            Phòng chiếu: <Text style={{ fontWeight: 'bold' }}>{selectedVe.ten_phong}</Text>
-          </Text>
-          <Text style={styles.modalText}>
-            Rạp: <Text style={{ fontWeight: 'bold' }}>{selectedVe.dia_chi_rap}</Text>
-          </Text>
-          <Text style={styles.modalText}>
-            Số ghế: <Text style={{ fontWeight: 'bold' }}>{selectedVe.vi_tri_ghe}</Text>
-          </Text>
-          <Text style={styles.modalText}>
-            Ngày chiếu: <Text style={{ fontWeight: 'bold' }}>{selectedVe.ngay_chieu}</Text>
-          </Text>
-          <Text style={styles.modalText}>
-            Giờ chiếu: <Text style={{ fontWeight: 'bold' }}>{selectedVe.gio_chieu}</Text>
-          </Text>
-          <Text style={styles.modalText}>
-            Mã QR:
-          </Text>
-          <View style={{ alignItems: 'center', marginVertical: 10 }}>
-            <QRCode value={selectedVe.ma_qr} size={240} />
-          </View>
-        </>
-      )}
-      <TouchableOpacity
-        style={styles.closeBtn}
-        onPress={() => setModalVisible(false)}
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
       >
-        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Đóng</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Chi tiết vé</Text>
+            {selectedVe && (
+              <>
+                <Text style={styles.modalText}>
+                  Phòng chiếu: <Text style={{ fontWeight: 'bold' }}>{selectedVe.ten_phong}</Text>
+                </Text>
+                <Text style={styles.modalText}>
+                  Rạp: <Text style={{ fontWeight: 'bold' }}>{selectedVe.dia_chi_rap}</Text>
+                </Text>
+                <Text style={styles.modalText}>
+                  Số ghế: <Text style={{ fontWeight: 'bold' }}>{selectedVe.vi_tri_ghe}</Text>
+                </Text>
+                <Text style={styles.modalText}>
+                  Ngày chiếu: <Text style={{ fontWeight: 'bold' }}>{selectedVe.ngay_chieu}</Text>
+                </Text>
+                <Text style={styles.modalText}>
+                  Giờ chiếu: <Text style={{ fontWeight: 'bold' }}>{selectedVe.gio_chieu}</Text>
+                </Text>
+                <Text style={styles.modalText}>
+                  Mã QR:
+                </Text>
+                <View style={{ alignItems: 'center', marginVertical: 10 }}>
+                  <QRCode value={selectedVe.ma_qr} size={240} />
+                </View>
+              </>
+            )}
+            <TouchableOpacity
+              style={styles.closeBtn}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={{ color: '#fff', fontWeight: 'bold' }}>Đóng</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -115,6 +151,40 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#EA5A5A',
     alignSelf: 'center',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 8,
+    marginHorizontal: 0,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#EA5A5A',
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  tabActive: {
+    backgroundColor: '#EA5A5A',
+  },
+  tabText: {
+    color: '#EA5A5A',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  tabTextActive: {
+    color: '#fff',
+  },
+  note: {
+    fontSize: 13,
+    color: '#444',
+    textAlign: 'center',
+    marginBottom: 10,
+    marginTop: 4,
   },
   itemContainer: {
     backgroundColor: '#fff',
@@ -151,7 +221,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    flex:1,
+    flex: 1,
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 24,

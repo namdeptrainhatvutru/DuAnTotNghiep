@@ -7,6 +7,7 @@ import PhimReducer from "../reducers/PhimReducer";
 import ThanhToanReducer from "../reducers/ThanhToanReducer"
 import GheReducer from "../reducers/GheReducer"
 import VeReducer from "../reducers/VeReducer"
+import VoucherReducer from "../reducers/VoucherReducer"
 export default configureStore(
     {
         reducer:{
@@ -17,7 +18,8 @@ export default configureStore(
             phim : PhimReducer,
             thanhtoan: ThanhToanReducer,
             ghe : GheReducer,
-            ve : VeReducer
+            ve : VeReducer,
+            voucher : VoucherReducer
         }
     }
 )

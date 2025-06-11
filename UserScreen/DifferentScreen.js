@@ -11,6 +11,9 @@ const DifferentScreen = () => {
       <TouchableOpacity onPress={()=>{navigation.navigate('KhoVe')}}>
         <Text>Kho vé của bạn</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={()=>{navigation.navigate('KhoVoucher')}}>
+        <Text>Kho voucher của bạn</Text>
+      </TouchableOpacity>
     </View>
   )
 }

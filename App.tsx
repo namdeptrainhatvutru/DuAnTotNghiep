@@ -31,6 +31,7 @@ import ChiTietPhimUser from './UserScreen/ChiTietPhimUser';
 import ThongTinVe from './UserScreen/ThongTinVe';
 import VeCuaBan from './UserScreen/VeCuaBan';
 import KhoVe from './UserScreen/KhoVe';
+import KhoVoucher from './UserScreen/KhoVoucher';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -50,7 +51,11 @@ const MyTabs = () => {
           const filteredProps = delayLongPress === null
             ? rest
             : { delayLongPress, ...rest };
-          return <TouchableOpacity activeOpacity={0.7} {...filteredProps} />;
+          return (
+            <TouchableOpacity activeOpacity={0.7} {...filteredProps}>
+              {props.children}
+            </TouchableOpacity>
+          );
         },
         tabBarIcon: ({ focused }) => {
           let iconName = '';
@@ -194,8 +199,10 @@ const App = () => {
             component={ThongTinVe} />
           <Stack.Screen name="VeCuaBan"
             component={VeCuaBan} />
-            <Stack.Screen name="KhoVe"
+          <Stack.Screen name="KhoVe"
             component={KhoVe} />
+            <Stack.Screen name="KhoVoucher"
+            component={KhoVoucher} />
 
         </Stack.Navigator>
       </NavigationContainer>
