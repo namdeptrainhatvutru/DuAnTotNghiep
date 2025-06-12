@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchVoucher, updateVoucher } from '../redux/actions/VoucherAction'
+import { addVoucher, fetchVoucher, updateVoucher } from '../redux/actions/VoucherAction'
 import { updateUser } from '../redux/actions/UserAction'
 
 const VoucherScreen = () => {
@@ -21,12 +21,18 @@ const VoucherScreen = () => {
     alert('Bạn không đủ điểm để đổi voucher này!');
     return;
   }
-  // Cập nhật voucher: gán khach_hang_id cho voucher
-  await dispatch(updateVoucher({ ...item, khach_hang_id: user.khach_hang_id }));
+  await dispatch(addVoucher({
+    ...item,
+    khach_hang_id: user.khach_hang_id,
+    voucher_id: undefined, // để backend tự sinh id mới
+    id: undefined // nếu có trường id thì cũng bỏ đi
+  }));
   // Trừ điểm user
   await dispatch(updateUser({ ...user, diem: user.diem - item.giam_gia }));
   alert('Đổi voucher thành công!');
 };
+
+
 
   const renderItem = ({ item }) => (
     <View style={styles.voucherBox}>
@@ -54,7 +60,7 @@ const VoucherScreen = () => {
       <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Danh sách Voucher</Text>
       <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Điểm của bạn : {user.diem}</Text>
       <FlatList
-        data={listvoucher}
+        data={listvoucher.filter(item => item.khach_hang_id !== user.khach_hang_id)}
         keyExtractor={item => item.voucher_id || item.id}
         renderItem={renderItem}
         numColumns={2}
