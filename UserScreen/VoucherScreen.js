@@ -1,25 +1,43 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchVoucher } from '../redux/actions/VoucherAction'
+import { fetchVoucher, updateVoucher } from '../redux/actions/VoucherAction'
+import { updateUser } from '../redux/actions/UserAction'
 
 const VoucherScreen = () => {
   const dispatch = useDispatch();
   const listvoucher = useSelector(state => state.voucher.listvoucher);
-
+  const user = useSelector(state => state.user.user);
   useEffect(() => {
     dispatch(fetchVoucher());
   }, [dispatch]);
+
+  const handleExchange = async (item) => {
+  if (item.khach_hang_id === user.khach_hang_id) {
+    alert('Bạn đã sở hữu voucher này!');
+    return;
+  }
+  if (user.diem < item.giam_gia) {
+    alert('Bạn không đủ điểm để đổi voucher này!');
+    return;
+  }
+  // Cập nhật voucher: gán khach_hang_id cho voucher
+  await dispatch(updateVoucher({ ...item, khach_hang_id: user.khach_hang_id }));
+  // Trừ điểm user
+  await dispatch(updateUser({ ...user, diem: user.diem - item.giam_gia }));
+  alert('Đổi voucher thành công!');
+};
 
   const renderItem = ({ item }) => (
     <View style={styles.voucherBox}>
       <Text style={styles.voucherTitle}>{item.ma_voucher}</Text>
       <Text style={styles.voucherDiscount}>Giảm giá: {item.giam_gia}%</Text>
       <Text style={styles.voucherExpire}>Hạn: {item.thoi_gian_het_han}</Text>
+      <Text style={styles.voucherDiscount2}>{item.khach_hang_id === user.khach_hang_id?'Bạn đã có voucher':''}</Text>
       <TouchableOpacity
         style={styles.exchangeBtn}
         onPress={() => {
-          // Để trống chức năng đổi voucher
+          handleExchange(item)
           console.log('Đổi voucher:', item.ma_voucher);
         }}
       >
@@ -34,6 +52,7 @@ const VoucherScreen = () => {
   return (
     <View style={{ flex: 1, backgroundColor: '#fff', padding: 10 }}>
       <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Danh sách Voucher</Text>
+      <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Điểm của bạn : {user.diem}</Text>
       <FlatList
         data={listvoucher}
         keyExtractor={item => item.voucher_id || item.id}
@@ -67,6 +86,11 @@ const styles = StyleSheet.create({
   },
   voucherDiscount: {
     fontSize: 14,
+    marginBottom: 4,
+    color: '#333'
+  },
+  voucherDiscount2: {
+    fontSize: 8,
     marginBottom: 4,
     color: '#333'
   },
