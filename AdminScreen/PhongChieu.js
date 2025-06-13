@@ -51,16 +51,16 @@ const PhongChieu = ({route}) => {
   const createdRoom = res.payload;
   setTimeout(() => {
     dispatch(fetchPhongChieu(cinema_id));
-    if (createdRoom && createdRoom.room_id) {
-      for (let i = 1; i <= 30; i++) {
-        const newGhe = {
-          vi_tri: `G${i}`,
-          room_id: createdRoom.room_id,
-          trang_thai: 'trống',
-        };
-        dispatch(addGhe(newGhe));
-      }
-    }
+    // if (createdRoom && createdRoom.room_id) {
+    //   for (let i = 1; i <= 30; i++) {
+    //     const newGhe = {
+    //       vi_tri: `G${i}`,
+    //       room_id: createdRoom.room_id,
+    //       trang_thai: 'trống',
+    //     };
+    //     dispatch(addGhe(newGhe));
+    //   }
+    // }
   }, 400); // 400ms, có thể tăng lên nếu vẫn chưa thấy
 });
   };
@@ -68,7 +68,6 @@ const PhongChieu = ({route}) => {
   const handleDelete = room_id => {
     dispatch(deletePhongChieu(room_id));
     // Xóa tất cả ghế liên quan đến phòng chiếu này
-    dispatch(deleteGheByRoomId(room_id));
     dispatch(deleteAllSuatChieuByRoomId(room_id));
     
   };

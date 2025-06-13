@@ -2,7 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 import {
   addGhe,
   deleteGhe,
-  deleteGheByRoomId,
+  deleteGheBySuatChieuId,
   updateGhe,
   updateNhieuGhe,
 } from '../actions/GheAction';
@@ -25,20 +25,20 @@ const GheSlice = createSlice({
     });
     builder.addCase(deleteGhe.fulfilled, (state, action) => {
       state.listghe = state.listghe.filter(
-        item => item.seat_id !== action.payload,
+        item => item.id !== action.payload,
       );
     });
     builder.addCase(updateGhe.fulfilled, (state, action) => {
       const index = state.listghe.findIndex(
-        item => item.seat_id === action.payload.seat_id,
+        item => item.id === action.payload.id,
       );
       if (index !== -1) {
         state.listghe[index] = action.payload;
       }
     });
-    builder.addCase(deleteGheByRoomId.fulfilled, (state, action) => {
+    builder.addCase(deleteGheBySuatChieuId.fulfilled, (state, action) => {
       state.listghe = state.listghe.filter(
-        item => item.room_id !== action.payload,
+        item => item.suat_chieu_id !== action.payload,
       );
     });
     builder.addCase(updateNhieuGhe.fulfilled, (state, action) => {

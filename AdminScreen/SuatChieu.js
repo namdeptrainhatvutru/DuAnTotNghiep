@@ -20,6 +20,7 @@ import {
 import {fetchPhim} from '../redux/actions/PhimAction';
 import {Button} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import { addGhe, deleteGheBySuatChieuId } from '../redux/actions/GheAction';
 
 const SuatChieu = ({route}) => {
   const {room_id, ten_phong} = route.params;
@@ -90,7 +91,10 @@ const SuatChieu = ({route}) => {
         />
         <Button
           title="xóa"
-          onPress={() => dispatch(deleteSuatChieu(item.suat_chieu_id))}
+          onPress={() =>{ dispatch(deleteSuatChieu(item.suat_chieu_id))
+              dispatch(deleteGheBySuatChieuId(item.suat_chieu_id));
+
+          }}
         />
       </View>
     );
@@ -111,15 +115,27 @@ const SuatChieu = ({route}) => {
       thoi_gian_ket_thuc: thoi_gian_ket_thuc,
       phim_id: phim_id,
     };
-    dispatch(addSuatChieu(suatchieu)).then(() => {
-      dispatch(fetchSuatChieu(room_id)); // fetch lại danh sách sau khi thêm
-      Alert.alert('Thêm thành công');
-      setModal(false);
-      setngay_chieu('');
-      setthoi_gian_bat_dau('');
-      setthoi_gian_ket_thuc('');
-      setphim_id('');
-    });
+    dispatch(addSuatChieu(suatchieu)).then(res => {
+    const createdSuatChieu = res.payload;
+    // Tạo 30 ghế cho suất chiếu này
+    if (createdSuatChieu && createdSuatChieu.suat_chieu_id) {
+        for (let i = 1; i <= 30; i++) {
+            const newGhe = {
+                vi_tri: `G${i}`,
+                suat_chieu_id: createdSuatChieu.suat_chieu_id,
+                trang_thai: 'trống',
+            };
+            dispatch(addGhe(newGhe));
+        }
+    }
+    dispatch(fetchSuatChieu(room_id));
+    Alert.alert('Thêm thành công');
+    setModal(false);
+    setngay_chieu('');
+    setthoi_gian_bat_dau('');
+    setthoi_gian_ket_thuc('');
+    setphim_id('');
+});
   };
   if (loading) {
     return (

@@ -1,7 +1,8 @@
-const link_ghe = 'https://682412ef65ba05803398cdcf.mockapi.io/Ghe';
+const link_ghe = `http://${BASE}:3000/ghe`;
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { setGhe } from "../reducers/GheReducer";
+import BASE from "../../config/BaseUrl";
 
 // Lấy tất cả ghế
 export const fetchGhe = () => {
@@ -57,8 +58,8 @@ export const deleteGhe = createAsyncThunk(
 export const updateGhe = createAsyncThunk(
     'ghe/updateGhe',
     async (ghe) => {
-        // Sử dụng seat_id thay vì id nếu dữ liệu ghế có trường seat_id
-        const id = ghe.seat_id || ghe.id;
+        // Sử dụng id thay vì id nếu dữ liệu ghế có trường id
+        const id = ghe.id || ghe.id;
         const response = await fetch(`${link_ghe}/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -69,18 +70,17 @@ export const updateGhe = createAsyncThunk(
     }
 );
 
-// xóa ghế theo room_id
-export const deleteGheByRoomId = createAsyncThunk(
-  'ghe/deleteGheByRoomId',
-  async (room_id, { dispatch }) => {
-    const response = await fetch(`${link_ghe}?room_id=${room_id}`);
+// xóa ghế theo suat_chieu_id
+export const deleteGheBySuatChieuId = createAsyncThunk(
+  'ghe/deleteGheBySuatChieuId',
+  async (suat_chieu_id, { dispatch }) => {
+    const response = await fetch(`${link_ghe}?suat_chieu_id=${suat_chieu_id}`);
     const data = await response.json();
     for (const ghe of data) {
-      await dispatch(deleteGhe(ghe.seat_id));
+      await dispatch(deleteGhe(ghe.id));
     }
-    return room_id;
-  }
-);
+    return suat_chieu_id;
+  })
 
 export const updateNhieuGhe = createAsyncThunk(
   'ghe/updateNhieuGhe',

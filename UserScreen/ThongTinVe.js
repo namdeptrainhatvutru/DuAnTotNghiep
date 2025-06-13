@@ -66,6 +66,7 @@ const ThongTinVe = ({route}) => {
   const sortedGhe = [];
   const seen = new Set();
   [...listghe]
+  .filter(ghe => ghe.suat_chieu_id === suatChieu.suat_chieu_id)
     .sort((a, b) => {
       const numA = parseInt(a.vi_tri.replace('G', ''), 10);
       const numB = parseInt(b.vi_tri.replace('G', ''), 10);

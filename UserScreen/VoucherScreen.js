@@ -21,12 +21,7 @@ const VoucherScreen = () => {
     alert('Bạn không đủ điểm để đổi voucher này!');
     return;
   }
-  await dispatch(addVoucher({
-    ...item,
-    khach_hang_id: user.khach_hang_id,
-    voucher_id: undefined, // để backend tự sinh id mới
-    id: undefined // nếu có trường id thì cũng bỏ đi
-  }));
+  await dispatch(updateVoucher({ ...item, khach_hang_id: user.khach_hang_id }));
   // Trừ điểm user
   await dispatch(updateUser({ ...user, diem: user.diem - item.giam_gia }));
   alert('Đổi voucher thành công!');
@@ -63,7 +58,7 @@ const VoucherScreen = () => {
         data={listvoucher.filter(item => item.khach_hang_id !== user.khach_hang_id)}
         keyExtractor={item => item.voucher_id || item.id}
         renderItem={renderItem}
-        numColumns={2}
+        numColumns={1}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
         contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 30 }}>Chưa có voucher nào</Text>}
@@ -118,7 +113,8 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     marginRight: 8,
-    fontSize: 14
+    fontSize: 14,
+    
   },
   pointBox: {
     backgroundColor: 'white',

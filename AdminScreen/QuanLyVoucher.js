@@ -17,6 +17,7 @@ const QuanLyVoucher = () => {
   const [thoi_gian_het_han, setThoiGianHetHan] = useState('');
   const [khach_hang_id, setKhachHangId] = useState('');
   const [loading, setLoading] = useState(false);
+  const [soLuong, setSoLuong] = useState('1'); // Thêm trường số lượng
 
   useEffect(() => {
     setLoading(true);
@@ -30,6 +31,7 @@ const QuanLyVoucher = () => {
     setGiamGia('');
     setThoiGianHetHan('');
     setKhachHangId('');
+    setSoLuong('1'); // reset số lượng khi mở modal
     setModalVisible(true);
   };
 
@@ -46,26 +48,38 @@ const QuanLyVoucher = () => {
 };
 
 const handleSave = async () => {
-  if (!ma_voucher || !giam_gia || !thoi_gian_het_han) {
-    Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin');
-    return;
-  }
-  setLoading(true);
-  const voucherData = {
-    ma_voucher,
-    giam_gia: Number(giam_gia),
-    thoi_gian_het_han, // giữ nguyên là string yyyy-mm-dd
-    khach_hang_id: "",
+    if (!ma_voucher || !giam_gia || !thoi_gian_het_han) {
+      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
+    setLoading(true);
+    const voucherData = {
+      ma_voucher,
+      giam_gia: Number(giam_gia),
+      thoi_gian_het_han,
+      khach_hang_id: "",
+    };
+    if (isEdit && currentVoucher) {
+      await dispatch(updateVoucher({ ...currentVoucher, ...voucherData }));
+    } else {
+      const n = parseInt(soLuong, 10);
+      if (isNaN(n) || n <= 0) {
+        Alert.alert('Lỗi', 'Số lượng phải là số nguyên dương!');
+        setLoading(false);
+        return;
+      }
+      for (let i = 0; i < n; i++) {
+        const newVoucher = {
+          ...voucherData,
+          ma_voucher: n === 1 ? ma_voucher : `${ma_voucher}_${Date.now()}_${i}`,
+        };
+        await dispatch(addVoucher(newVoucher));
+      }
+    }
+    await dispatch(fetchVoucher());
+    setLoading(false);
+    setModalVisible(false);
   };
-  if (isEdit && currentVoucher) {
-    await dispatch(updateVoucher({ ...currentVoucher, ...voucherData }));
-  } else {
-    await dispatch(addVoucher(voucherData));
-  }
-  await dispatch(fetchVoucher());
-  setLoading(false);
-  setModalVisible(false);
-};
 
 
   const handleDelete = (voucher_id) => {
@@ -98,10 +112,10 @@ const handleSave = async () => {
       // Nếu là yyyy-MM-dd
       expire = new Date(item.thoi_gian_het_han);
     }
-    status = expire < now ? 'Hết hạn' : 'Còn hạn';
+    status = expire < now ? 'Hết hạn ⚠️' : 'Còn hạn';
   }
   return (
-    <View style={styles.item}>
+    <View style={[styles.item,{borderWidth:2,borderColor:status=='Còn hạn'?'':'red'}]}>
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>Mã: {item.ma_voucher}</Text>
         <Text>Giảm giá: {item.giam_gia}%</Text>
@@ -158,13 +172,21 @@ const handleSave = async () => {
               keyboardType="numeric"
             />
             <TextInput
-  placeholder="Thời gian hết hạn (yyyy-mm-dd)"
-  value={thoi_gian_het_han}
-  onChangeText={setThoiGianHetHan}
-  style={styles.input}
-  keyboardType="default"
-/>
-            
+              placeholder="Thời gian hết hạn (yyyy-mm-dd)"
+              value={thoi_gian_het_han}
+              onChangeText={setThoiGianHetHan}
+              style={styles.input}
+              keyboardType="default"
+            />
+            {!isEdit && (
+              <TextInput
+                placeholder="Số lượng voucher"
+                value={soLuong}
+                onChangeText={setSoLuong}
+                style={styles.input}
+                keyboardType="numeric"
+              />
+            )}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
                 <Text style={{ color: 'white' }}>{isEdit ? 'Lưu' : 'Thêm'}</Text>
