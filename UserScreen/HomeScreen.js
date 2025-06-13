@@ -25,7 +25,7 @@ const HomeScreen = () => {
             <Text style={styles.title} numberOfLines={1}>
               {item.ten_phim}
             </Text>
-            <Text style={styles.duration}>{item.thoi_luong} Phút</Text>
+            <Text style={styles.duration}>{item.thoi_luong} phút</Text>
           </View>
         </TouchableOpacity>
       </View>
