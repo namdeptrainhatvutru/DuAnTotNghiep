@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPhim } from '../redux/actions/PhimAction';
 import { useNavigation } from '@react-navigation/native';
+import BannerSlider from '../redux/actions/BannerAction';
 
 const HomeScreen = () => {
   const user = useSelector(state => state.user.user);
@@ -50,8 +51,8 @@ const HomeScreen = () => {
           <Text style={{ fontSize: 8 }}>0</Text>
         </View>
       </View>
-      <View style={{width:'100%',height:150,backgroundColor:'lightgray',borderRadius:20,justifyContent:'center',alignItems:'center',marginBottom:10,marginTop:10}}>
-        <Text>Banner</Text>
+      <View >
+      <BannerSlider />
       </View>
       <View>
         <FlatList
