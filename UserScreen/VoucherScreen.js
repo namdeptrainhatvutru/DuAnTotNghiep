@@ -58,7 +58,7 @@ const VoucherScreen = () => {
         data={listvoucher.filter(item => item.khach_hang_id !== user.khach_hang_id)}
         keyExtractor={item => item.voucher_id || item.id}
         renderItem={renderItem}
-        numColumns={1}
+        numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
         contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 30 }}>Chưa có voucher nào</Text>}
