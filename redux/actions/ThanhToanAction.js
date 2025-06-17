@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { setThanhToan } from "../reducers/ThanhToanReducer";
 
-const link_thanhtoan = 'https://67ac56315853dfff53da3fd1.mockapi.io/Thanh_Toan';
+const link_thanhtoan = 'https://6824075665ba058033989f25.mockapi.io/Thanh_Toan';
 
 // Lấy tất cả thanh toán
 export const fetchThanhToan = () => {

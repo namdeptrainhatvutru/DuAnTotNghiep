@@ -15,19 +15,34 @@ import {fetchGheByRoomId, updateNhieuGhe} from '../redux/actions/GheAction';
 import {useNavigation} from '@react-navigation/native';
 import {addVe} from '../redux/actions/VeAction';
 import {tangDiemUser} from '../redux/actions/UserAction';
-import { StyleSheet } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import {StyleSheet} from 'react-native';
+import Svg, {Path} from 'react-native-svg';
+import {fetchVoucher} from '../redux/actions/VoucherAction';
+import { addThanhToan } from '../redux/actions/ThanhToanAction';
 
 const ThongTinVe = ({route}) => {
   const {suatChieu, phim} = route.params;
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const user_id = useSelector(state => state.user.user.khach_hang_id);
+  const listvoucher = useSelector(state => state.voucher.listvoucher);
   const listRapChieu = useSelector(state => state.rapchieu.listrapchieu);
   const listPhongChieu = useSelector(state => state.phongchieu.listphongchieu);
   const listghe = useSelector(state => state.ghe.listghe);
   const user = useSelector(state => state.user.user);
   const [loading, setLoading] = useState(true);
   const [gheSelected, setGheSelected] = useState([]);
+  const [voucherSelected, setVoucherSelected] = useState(null);
+  const listvoucherbyid = listvoucher.filter(
+    item => item.khach_hang_id === user_id.toString(),
+  );
+  const now = new Date();
+const ngay_mua =
+  String(now.getDate()).padStart(2, '0') +
+  '/' +
+  String(now.getMonth() + 1).padStart(2, '0') +
+  '/' +
+  now.getFullYear();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,6 +52,9 @@ const ThongTinVe = ({route}) => {
       setLoading(false);
     };
     fetchData();
+    if (user_id) {
+      dispatch(fetchVoucher());
+    }
   }, []);
 
   const handleSelectGhe = vi_tri => {
@@ -66,7 +84,7 @@ const ThongTinVe = ({route}) => {
   const sortedGhe = [];
   const seen = new Set();
   [...listghe]
-  .filter(ghe => ghe.suat_chieu_id === suatChieu.suat_chieu_id)
+    .filter(ghe => ghe.suat_chieu_id === suatChieu.suat_chieu_id)
     .sort((a, b) => {
       const numA = parseInt(a.vi_tri.replace('G', ''), 10);
       const numB = parseInt(b.vi_tri.replace('G', ''), 10);
@@ -98,17 +116,17 @@ const ThongTinVe = ({route}) => {
         <Text style={{fontWeight: 'bold', fontSize: 18}}>Thông tin vé</Text>
         <Text>Tên phim: {thongTinVe.ten_phim}</Text>
         <Text>Ngày chiếu: {thongTinVe.ngay_chieu}</Text>
-        <Text>Giờ chiếu: {thongTinVe.gio_chieu}</Text>
+        <Text>Suất chiếu: {thongTinVe.gio_chieu}</Text>
         <Text>Phòng chiếu: {thongTinVe.ten_phong}</Text>
         <Text>Rạp: {thongTinVe.dia_chi_rap}</Text>
         <Text>Số ghế: {thongTinVe.vi_tri_ghe}</Text>
 
         <View style={{flexDirection: 'row', marginRight: 20, marginTop: 10}}>
-          <Text style={{fontSize:10}}>Đang chọn :</Text>
+          <Text style={{fontSize: 10}}>Đang chọn :</Text>
           <View style={styles.boxRed} />
-          <Text style={{fontSize:10}}> Trống :</Text>
+          <Text style={{fontSize: 10}}> Trống :</Text>
           <View style={styles.boxWhite} />
-          <Text style={{fontSize:10}}>Đã hết :</Text>
+          <Text style={{fontSize: 10}}>Đã hết :</Text>
           <View style={styles.boxPurple} />
         </View>
 
@@ -119,42 +137,42 @@ const ThongTinVe = ({route}) => {
               Màn hình chiếu
             </Text>
             <Svg height="60" width="100%" viewBox="0 0 300 60">
-  {/* Lớp glow mờ ngoài cùng */}
-  <Path
-    d="M10 50 Q 150 0 290 50"
-    stroke="#A6A7E0"
-    strokeWidth="20"
-    strokeOpacity="0.2"
-    fill="none"
-    strokeLinecap="round"
-  />
-  {/* Lớp glow mờ bên trong */}
-  <Path
-    d="M10 50 Q 150 0 290 50"
-    stroke="#8889D6"
-    strokeWidth="14"
-    strokeOpacity="0.4"
-    fill="none"
-    strokeLinecap="round"
-  />
-  {/* Lớp glow đậm gần trong */}
-  <Path
-    d="M10 50 Q 150 0 290 50"
-    stroke="#6E70CC"
-    strokeWidth="10"
-    strokeOpacity="0.6"
-    fill="none"
-    strokeLinecap="round"
-  />
-  {/* Lớp chính sáng nhất */}
-  <Path
-    d="M10 50 Q 150 0 290 50"
-    stroke="#696ACD"
-    strokeWidth="6"
-    fill="none"
-    strokeLinecap="round"
-  />
-</Svg>
+              {/* Lớp glow mờ ngoài cùng */}
+              <Path
+                d="M10 50 Q 150 0 290 50"
+                stroke="#A6A7E0"
+                strokeWidth="20"
+                strokeOpacity="0.2"
+                fill="none"
+                strokeLinecap="round"
+              />
+              {/* Lớp glow mờ bên trong */}
+              <Path
+                d="M10 50 Q 150 0 290 50"
+                stroke="#8889D6"
+                strokeWidth="14"
+                strokeOpacity="0.4"
+                fill="none"
+                strokeLinecap="round"
+              />
+              {/* Lớp glow đậm gần trong */}
+              <Path
+                d="M10 50 Q 150 0 290 50"
+                stroke="#6E70CC"
+                strokeWidth="10"
+                strokeOpacity="0.6"
+                fill="none"
+                strokeLinecap="round"
+              />
+              {/* Lớp chính sáng nhất */}
+              <Path
+                d="M10 50 Q 150 0 290 50"
+                stroke="#696ACD"
+                strokeWidth="6"
+                fill="none"
+                strokeLinecap="round"
+              />
+            </Svg>
 
             <View style={{alignItems: 'center', marginTop: 40}}>
               <View
@@ -206,6 +224,41 @@ const ThongTinVe = ({route}) => {
             </View>
           </View>
         </View>
+        {Array.isArray(listvoucherbyid) && listvoucherbyid.length > 0 && (
+          <View>
+            <Text>Giảm giá :</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {listvoucherbyid.map((voucher, index) => (
+                <TouchableOpacity
+                  onPress={() => setVoucherSelected(voucher)}
+                  key={index}
+                  style={{
+                    borderWidth: 2,
+                    padding: 10,
+                    marginRight: 10,
+                    borderColor:
+                      voucherSelected?.voucher_id?.toString() ===
+                      voucher?.voucher_id?.toString()
+                        ? 'red'
+                        : 'black',
+                  }}>
+                  <Text>{voucher.giam_gia}%</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+        <View style={{borderWidth:1,margin:10,backgroundColor:'black'}}></View>
+        <View>
+          <Text>Giá vé : {gheSelected.length *80000}đ</Text>
+          <Text>giảm giá : - {(gheSelected.length *80000)/100*voucherSelected?.giam_gia}đ</Text>
+        </View>
+        <View style={{borderWidth:1,margin:10,backgroundColor:'black'}}></View>
+        <View style={{height:300}}>
+            <TouchableOpacity style={{width:'100%',borderRadius:10,backgroundColor:'white'}}>
+              <Text>Momo</Text>
+            </TouchableOpacity>
+        </View>
       </ScrollView>
 
       <TouchableOpacity
@@ -219,17 +272,41 @@ const ThongTinVe = ({route}) => {
         }}
         disabled={gheSelected.length === 0}
         onPress={async () => {
-          navigation.navigate('VeCuaBan', {
-            thongTinVe: thongTinVe,
-            qrData: thongTinVe.ma_qr,
-          });
-          await dispatch(updateNhieuGhe({listghe, gheSelected}));
-          await dispatch(addVe(thongTinVe));
-          await dispatch(tangDiemUser(user));
-          ToastAndroid.show('Tích điểm: +10 điểm', ToastAndroid.SHORT);
-        }}>
+  // 1. Đặt vé trước, lấy ve_id
+  const veRes = await dispatch(addVe(thongTinVe));
+  const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
+  console.log(ve_id);
+  
+
+  // 2. Tạo object thanh toán
+  const thanhToanData = {
+    khach_hang_id: user.khach_hang_id,
+    phuong_thuc: 'Momo', // hoặc lấy từ lựa chọn của user
+    so_tien: gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * (voucherSelected?.giam_gia || 0),
+    ngay_mua: ngay_mua,
+    ve_id: ve_id,
+  };
+
+  // 3. Gọi action thêm thanh toán
+  const res = await dispatch(addThanhToan(thanhToanData));
+console.log('Kết quả thêm thanh toán:', res);
+
+  // 4. Các thao tác khác
+  await dispatch(updateNhieuGhe({ listghe, gheSelected }));
+  await dispatch(tangDiemUser(user));
+  ToastAndroid.show('Tích điểm: +10 điểm', ToastAndroid.SHORT);
+
+  navigation.navigate('VeCuaBan', {
+    thongTinVe: thongTinVe,
+    qrData: thongTinVe.ma_qr,
+  });
+}}>
         <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>
-          Thanh toán: {gheSelected.length * 129000} đ
+          Thanh toán:{' '}
+          {gheSelected.length * 80000 -
+            ((gheSelected.length * 80000) / 100) *
+              voucherSelected?.giam_gia}{' '}
+          đ
         </Text>
       </TouchableOpacity>
     </View>
@@ -268,7 +345,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 4,
     borderColor: 'red',
-    backgroundColor:'#4C4F90'
+    backgroundColor: '#4C4F90',
   },
   boxPurple: {
     borderWidth: 2,

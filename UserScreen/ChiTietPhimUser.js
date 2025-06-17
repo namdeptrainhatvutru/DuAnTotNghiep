@@ -19,6 +19,7 @@ const ChiTietPhimUser = ({route}) => {
   const listPhongChieu = useSelector(state => state.phongchieu.listphongchieu);
   const [selected, setSelected] = useState(null);
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchSuatChieuByPhimId(phim.phim_id));

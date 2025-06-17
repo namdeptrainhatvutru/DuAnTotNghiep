@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { addVoucher, fetchVoucher, updateVoucher } from '../redux/actions/VoucherAction'
@@ -17,24 +17,23 @@ const VoucherScreen = () => {
     alert('Bạn đã sở hữu voucher này!');
     return;
   }
-  if (user.diem < item.giam_gia) {
+  if (user.diem < 10) {
     alert('Bạn không đủ điểm để đổi voucher này!');
     return;
   }
   await dispatch(updateVoucher({ ...item, khach_hang_id: user.khach_hang_id }));
   // Trừ điểm user
-  await dispatch(updateUser({ ...user, diem: user.diem - item.giam_gia }));
-  alert('Đổi voucher thành công!');
+  await dispatch(updateUser({ ...user, diem: user.diem - 10 }));
+  alert(` Chúc mừng bạn nhận được mã giảm giá : ${item.giam_gia}% `);
 };
 
 
 
   const renderItem = ({ item }) => (
     <View style={styles.voucherBox}>
-      <Text style={styles.voucherTitle}>{item.ma_voucher}</Text>
-      <Text style={styles.voucherDiscount}>Giảm giá: {item.giam_gia}%</Text>
-      <Text style={styles.voucherExpire}>Hạn: {item.thoi_gian_het_han}</Text>
-      <Text style={styles.voucherDiscount2}>{item.khach_hang_id === user.khach_hang_id?'Bạn đã có voucher':''}</Text>
+      <Text style={{position:'absolute',zIndex:99,fontSize:20,bottom:'63%'}}>?</Text>
+      <Image style={{width:120,height:90}} source={require('../img/vouchermovi.png')}/>
+      
       <TouchableOpacity
         style={styles.exchangeBtn}
         onPress={() => {
@@ -44,7 +43,7 @@ const VoucherScreen = () => {
       >
         <Text style={styles.exchangeBtnText}>Đổi voucher</Text>
         <View style={styles.pointBox}>
-          <Text style={styles.pointText}>{item.giam_gia}</Text>
+          <Text style={styles.pointText}>10</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -58,7 +57,7 @@ const VoucherScreen = () => {
         data={listvoucher.filter(item => item.khach_hang_id !== user.khach_hang_id)}
         keyExtractor={item => item.voucher_id || item.id}
         renderItem={renderItem}
-        numColumns={1}
+        numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
         contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 30 }}>Chưa có voucher nào</Text>}
@@ -105,8 +104,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#EA5A5A',
     borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    padding:5,
     marginTop: 8,
   },
   exchangeBtnText: {

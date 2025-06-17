@@ -35,9 +35,15 @@ const HomeScreen = () => {
 
   return (
     <View style={{ padding: 10,backgroundColor:'white',height:'100%' }}>
-      <Text>Xin chào {user.ho_ten} !</Text>
-      
-      <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: '55%' }}>
+      <TouchableOpacity
+      onPress={()=>{navigation.navigate('Profile')}}
+        style={{flexDirection:'row'}}
+      >
+
+        <Image style={{width:55,height:55,marginRight:10}} source={require('../img/profile.png')}/>
+        <View>
+          <Text>Xin chào {user.ho_ten} !</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: '55%' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: 90 }}>
           <Image style={{ width: 20, height: 20 }} source={require('../img/member.png')} />
           <Text style={{ fontSize: 8 }}>member</Text>
@@ -51,6 +57,12 @@ const HomeScreen = () => {
           <Text style={{ fontSize: 8 }}>0</Text>
         </View>
       </View>
+        </View>
+        
+      </TouchableOpacity>
+      
+      
+      
       <View >
       <BannerSlider />
       </View>

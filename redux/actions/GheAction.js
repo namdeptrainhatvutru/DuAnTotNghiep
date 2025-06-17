@@ -58,8 +58,7 @@ export const deleteGhe = createAsyncThunk(
 export const updateGhe = createAsyncThunk(
     'ghe/updateGhe',
     async (ghe) => {
-        // Sử dụng id thay vì id nếu dữ liệu ghế có trường id
-        const id = ghe.id || ghe.id;
+        const id = ghe.id ;
         const response = await fetch(`${link_ghe}/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },

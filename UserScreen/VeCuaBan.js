@@ -4,13 +4,12 @@ import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
 const VeCuaBan = ({route}) => {
   const {thongTinVe,qrData} = route.params
-  console.log("thông tin vé",thongTinVe);
-  console.log("qr",qrData);
+  
   const navigation = useNavigation();
   const handleBackToHome = () => {
     navigation.reset({
       index: 0,
-      routes: [{ name: 'MyTabs' }], // Đảm bảo 'Home' là tên màn hình chính của bạn
+      routes: [{ name: 'MyTabs' }], 
     });
   };
   return (

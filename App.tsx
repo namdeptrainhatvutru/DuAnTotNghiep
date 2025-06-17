@@ -32,6 +32,7 @@ import ThongTinVe from './UserScreen/ThongTinVe';
 import VeCuaBan from './UserScreen/VeCuaBan';
 import KhoVe from './UserScreen/KhoVe';
 import KhoVoucher from './UserScreen/KhoVoucher';
+import Profile from './UserScreen/Profile';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -203,6 +204,8 @@ const App = () => {
             component={KhoVe} />
             <Stack.Screen name="KhoVoucher"
             component={KhoVoucher} />
+            <Stack.Screen name="Profile"
+            component={Profile} />
 
         </Stack.Navigator>
       </NavigationContainer>
