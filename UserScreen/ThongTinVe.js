@@ -18,7 +18,7 @@ import {tangDiemUser} from '../redux/actions/UserAction';
 import {StyleSheet} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import {fetchVoucher} from '../redux/actions/VoucherAction';
-import { addThanhToan } from '../redux/actions/ThanhToanAction';
+import {addThanhToan} from '../redux/actions/ThanhToanAction';
 
 const ThongTinVe = ({route}) => {
   const {suatChieu, phim} = route.params;
@@ -36,13 +36,16 @@ const ThongTinVe = ({route}) => {
   const listvoucherbyid = listvoucher.filter(
     item => item.khach_hang_id === user_id.toString(),
   );
+  const giamGia = voucherSelected?.giam_gia || 0;
+
+const so_tien = gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * giamGia;
   const now = new Date();
-const ngay_mua =
-  String(now.getDate()).padStart(2, '0') +
-  '/' +
-  String(now.getMonth() + 1).padStart(2, '0') +
-  '/' +
-  now.getFullYear();
+  const ngay_mua =
+    String(now.getDate()).padStart(2, '0') +
+    '/' +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    '/' +
+    now.getFullYear();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -248,16 +251,21 @@ const ngay_mua =
             </ScrollView>
           </View>
         )}
-        <View style={{borderWidth:1,margin:10,backgroundColor:'black'}}></View>
+        <View
+          style={{borderWidth: 1, margin: 10, backgroundColor: 'black'}}></View>
         <View>
-          <Text>Giá vé : {gheSelected.length *80000}đ</Text>
-          <Text>giảm giá : - {(gheSelected.length *80000)/100*voucherSelected?.giam_gia}đ</Text>
+          <Text>Giá vé : {gheSelected.length * 80000}đ</Text>
+          <Text>
+            Giảm giá : - {giamGia}đ
+          </Text>
         </View>
-        <View style={{borderWidth:1,margin:10,backgroundColor:'black'}}></View>
-        <View style={{height:300}}>
-            <TouchableOpacity style={{width:'100%',borderRadius:10,backgroundColor:'white'}}>
-              <Text>Momo</Text>
-            </TouchableOpacity>
+        <View
+          style={{borderWidth: 1, margin: 10, backgroundColor: 'black'}}></View>
+        <View style={{height: 300}}>
+          <TouchableOpacity
+            style={{width: '100%', borderRadius: 10, backgroundColor: 'white'}}>
+            <Text>Momo</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -272,40 +280,39 @@ const ngay_mua =
         }}
         disabled={gheSelected.length === 0}
         onPress={async () => {
-  // 1. Đặt vé trước, lấy ve_id
-  const veRes = await dispatch(addVe(thongTinVe));
-  const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
-  console.log(ve_id);
-  
+          // 1. Đặt vé trước, lấy ve_id
+          const veRes = await dispatch(addVe(thongTinVe));
+          const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
+          console.log(ve_id);
 
-  // 2. Tạo object thanh toán
-  const thanhToanData = {
-    khach_hang_id: user.khach_hang_id,
-    phuong_thuc: 'Momo', // hoặc lấy từ lựa chọn của user
-    so_tien: gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * (voucherSelected?.giam_gia || 0),
-    ngay_mua: ngay_mua,
-    ve_id: ve_id,
-  };
+          // 2. Tạo object thanh toán
+          const thanhToanData = {
+            khach_hang_id: user.khach_hang_id,
+            phuong_thuc: 'Momo', // hoặc lấy từ lựa chọn của user
+            so_tien:
+              gheSelected.length * 80000 -
+              ((gheSelected.length * 80000) / 100) *
+                (voucherSelected?.giam_gia || 0),
+            ngay_mua: ngay_mua,
+            ve_id: ve_id,
+          };
 
-  // 3. Gọi action thêm thanh toán
-  const res = await dispatch(addThanhToan(thanhToanData));
-console.log('Kết quả thêm thanh toán:', res);
+          // 3. Gọi action thêm thanh toán
+          const res = await dispatch(addThanhToan(thanhToanData));
+          console.log('Kết quả thêm thanh toán:', res);
 
-  // 4. Các thao tác khác
-  await dispatch(updateNhieuGhe({ listghe, gheSelected }));
-  await dispatch(tangDiemUser(user));
-  ToastAndroid.show('Tích điểm: +10 điểm', ToastAndroid.SHORT);
+          // 4. Các thao tác khác
+          await dispatch(updateNhieuGhe({listghe, gheSelected}));
+          await dispatch(tangDiemUser(user));
+          ToastAndroid.show('Tích điểm: +10 điểm', ToastAndroid.SHORT);
 
-  navigation.navigate('VeCuaBan', {
-    thongTinVe: thongTinVe,
-    qrData: thongTinVe.ma_qr,
-  });
-}}>
+          navigation.navigate('VeCuaBan', {
+            thongTinVe: thongTinVe,
+            qrData: thongTinVe.ma_qr,
+          });
+        }}>
         <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>
-          Thanh toán:{' '}
-          {gheSelected.length * 80000 -
-            ((gheSelected.length * 80000) / 100) *
-              voucherSelected?.giam_gia}{' '}
+          Thanh toán: {so_tien}
           đ
         </Text>
       </TouchableOpacity>

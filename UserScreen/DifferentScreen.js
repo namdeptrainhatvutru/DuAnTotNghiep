@@ -7,7 +7,6 @@ const DifferentScreen = () => {
   return (
     <View>
       <Text>DifferentScreen</Text>
-
       <TouchableOpacity onPress={()=>{navigation.navigate('KhoVe')}}>
         <Text>Kho vé của bạn</Text>
       </TouchableOpacity>
@@ -16,6 +15,12 @@ const DifferentScreen = () => {
       </TouchableOpacity>
       <TouchableOpacity onPress={()=>{navigation.navigate('Chatbot')}}>
         <Text>Chat bot</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>{navigation.navigate('ChangePass')}}>
+        <Text>Đổi mật khẩu</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>{navigation.reset({index:0,routes: [{name: 'Login'}],})}}>
+        <Text>Logout</Text>
       </TouchableOpacity>
     </View>
   )

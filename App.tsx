@@ -33,6 +33,8 @@ import VeCuaBan from './UserScreen/VeCuaBan';
 import KhoVe from './UserScreen/KhoVe';
 import KhoVoucher from './UserScreen/KhoVoucher';
 import Profile from './UserScreen/Profile';
+import ChangePass from './LoginScreen/ChangePass';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -108,7 +110,7 @@ const MyTabs = () => {
 const App = () => {
   return (
     <Provider store={store}>
-
+      <GestureHandlerRootView>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
@@ -200,16 +202,21 @@ const App = () => {
             component={ThongTinVe} />
           <Stack.Screen name="VeCuaBan"
             component={VeCuaBan} />
-          <Stack.Screen name="KhoVe"
-            component={KhoVe} />
-            <Stack.Screen name="KhoVoucher"
+        
+            <Stack.Screen name="KhoVe"
+              component={KhoVe} />
+     
+
+          <Stack.Screen name="KhoVoucher"
             component={KhoVoucher} />
-            <Stack.Screen name="Profile"
+          <Stack.Screen name="Profile"
             component={Profile} />
+          <Stack.Screen name="ChangePass"
+            component={ChangePass} />
 
         </Stack.Navigator>
       </NavigationContainer>
-
+    </GestureHandlerRootView>
     </Provider>
   );
 };
