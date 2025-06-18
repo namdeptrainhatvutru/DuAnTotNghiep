@@ -41,7 +41,7 @@ const Profile = () => {
               marginLeft: 50,
             }}>
             <Text style={{fontSize: 12}}>Điểm thưởng</Text>
-            <Text>0</Text>
+            <Text>{user.diem}</Text>
           </View>
         </View>
         <View

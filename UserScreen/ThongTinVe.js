@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ToastAndroid,
   ScrollView,
+  Image,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchAllPhongChieu} from '../redux/actions/PhongChieuAction';
@@ -32,13 +33,15 @@ const ThongTinVe = ({route}) => {
   const user = useSelector(state => state.user.user);
   const [loading, setLoading] = useState(true);
   const [gheSelected, setGheSelected] = useState([]);
+  const [payment, setPayment] = useState('');
   const [voucherSelected, setVoucherSelected] = useState(null);
   const listvoucherbyid = listvoucher.filter(
     item => item.khach_hang_id === user_id.toString(),
   );
   const giamGia = voucherSelected?.giam_gia || 0;
 
-const so_tien = gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * giamGia;
+  const so_tien =
+    gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * giamGia;
   const now = new Date();
   const ngay_mua =
     String(now.getDate()).padStart(2, '0') +
@@ -112,7 +115,7 @@ const so_tien = gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100
     trang_thai: 'chưa sử dụng',
   };
   thongTinVe.ma_qr = JSON.stringify(thongTinVe);
-
+  
   return (
     <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={{padding: 20, paddingBottom: 120}}>
@@ -255,44 +258,56 @@ const so_tien = gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100
           style={{borderWidth: 1, margin: 10, backgroundColor: 'black'}}></View>
         <View>
           <Text>Giá vé : {gheSelected.length * 80000}đ</Text>
-          <Text>
-            Giảm giá : - {giamGia}đ
-          </Text>
+          <Text>Giảm giá : - {giamGia}đ</Text>
         </View>
         <View
           style={{borderWidth: 1, margin: 10, backgroundColor: 'black'}}></View>
         <View style={{height: 300}}>
           <TouchableOpacity
-            style={{width: '100%', borderRadius: 10, backgroundColor: 'white'}}>
+            onPress={() => {
+              setPayment('Momo');
+            }}
+            style={[styles.payment,{borderColor: payment === 'Momo' ? 'red' : 'black',borderWidth:payment === 'Momo' ?2:1}]}>
+            <Image
+              style={styles.imgpayment}
+              source={require('../img/momo.png')}
+            />
             <Text>Momo</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setPayment('Thẻ tín dụng');
+            }}
+            style={[styles.payment,{borderColor: payment === 'Thẻ tín dụng' ? 'red' : 'black',borderWidth:payment === 'Thẻ tín dụng' ?2:1}]}>
+            <Image
+              style={styles.imgpayment}
+              source={require('../img/card.png')}
+            />
+            <Text>Thẻ tín dụng</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
       <TouchableOpacity
         style={{
-          backgroundColor: gheSelected.length === 0 ? 'gray' : 'red',
+          backgroundColor: gheSelected.length === 0 || !payment ? 'gray' : 'red',
           padding: 20,
           borderRadius: 15,
           position: 'absolute',
           bottom: 10,
           alignSelf: 'center',
         }}
-        disabled={gheSelected.length === 0}
+        disabled={gheSelected.length === 0 || !payment}
         onPress={async () => {
           // 1. Đặt vé trước, lấy ve_id
           const veRes = await dispatch(addVe(thongTinVe));
           const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
-          console.log(ve_id);
 
           // 2. Tạo object thanh toán
           const thanhToanData = {
             khach_hang_id: user.khach_hang_id,
-            phuong_thuc: 'Momo', // hoặc lấy từ lựa chọn của user
-            so_tien:
-              gheSelected.length * 80000 -
-              ((gheSelected.length * 80000) / 100) *
-                (voucherSelected?.giam_gia || 0),
+            phuong_thuc: payment, 
+            so_tien:so_tien,
             ngay_mua: ngay_mua,
             ve_id: ve_id,
           };
@@ -312,8 +327,7 @@ const so_tien = gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100
           });
         }}>
         <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>
-          Thanh toán: {so_tien}
-          đ
+          Thanh toán: {so_tien}đ
         </Text>
       </TouchableOpacity>
     </View>
@@ -366,4 +380,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#4C4F90',
     borderColor: '#4C4F90',
   },
+  payment: {
+    width: '100%',
+    borderRadius: 10,
+    backgroundColor: 'white',
+    height: 60,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 5,
+    marginBottom: 20,
+    borderWidth:1,
+  },
+  imgpayment: {width: 50, height: 50, marginRight: 10},
 });

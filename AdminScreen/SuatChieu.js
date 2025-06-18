@@ -20,7 +20,7 @@ import {
 import {fetchPhim} from '../redux/actions/PhimAction';
 import {Button} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import { addGhe, deleteGheBySuatChieuId } from '../redux/actions/GheAction';
+import {addGhe, deleteGheBySuatChieuId} from '../redux/actions/GheAction';
 
 const SuatChieu = ({route}) => {
   const {room_id, ten_phong} = route.params;
@@ -36,6 +36,42 @@ const SuatChieu = ({route}) => {
   const listphim = useSelector(state => state.phim.listphim);
   console.log('list phim : ', listphim);
   const navigation = useNavigation();
+
+  const handleDateChange = (text) => {
+  // Loại bỏ ký tự không phải số
+  const cleaned = text.replace(/[^\d]/g, '');
+
+  let formatted = '';
+
+  if (cleaned.length <= 2) {
+    formatted = cleaned;
+  } else if (cleaned.length <= 4) {
+    formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
+  } else {
+    formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`;
+  }
+
+  // Validate giới hạn ngày và tháng
+  const parts = formatted.split('/');
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+
+  if (day > 31) parts[0] = '31';
+  if (month > 12) parts[1] = '12';
+
+  // Gộp lại nếu cần
+  if (parts.length === 3) {
+    formatted = `${parts[0]}/${parts[1]}/${parts[2]}`;
+  } else if (parts.length === 2) {
+    formatted = `${parts[0]}/${parts[1]}`;
+  } else {
+    formatted = parts[0];
+  }
+
+  setngay_chieu(formatted);
+};
+
+
   useEffect(() => {
     setLoading(true); // Bắt đầu loading khi room_id đổi
     dispatch(fetchPhim());
@@ -43,12 +79,13 @@ const SuatChieu = ({route}) => {
       setLoading(false); // Kết thúc loading khi fetch xong
     });
   }, [dispatch, room_id]);
+
   const renderItem = ({item}) => {
     const phim = listphim.find(p => p.phim_id === item.phim_id);
     return (
       <View style={{borderWidth: 1, borderRadius: 20, padding: 10, margin: 5}}>
-        <Text>{item.suat_chieu_id}</Text>
-        <Text>{item.ngay_chieu}</Text>
+        <Text>ID :{item.suat_chieu_id}</Text>
+        <Text>Ngày chiếu : {item.ngay_chieu}</Text>
         <View
           style={{alignItems: 'center', marginBottom: 6, flexDirection: 'row'}}>
           {phim ? (
@@ -91,9 +128,9 @@ const SuatChieu = ({route}) => {
         />
         <Button
           title="xóa"
-          onPress={() =>{ dispatch(deleteSuatChieu(item.suat_chieu_id))
-              dispatch(deleteGheBySuatChieuId(item.suat_chieu_id));
-
+          onPress={() => {
+            dispatch(deleteSuatChieu(item.suat_chieu_id));
+            dispatch(deleteGheBySuatChieuId(item.suat_chieu_id));
           }}
         />
       </View>
@@ -116,26 +153,26 @@ const SuatChieu = ({route}) => {
       phim_id: phim_id,
     };
     dispatch(addSuatChieu(suatchieu)).then(res => {
-    const createdSuatChieu = res.payload;
-    // Tạo 30 ghế cho suất chiếu này
-    if (createdSuatChieu && createdSuatChieu.suat_chieu_id) {
+      const createdSuatChieu = res.payload;
+      // Tạo 30 ghế cho suất chiếu này
+      if (createdSuatChieu && createdSuatChieu.suat_chieu_id) {
         for (let i = 1; i <= 30; i++) {
-            const newGhe = {
-                vi_tri: `G${i}`,
-                suat_chieu_id: createdSuatChieu.suat_chieu_id,
-                trang_thai: 'trống',
-            };
-            dispatch(addGhe(newGhe));
+          const newGhe = {
+            vi_tri: `G${i}`,
+            suat_chieu_id: createdSuatChieu.suat_chieu_id,
+            trang_thai: 'trống',
+          };
+          dispatch(addGhe(newGhe));
         }
-    }
-    dispatch(fetchSuatChieu(room_id));
-    Alert.alert('Thêm thành công');
-    setModal(false);
-    setngay_chieu('');
-    setthoi_gian_bat_dau('');
-    setthoi_gian_ket_thuc('');
-    setphim_id('');
-});
+      }
+      dispatch(fetchSuatChieu(room_id));
+      Alert.alert('Thêm thành công');
+      setModal(false);
+      setngay_chieu('');
+      setthoi_gian_bat_dau('');
+      setthoi_gian_ket_thuc('');
+      setphim_id('');
+    });
   };
   if (loading) {
     return (
@@ -175,9 +212,11 @@ const SuatChieu = ({route}) => {
           }}>
           <Text>Thêm suất chiếu</Text>
           <TextInput
-            placeholder="Ngày chiếu"
+            placeholder="dd/mm/yyyy"
             value={ngay_chieu}
-            onChangeText={setngay_chieu}
+            onChangeText={handleDateChange}
+            keyboardType="numeric"
+            maxLength={10} // 10 ký tự: dd/mm/yyyy
           />
           <TextInput
             placeholder="Thời gian bắt đầu"

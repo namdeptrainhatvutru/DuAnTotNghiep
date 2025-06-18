@@ -13,6 +13,7 @@ import {deleteVe, fetchVeByKhachHangId} from '../redux/actions/VeAction';
 import QRCode from 'react-native-qrcode-svg';
 import {ActivityIndicator} from 'react-native';
 import {Swipeable} from 'react-native-gesture-handler';
+import { Alert } from 'react-native';
 
 const KhoVe = () => {
   const user = useSelector(state => state.user.user);
@@ -39,9 +40,29 @@ const KhoVe = () => {
   const veConHan = listve.filter(isVeConHan);
   const veHetHan = listve.filter(ve => !isVeConHan(ve));
 
-  const handleDelete = ve_id => {
-    dispatch(deleteVe(ve_id));
-  };
+
+
+const handleDelete = ve_id => {
+  Alert.alert(
+    'Xác nhận',
+    'Bạn có chắc chắn muốn xóa vé này không?',
+    [
+      {
+        text: 'Hủy',
+        style: 'cancel',
+      },
+      {
+        text: 'Xóa',
+        onPress: () => {
+          dispatch(deleteVe(ve_id));
+        },
+        style: 'destructive',
+      },
+    ],
+    { cancelable: true }
+  );
+};
+
 
   const renderRightActions = (progress, dragX, onDelete) => (
     <TouchableOpacity
@@ -53,7 +74,8 @@ const KhoVe = () => {
         width:150
       }}
       onPress={onDelete}>
-      <Text style={{color: 'white', fontWeight: 'bold'}}>Xóa</Text>
+        <Image style={{width:50,height:50}} source={require('../img/delete.png')}/>
+      
     </TouchableOpacity>
   );
 

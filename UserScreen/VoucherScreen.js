@@ -51,7 +51,7 @@ const VoucherScreen = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff', padding: 10 }}>
-      <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Danh sách Voucher</Text>
+      <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Voucher miễn phí</Text>
       <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Điểm của bạn : {user.diem}</Text>
       <FlatList
         data={listvoucher.filter(item => item.khach_hang_id !== user.khach_hang_id)}

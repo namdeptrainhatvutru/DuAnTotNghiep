@@ -1,21 +1,75 @@
-import { Image, StyleSheet, Text, View, TextInput, TouchableOpacity, Button, Modal, ScrollView, Alert } from 'react-native'
-import React, { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { updateSuatChieu } from '../redux/actions/SuatChieuAction'
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Button,
+  Modal,
+  ScrollView,
+  Alert,
+} from 'react-native';
+import React, {useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {updateSuatChieu} from '../redux/actions/SuatChieuAction';
 
-const CapNhatSuatChieu = ({ route, navigation }) => {
-  const { phim, suat_chieu } = route.params
+const CapNhatSuatChieu = ({route, navigation}) => {
+  const {phim, suat_chieu} = route.params;
   console.log('suat_chieu:', suat_chieu);
-  
-  const dispatch = useDispatch()
-  const listphim = useSelector(state => state.phim.listphim)
+
+  const dispatch = useDispatch();
+  const listphim = useSelector(state => state.phim.listphim);
 
   // State cho các trường chỉnh sửa
-    const [ngay_chieu, setngay_chieu] = useState(suat_chieu.ngay_chieu.toString())
-    const [thoi_gian_bat_dau, setthoi_gian_bat_dau] = useState(suat_chieu.thoi_gian_bat_dau.toString())
-    const [thoi_gian_ket_thuc, setthoi_gian_ket_thuc] = useState(suat_chieu.thoi_gian_ket_thuc.toString())
-    const [phim_id, setphim_id] = useState(suat_chieu.phim_id)
-    const [phimModal, setPhimModal] = useState(false)
+  const [ngay_chieu, setngay_chieu] = useState(
+    suat_chieu.ngay_chieu.toString(),
+  );
+  const [thoi_gian_bat_dau, setthoi_gian_bat_dau] = useState(
+    suat_chieu.thoi_gian_bat_dau.toString(),
+  );
+  const [thoi_gian_ket_thuc, setthoi_gian_ket_thuc] = useState(
+    suat_chieu.thoi_gian_ket_thuc.toString(),
+  );
+  const [phim_id, setphim_id] = useState(suat_chieu.phim_id);
+  const [phimModal, setPhimModal] = useState(false);
+
+  const handleDateChange = text => {
+    // Loại bỏ ký tự không phải số
+    const cleaned = text.replace(/[^\d]/g, '');
+
+    let formatted = '';
+
+    if (cleaned.length <= 2) {
+      formatted = cleaned;
+    } else if (cleaned.length <= 4) {
+      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
+    } else {
+      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(
+        2,
+        4,
+      )}/${cleaned.slice(4, 8)}`;
+    }
+
+    // Validate giới hạn ngày và tháng
+    const parts = formatted.split('/');
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+
+    if (day > 31) parts[0] = '31';
+    if (month > 12) parts[1] = '12';
+
+    // Gộp lại nếu cần
+    if (parts.length === 3) {
+      formatted = `${parts[0]}/${parts[1]}/${parts[2]}`;
+    } else if (parts.length === 2) {
+      formatted = `${parts[0]}/${parts[1]}`;
+    } else {
+      formatted = parts[0];
+    }
+
+    setngay_chieu(formatted);
+  };
 
   const handleUpdate = () => {
     const updated = {
@@ -24,33 +78,38 @@ const CapNhatSuatChieu = ({ route, navigation }) => {
       thoi_gian_bat_dau,
       thoi_gian_ket_thuc,
       phim_id,
-    }
+    };
     dispatch(updateSuatChieu(updated)).then(() => {
-      Alert.alert('Cập nhật thành công!')
-      navigation.goBack()
-    })
-  }
+      Alert.alert('Cập nhật thành công!');
+      navigation.goBack();
+    });
+  };
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 10 }}>Cập nhật suất chiếu</Text>
+    <View style={{flex: 1, padding: 16}}>
+      <Text style={{fontWeight: 'bold', fontSize: 18, marginBottom: 10}}>
+        Cập nhật suất chiếu
+      </Text>
+      
       <TextInput
-        placeholder="Ngày chiếu"
+        placeholder="dd/mm/yyyy"
         value={ngay_chieu}
-        onChangeText={setngay_chieu}
-        style={{ borderWidth: 1, borderRadius: 8, marginBottom: 10, padding: 8 }}
+        onChangeText={handleDateChange}
+        keyboardType="numeric"
+        maxLength={10}
+        style={{borderWidth: 1, borderRadius: 8, marginBottom: 10, padding: 8}}
       />
       <TextInput
         placeholder="Thời gian bắt đầu"
         value={thoi_gian_bat_dau}
         onChangeText={setthoi_gian_bat_dau}
-        style={{ borderWidth: 1, borderRadius: 8, marginBottom: 10, padding: 8 }}
+        style={{borderWidth: 1, borderRadius: 8, marginBottom: 10, padding: 8}}
       />
       <TextInput
         placeholder="Thời gian kết thúc"
         value={thoi_gian_ket_thuc}
         onChangeText={setthoi_gian_ket_thuc}
-        style={{ borderWidth: 1, borderRadius: 8, marginBottom: 10, padding: 8 }}
+        style={{borderWidth: 1, borderRadius: 8, marginBottom: 10, padding: 8}}
       />
       <TouchableOpacity
         style={{
@@ -61,11 +120,10 @@ const CapNhatSuatChieu = ({ route, navigation }) => {
           alignItems: 'center',
           backgroundColor: '#eee',
         }}
-        onPress={() => setPhimModal(true)}
-      >
+        onPress={() => setPhimModal(true)}>
         <Text>
           {phim_id
-            ? (listphim.find(p => p.phim_id === phim_id)?.ten_phim || 'Chọn phim')
+            ? listphim.find(p => p.phim_id === phim_id)?.ten_phim || 'Chọn phim'
             : 'Chọn phim'}
         </Text>
       </TouchableOpacity>
@@ -89,14 +147,16 @@ const CapNhatSuatChieu = ({ route, navigation }) => {
               width: 320,
               maxHeight: 400,
             }}>
-            <Text style={{ fontWeight: 'bold', marginBottom: 10 }}>Chọn phim</Text>
+            <Text style={{fontWeight: 'bold', marginBottom: 10}}>
+              Chọn phim
+            </Text>
             <ScrollView horizontal={false}>
               {listphim.map(item => (
                 <TouchableOpacity
                   key={item.phim_id}
                   onPress={() => {
-                    setphim_id(item.phim_id)
-                    setPhimModal(false)
+                    setphim_id(item.phim_id);
+                    setPhimModal(false);
                   }}
                   style={{
                     flexDirection: 'row',
@@ -105,10 +165,11 @@ const CapNhatSuatChieu = ({ route, navigation }) => {
                     borderWidth: 1,
                     borderRadius: 8,
                     padding: 8,
-                    backgroundColor: phim_id === item.phim_id ? '#d0ebff' : '#fff',
+                    backgroundColor:
+                      phim_id === item.phim_id ? '#d0ebff' : '#fff',
                   }}>
                   <Image
-                    source={{ uri: item.poster_url }}
+                    source={{uri: item.poster_url}}
                     style={{
                       width: 50,
                       height: 75,
@@ -125,9 +186,9 @@ const CapNhatSuatChieu = ({ route, navigation }) => {
         </View>
       </Modal>
     </View>
-  )
-}
+  );
+};
 
-export default CapNhatSuatChieu
+export default CapNhatSuatChieu;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});
