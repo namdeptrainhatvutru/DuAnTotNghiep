@@ -3,6 +3,7 @@ import {
   addVoucher,
   deleteVoucher,
   updateVoucher,
+  updateVoucherByMa,
 } from '../actions/VoucherAction';
 
 const initialState = {
@@ -42,6 +43,17 @@ const VoucherSlice = createSlice({
         state.listvoucher[index] = updatedVoucher;
       }
     });
+    builder.addCase(updateVoucherByMa.fulfilled, (state, action) => {
+    const updatedVoucher = action.payload;
+    const index = state.listvoucher.findIndex(
+      v =>
+        v.voucher_id === updatedVoucher.voucher_id ||
+        v.id === updatedVoucher.voucher_id
+    );
+    if (index !== -1) {
+      state.listvoucher[index] = updatedVoucher;
+    }
+  });
   },
 });
 

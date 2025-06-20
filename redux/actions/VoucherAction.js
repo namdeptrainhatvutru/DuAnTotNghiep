@@ -21,6 +21,18 @@ export const fetchVoucher = () => {
     }
   };
 };
+export const fetchVoucher2 = () => {
+  return async dispatch => {
+    try {
+      const response = await fetch(`${api_voucher}?khach_hang_id=""`);
+      let data = await response.json();
+      data = data.map(convertVoucher);
+      dispatch(setVoucher(data));
+    } catch (error) {
+      console.error('Error fetching voucher:', error);
+    }
+  };
+};
 
 export const fetchVoucherById = (id) => {
   return async dispatch => {
@@ -66,7 +78,7 @@ export const deleteVoucher = createAsyncThunk(
 export const updateVoucher = createAsyncThunk(
   'voucher/updateVoucher',
   async voucher => {
-    const response = await fetch(`${api_voucher}/${voucher.voucher_id || voucher.id}`, {
+    const response = await fetch(`${api_voucher}/${voucher.voucher_id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(voucher),
@@ -76,5 +88,30 @@ export const updateVoucher = createAsyncThunk(
     if (response.ok) {
       return data;
     }
+  }
+);
+
+export const updateVoucherByMa = createAsyncThunk(
+  'voucher/updatebyMaGiamGia',
+  async ({ ma_voucher, khach_hang_id }) => {
+    // 1. Lấy voucher theo mã
+    const resGet = await fetch(`${api_voucher}?ma_voucher=${ma_voucher}`);
+    const data = await resGet.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error('Không tìm thấy voucher');
+    }
+    const voucher = data[0];
+
+    // 2. Cập nhật khach_hang_id cho voucher đó
+    const resPut = await fetch(`${api_voucher}/${voucher.voucher_id || voucher.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...voucher, khach_hang_id }),
+    });
+    const updated = await resPut.json();
+    if (resPut.ok) {
+      return updated;
+    }
+    throw new Error('Cập nhật voucher thất bại');
   }
 );
