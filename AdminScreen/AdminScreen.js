@@ -1,4 +1,4 @@
-import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Button, Image, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native'
 
@@ -33,8 +33,8 @@ const AdminScreen = () => {
         <Image source={require('../img/phim.png')} style={{width:100,height:100}}/>
         <Text>Quản lý phim</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={{backgroundColor:'white', width:200, height:200, justifyContent:'center', alignItems:'center', borderRadius:10,alignContent:'center',padding:10}} onPress={()=>{nav.navigate()}}>
-        <Image source={require('../img/users.png')} style={{width:100,height:100}}/>
+      <TouchableOpacity style={{backgroundColor:'white', width:200, height:200, justifyContent:'center', alignItems:'center', borderRadius:10,alignContent:'center',padding:10}} onPress={()=>{Linking.openURL('https://namdeptrainhatvutru.github.io/movixweb/')}}>
+        <Image source={require('../img/static.png')} style={{width:100,height:100}}/>
         <Text>Thống kê</Text>
       </TouchableOpacity>
       </View>

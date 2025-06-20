@@ -115,7 +115,7 @@ const ThongTinVe = ({route}) => {
     trang_thai: 'chưa sử dụng',
   };
   thongTinVe.ma_qr = JSON.stringify(thongTinVe);
-  
+
   return (
     <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={{padding: 20, paddingBottom: 120}}>
@@ -267,7 +267,13 @@ const ThongTinVe = ({route}) => {
             onPress={() => {
               setPayment('Momo');
             }}
-            style={[styles.payment,{borderColor: payment === 'Momo' ? 'red' : 'black',borderWidth:payment === 'Momo' ?2:1}]}>
+            style={[
+              styles.payment,
+              {
+                borderColor: payment === 'Momo' ? 'red' : 'black',
+                borderWidth: payment === 'Momo' ? 2 : 1,
+              },
+            ]}>
             <Image
               style={styles.imgpayment}
               source={require('../img/momo.png')}
@@ -278,7 +284,13 @@ const ThongTinVe = ({route}) => {
             onPress={() => {
               setPayment('Thẻ tín dụng');
             }}
-            style={[styles.payment,{borderColor: payment === 'Thẻ tín dụng' ? 'red' : 'black',borderWidth:payment === 'Thẻ tín dụng' ?2:1}]}>
+            style={[
+              styles.payment,
+              {
+                borderColor: payment === 'Thẻ tín dụng' ? 'red' : 'black',
+                borderWidth: payment === 'Thẻ tín dụng' ? 2 : 1,
+              },
+            ]}>
             <Image
               style={styles.imgpayment}
               source={require('../img/card.png')}
@@ -290,7 +302,8 @@ const ThongTinVe = ({route}) => {
 
       <TouchableOpacity
         style={{
-          backgroundColor: gheSelected.length === 0 || !payment ? 'gray' : 'red',
+          backgroundColor:
+            gheSelected.length === 0 || !payment ? 'gray' : 'red',
           padding: 20,
           borderRadius: 15,
           position: 'absolute',
@@ -306,8 +319,8 @@ const ThongTinVe = ({route}) => {
           // 2. Tạo object thanh toán
           const thanhToanData = {
             khach_hang_id: user.khach_hang_id,
-            phuong_thuc: payment, 
-            so_tien:so_tien,
+            phuong_thuc: payment,
+            so_tien: so_tien,
             ngay_mua: ngay_mua,
             ve_id: ve_id,
           };
@@ -317,7 +330,7 @@ const ThongTinVe = ({route}) => {
           console.log('Kết quả thêm thanh toán:', res);
 
           // 4. Các thao tác khác
-          await dispatch(updateNhieuGhe({listghe, gheSelected}));
+          dispatch(updateNhieuGhe({ listghe, gheSelected, suat_chieu_id: suatChieu.suat_chieu_id }))
           await dispatch(tangDiemUser(user));
           ToastAndroid.show('Tích điểm: +10 điểm', ToastAndroid.SHORT);
 
@@ -389,7 +402,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 5,
     marginBottom: 20,
-    borderWidth:1,
+    borderWidth: 1,
   },
   imgpayment: {width: 50, height: 50, marginRight: 10},
 });

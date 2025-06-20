@@ -83,11 +83,11 @@ export const deleteGheBySuatChieuId = createAsyncThunk(
 
 export const updateNhieuGhe = createAsyncThunk(
   'ghe/updateNhieuGhe',
-  async ({ listghe, gheSelected }, { dispatch }) => {
-    // listghe: danh sách tất cả ghế của phòng
-    // gheSelected: mảng các vị trí ghế đã chọn
+  async ({ listghe, gheSelected, suat_chieu_id }, { dispatch }) => {
     const promises = gheSelected.map(vi_tri => {
-      const ghe = listghe.find(g => g.vi_tri === vi_tri);
+      const ghe = listghe.find(
+        g => g.vi_tri === vi_tri && g.suat_chieu_id === suat_chieu_id
+      );
       if (ghe) {
         return dispatch(updateGhe({ ...ghe, trang_thai: 'đã chọn' }));
       }
