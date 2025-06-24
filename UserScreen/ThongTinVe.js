@@ -20,6 +20,7 @@ import {StyleSheet} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import {deleteVoucher, fetchVoucher} from '../redux/actions/VoucherAction';
 import {addThanhToan} from '../redux/actions/ThanhToanAction';
+import Modal from 'react-native-modal';
 
 const ThongTinVe = ({route}) => {
   const {suatChieu, phim} = route.params;
@@ -35,6 +36,7 @@ const ThongTinVe = ({route}) => {
   const [gheSelected, setGheSelected] = useState([]);
   const [payment, setPayment] = useState('');
   const [voucherSelected, setVoucherSelected] = useState(null);
+  const [showVietQR, setShowVietQR] = useState(false);
   const listvoucherbyid = listvoucher.filter(
     item => item.khach_hang_id === user_id.toString(),
   );
@@ -115,6 +117,22 @@ const ThongTinVe = ({route}) => {
     trang_thai: 'chưa sử dụng',
   };
   thongTinVe.ma_qr = JSON.stringify(thongTinVe);
+
+  // Thông tin chuyển khoản VietQR
+  const vietQRInfo = {
+    accountName: 'VU HOANG NAM',
+    accountNumber: '9961062156',
+    bankCode: 'VCB', 
+    so_tien: so_tien,
+    noiDung: `MOVIX_${user.khach_hang_id}_${Date.now()}`,
+  };
+
+  // Link ảnh QR từ vietqr.io (không cần tự tạo QR code)
+  const vietQRUrl = `https://img.vietqr.io/image/${vietQRInfo.bankCode}-${
+    vietQRInfo.accountNumber
+  }-compact2.png?amount=${vietQRInfo.so_tien}&addInfo=${encodeURIComponent(
+    vietQRInfo.noiDung,
+  )}&accountName=${encodeURIComponent(vietQRInfo.accountName)}`;
 
   return (
     <View style={{flex: 1}}>
@@ -297,6 +315,21 @@ const ThongTinVe = ({route}) => {
             />
             <Text>Thẻ tín dụng</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setPayment('VietQR')}
+            style={[
+              styles.payment,
+              {
+                borderColor: payment === 'VietQR' ? 'red' : 'black',
+                borderWidth: payment === 'VietQR' ? 2 : 1,
+              },
+            ]}>
+            <Image
+              style={styles.imgpayment}
+              source={require('../img/vietqr.png')}
+            />
+            <Text>VietQR</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -312,6 +345,10 @@ const ThongTinVe = ({route}) => {
         }}
         disabled={gheSelected.length === 0 || !payment}
         onPress={async () => {
+          if (payment === 'VietQR') {
+            setShowVietQR(true);
+            return;
+          }
           // 1. Đặt vé trước, lấy ve_id
           const veRes = await dispatch(addVe(thongTinVe));
           const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
@@ -330,11 +367,17 @@ const ThongTinVe = ({route}) => {
           console.log('Kết quả thêm thanh toán:', res);
 
           // 4. Các thao tác khác
-          dispatch(updateNhieuGhe({ listghe, gheSelected, suat_chieu_id: suatChieu.suat_chieu_id }))
+          dispatch(
+            updateNhieuGhe({
+              listghe,
+              gheSelected,
+              suat_chieu_id: suatChieu.suat_chieu_id,
+            }),
+          );
           await dispatch(tangDiemUser(user));
           ToastAndroid.show('Tích điểm: +10 điểm', ToastAndroid.SHORT);
           // 5. xóa voucher
-          dispatch(deleteVoucher(voucherSelected?.voucher_id))
+          dispatch(deleteVoucher(voucherSelected?.voucher_id));
 
           navigation.navigate('VeCuaBan', {
             thongTinVe: thongTinVe,
@@ -345,6 +388,60 @@ const ThongTinVe = ({route}) => {
           Thanh toán: {so_tien}đ
         </Text>
       </TouchableOpacity>
+
+      {/* Modal hiển thị QR VietQR */}
+      <Modal isVisible={showVietQR}>
+        <View style={{ backgroundColor: 'white', borderRadius: 12, padding: 20, alignItems: 'center' }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 10 }}>Quét mã VietQR để thanh toán</Text>
+          <Image
+            source={{ uri: vietQRUrl }}
+            style={{ width: 220, height: 220, marginBottom: 10 }}
+            resizeMode="contain"
+          />
+          <Text style={{ fontSize: 16, marginBottom: 6 }}>Số tiền: <Text style={{ fontWeight: 'bold' }}>{so_tien}đ</Text></Text>
+          <Text style={{ fontSize: 14, marginBottom: 6 }}>Nội dung: <Text style={{ fontWeight: 'bold' }}>{vietQRInfo.noiDung}</Text></Text>
+          <TouchableOpacity
+            style={{ backgroundColor: 'red', padding: 12, borderRadius: 8, marginTop: 10, width: 180, alignItems: 'center' }}
+            onPress={async () => {
+              setShowVietQR(false);
+              // Sau khi xác nhận đã chuyển khoản, thực hiện các bước đặt vé, thanh toán...
+              // 1. Đặt vé trước, lấy ve_id
+              const veRes = await dispatch(addVe(thongTinVe));
+              const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
+
+              // 2. Tạo object thanh toán
+              const thanhToanData = {
+                khach_hang_id: user.khach_hang_id,
+                phuong_thuc: payment,
+                so_tien: so_tien,
+                ngay_mua: ngay_mua,
+                ve_id: ve_id,
+              };
+
+              // 3. Gọi action thêm thanh toán
+              const res = await dispatch(addThanhToan(thanhToanData));
+              // 4. Các thao tác khác
+              dispatch(updateNhieuGhe({ listghe, gheSelected, suat_chieu_id: suatChieu.suat_chieu_id }))
+              await dispatch(tangDiemUser(user));
+              ToastAndroid.show('Tích điểm: +10 điểm', ToastAndroid.SHORT);
+              dispatch(deleteVoucher(voucherSelected?.voucher_id))
+
+              navigation.navigate('VeCuaBan', {
+                thongTinVe: thongTinVe,
+                qrData: thongTinVe.ma_qr,
+              });
+            }}
+          >
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>Tôi đã chuyển khoản</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ marginTop: 10 }}
+            onPress={() => setShowVietQR(false)}
+          >
+            <Text style={{ color: 'gray' }}>Hủy</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -407,4 +504,35 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   imgpayment: {width: 50, height: 50, marginRight: 10},
+  modal: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '90%',
+    elevation: 5,
+  },
+  modalTitle: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  qrImage: {
+    width: '100%',
+    height: 200,
+    marginVertical: 10,
+  },
+  closeButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
 });

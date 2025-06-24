@@ -153,7 +153,7 @@ const handleDelete = ve_id => {
         </>
       ) : (
         <FlatList
-          data={tab === 'conhan' ? veConHan : veHetHan}
+          data={tab === 'conhan' ? veConHan.slice().reverse() : veHetHan.slice().reverse()}
           keyExtractor={item => item.ve_id}
           renderItem={renderItem}
           contentContainerStyle={{paddingBottom: 40}}
