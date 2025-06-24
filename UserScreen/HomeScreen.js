@@ -1,5 +1,5 @@
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPhim } from '../redux/actions/PhimAction';
 import { useNavigation } from '@react-navigation/native';
@@ -10,10 +10,19 @@ const HomeScreen = () => {
   const listphim = useSelector(state => state.phim.listphim);
   const dispatch = useDispatch();
   const navigation = useNavigation()
+  const [selectedGenre, setSelectedGenre] = useState('Tất cả');
 
   useEffect(() => {
     dispatch(fetchPhim());
   }, [dispatch]);
+
+  // Lấy danh sách thể loại duy nhất từ listphim
+  const genres = ['Tất cả', ...Array.from(new Set(listphim.map(item => item.the_loai)))];
+
+  // Lọc phim theo thể loại đã chọn
+  const filteredPhim = selectedGenre === 'Tất cả'
+    ? listphim
+    : listphim.filter(item => item.the_loai === selectedGenre);
 
   const renderItem = ({ item }) => {
     return (
@@ -21,6 +30,9 @@ const HomeScreen = () => {
         <TouchableOpacity onPress={()=>{navigation.navigate('ChiTietPhimUser',{phim : item})}} style={{ margin: 5 }} activeOpacity={0.8}>
           <View style={styles.card}>
             <View style={styles.posterWrapper}>
+              <View style={{backgroundColor:item.do_tuoi < 18 ?'#99FF66' :'red',justifyContent:'flex-end',alignItems:'center',position:'absolute',zIndex:2,width:70,marginTop:10,right:0,borderTopLeftRadius:5,borderBottomLeftRadius:5}}>
+                <Text style={{fontSize:10}}>{item.do_tuoi}+</Text>
+              </View>
               <Image style={styles.poster} source={{ uri: item.poster_url }} />
             </View>
             <Text style={styles.title} numberOfLines={1}>
@@ -34,7 +46,7 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={{ padding: 10,backgroundColor:'white',height:'100%' }}>
+    <View style={{ padding: 10, backgroundColor: 'white', height: '100%' }}>
       <TouchableOpacity
       onPress={()=>{navigation.navigate('Profile')}}
         style={{flexDirection:'row'}}
@@ -66,10 +78,36 @@ const HomeScreen = () => {
       <View >
       <BannerSlider />
       </View>
+      {/* Thanh thể loại */}
+      <View style={{ flexDirection: 'row', marginVertical: 10 }}>
+        <FlatList
+          data={genres}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={item => item}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => setSelectedGenre(item)}
+              style={{
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                backgroundColor: selectedGenre === item ? '#EA5A5A' : '#eee',
+                borderRadius: 20,
+                marginRight: 8,
+              }}>
+              <Text style={{ color: selectedGenre === item ? '#fff' : '#333', fontWeight: 'bold' }}>
+                {item}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+
+      {/* Danh sách phim */}
       <View>
         <FlatList
           numColumns={3}
-          data={listphim}
+          data={filteredPhim}
           keyExtractor={item => item.phim_id}
           renderItem={renderItem}
         />

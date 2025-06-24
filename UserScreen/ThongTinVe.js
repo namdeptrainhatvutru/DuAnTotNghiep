@@ -18,7 +18,7 @@ import {addVe} from '../redux/actions/VeAction';
 import {tangDiemUser} from '../redux/actions/UserAction';
 import {StyleSheet} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
-import {fetchVoucher} from '../redux/actions/VoucherAction';
+import {deleteVoucher, fetchVoucher} from '../redux/actions/VoucherAction';
 import {addThanhToan} from '../redux/actions/ThanhToanAction';
 
 const ThongTinVe = ({route}) => {
@@ -333,6 +333,8 @@ const ThongTinVe = ({route}) => {
           dispatch(updateNhieuGhe({ listghe, gheSelected, suat_chieu_id: suatChieu.suat_chieu_id }))
           await dispatch(tangDiemUser(user));
           ToastAndroid.show('Tích điểm: +10 điểm', ToastAndroid.SHORT);
+          // 5. xóa voucher
+          dispatch(deleteVoucher(voucherSelected?.voucher_id))
 
           navigation.navigate('VeCuaBan', {
             thongTinVe: thongTinVe,

@@ -82,21 +82,50 @@ const SuatChieu = ({route}) => {
 
   const renderItem = ({item}) => {
     const phim = listphim.find(p => p.phim_id === item.phim_id);
+
+    // Xử lý ngày chiếu
+    let trangThai = '';
+    if (item.ngay_chieu) {
+      // Chuyển dd/mm/yyyy về yyyy-mm-dd để so sánh
+      const [day, month, year] = item.ngay_chieu.split('/');
+      const ngayChieuDate = new Date(`${year}-${month}-${day}`);
+      const now = new Date();
+      // Đặt giờ về 0 để so sánh ngày
+      ngayChieuDate.setHours(0,0,0,0);
+      now.setHours(0,0,0,0);
+
+      const diffTime = ngayChieuDate.getTime() - now.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 1) {
+        trangThai = 'Sắp chiếu';
+      } else if (diffDays > 1) {
+        trangThai = 'Chưa chiếu';
+      }
+      // Nếu diffDays <= 0 thì không hiện gì (đang chiếu hoặc đã chiếu)
+    }
+
     return (
       <View style={{borderWidth: 1, borderRadius: 20, padding: 10, margin: 5}}>
         <Text>ID :{item.suat_chieu_id}</Text>
         <Text>Ngày chiếu : {item.ngay_chieu}</Text>
-        <View
-          style={{alignItems: 'center', marginBottom: 6, flexDirection: 'row'}}>
+        <View style={{alignItems: 'center', marginBottom: 6, flexDirection: 'row'}}>
           {phim ? (
             <>
               <Image
                 source={{uri: phim.poster_url}}
                 style={{width: 60, height: 90, borderRadius: 8}}
               />
-              <Text style={{fontWeight: 'bold', marginTop: 4}}>
-                {phim.ten_phim}
-              </Text>
+              <View>
+                <Text style={{fontWeight: 'bold', marginTop: 4}}>
+                  {phim.ten_phim}
+                </Text>
+                {trangThai !== '' && (
+                  <Text style={{color: '#EA5A5A', fontWeight: 'bold', marginTop: 2}}>
+                    {trangThai}
+                  </Text>
+                )}
+              </View>
             </>
           ) : (
             <Text style={{color: 'red'}}>Không tìm thấy phim</Text>

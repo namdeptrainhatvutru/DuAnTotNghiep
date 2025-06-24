@@ -11,17 +11,14 @@ import {
 import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchPhim} from '../redux/actions/PhimAction';
-import YoutubePlayer from 'react-native-youtube-iframe';
-import WebView from 'react-native-webview';
-import {Dimensions} from 'react-native';
+
 import { useNavigation } from '@react-navigation/native';
 
 const QuanLyPhim = () => {
   const navigation = useNavigation();
   const listphim = useSelector(state => state.phim.listphim);
   const dispatch = useDispatch();
-
- 
+  
   useEffect(() => {
     dispatch(fetchPhim());
   }, []);

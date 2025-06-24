@@ -35,6 +35,7 @@ import KhoVoucher from './UserScreen/KhoVoucher';
 import Profile from './UserScreen/Profile';
 import ChangePass from './LoginScreen/ChangePass';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ManHinhChao from './LoginScreen/ManHinhChao';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -112,7 +113,12 @@ const App = () => {
     <Provider store={store}>
       <GestureHandlerRootView>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="ManHinhChao">
+          <Stack.Screen
+            name="ManHinhChao"
+            component={ManHinhChao}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen
             name="Login"
             component={Login}

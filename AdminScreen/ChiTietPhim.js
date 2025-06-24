@@ -13,11 +13,26 @@ import WebView from 'react-native-webview';
 import {useDispatch} from 'react-redux';
 import {deletePhim, updatePhim} from '../redux/actions/PhimAction';
 import {useNavigation} from '@react-navigation/native';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 const getYouTubeEmbedUrl = url => {
   if (!url) return '';
   const videoId = url.split('v=')[1];
   return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&showinfo=0`;
+};
+
+const imgbbApiKey = 'd698d3c569cf045e45516a8fc568c999';
+
+const uploadToImgbb = async base64 => {
+  const formData = new FormData();
+  formData.append('key', imgbbApiKey);
+  formData.append('image', base64);
+  const res = await fetch('https://api.imgbb.com/1/upload', {
+    method: 'POST',
+    body: formData,
+  });
+  const data = await res.json();
+  return data.data?.url;
 };
 
 const ChiTietPhim = ({route}) => {
@@ -38,6 +53,18 @@ const ChiTietPhim = ({route}) => {
     dispatch(updatePhim(editPhim)).then(() => {
       setCurrentPhim(editPhim); // cập nhật lại phim hiển thị
       setModal(false);
+    });
+  };
+
+  const handlePickImage = async () => {
+    launchImageLibrary({mediaType: 'photo', includeBase64: true}, async response => {
+      if (response.didCancel || response.errorCode) return;
+      const base64 = response.assets[0].base64;
+      // Upload lên imgbb
+      const url = await uploadToImgbb(base64);
+      if (url) {
+        setEditPhim({...editPhim, poster_url: url});
+      }
     });
   };
 
@@ -147,12 +174,21 @@ const ChiTietPhim = ({route}) => {
               style={styles.input}
               keyboardType="numeric"
             />
-            <TextInput
-              placeholder="Poster URL"
-              value={editPhim.poster_url}
-              onChangeText={text => setEditPhim({...editPhim, poster_url: text})}
-              style={styles.input}
-            />
+            <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8}}>
+              <TextInput
+                placeholder="Poster URL"
+                value={editPhim.poster_url}
+                onChangeText={text => setEditPhim({...editPhim, poster_url: text})}
+                style={[styles.input, {flex: 1}]}
+              />
+              <Button title="Chọn ảnh" onPress={handlePickImage} />
+            </View>
+            {editPhim.poster_url ? (
+              <Image
+                source={{ uri: editPhim.poster_url }}
+                style={{ width: 80, height: 120, borderRadius: 8, marginBottom: 8 }}
+              />
+            ) : null}
             <TextInput
               placeholder="Trailer URL"
               value={editPhim.trailer_url}
