@@ -55,8 +55,24 @@ const BannerSlider = () => {
         keyExtractor={(item) => item.id}
         ref={flatListRef}
         renderItem={({ item }) => (
-          <View style={{overflow:'hidden',borderRadius:20}}>
-          <Image source={{ uri: item.avatar }} style={styles.image} /></View>
+          <View style={{
+            overflow: 'hidden',
+            borderTopRightRadius: 20,
+            borderBottomRightRadius: 20,
+            width: width,
+            height: 160,
+          }}>
+            <Image
+              source={{ uri: item.avatar }}
+              style={{
+                width: width,
+                height: 160,
+                borderTopRightRadius: 20,
+                borderBottomRightRadius: 20,
+                resizeMode: 'cover',
+              }}
+            />
+          </View>
         )}
       />
       <View style={styles.dotContainer}>
@@ -79,7 +95,6 @@ const styles = StyleSheet.create({
       height: 160,
       marginTop: 10
       ,marginRight:10
-      
     },
     image: {
       width: width,

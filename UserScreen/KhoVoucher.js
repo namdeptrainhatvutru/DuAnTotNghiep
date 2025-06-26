@@ -17,6 +17,7 @@ const KhoVoucher = () => {
       dispatch(fetchVoucher());
     }
   }, [dispatch, user_id]);
+  
     const listvoucherbyid = listvoucher.filter(item => item.khach_hang_id === user_id.toString())
   const renderItem = ({ item }) => (
     <View style={styles.voucherBox}>

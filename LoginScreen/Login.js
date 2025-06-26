@@ -4,6 +4,7 @@ import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../redux/reducers/UserReducer';
+import BASE from '../config/BaseUrl';
 const api_khach_hang = 'https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang';
 
 const Login = () => {
@@ -115,7 +116,7 @@ const Login = () => {
           />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => { Linking.openURL('http://192.168.1.9:3000') }}>
+      <TouchableOpacity onPress={() => { Linking.openURL(`http://${BASE}:3000`) }}>
         <Text style={{color: '#373FE2', margin: 20,textDecorationLine:'underline'}}>Quên mật khẩu?</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={handleLogin} style={{backgroundColor: '#BB0000', width: '85%', height: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 50}}>

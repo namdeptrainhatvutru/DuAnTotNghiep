@@ -1,39 +1,94 @@
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchPhim } from '../redux/actions/PhimAction';
-import { useNavigation } from '@react-navigation/native';
+import {
+  Animated,
+  FlatList,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchPhim} from '../redux/actions/PhimAction';
+import {useNavigation} from '@react-navigation/native';
 import BannerSlider from '../redux/actions/BannerAction';
+import { fetchVoucher } from '../redux/actions/VoucherAction';
 
 const HomeScreen = () => {
+  const scrollY = useRef(new Animated.Value(0)).current;
   const user = useSelector(state => state.user.user);
+  const user_id = useSelector(state => state.user.user.khach_hang_id);
+    const listvoucher = useSelector(state => state.voucher.listvoucher);
   const listphim = useSelector(state => state.phim.listphim);
   const dispatch = useDispatch();
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const [selectedGenre, setSelectedGenre] = useState('Tất cả');
+
+  //phần animation
+  // Dùng để điều chỉnh chiều cao (hoặc transform)
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, 80], // thay vì 100
+    outputRange: [100, 0],
+    extrapolate: 'clamp',
+  });
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 80],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, 80],
+    outputRange: [0, -40],
+    extrapolate: 'clamp',
+  });
 
   useEffect(() => {
     dispatch(fetchPhim());
+    dispatch(fetchVoucher());
   }, [dispatch]);
-
+const listvoucherbyid = listvoucher.filter(item => item.khach_hang_id === user_id.toString())
   // Lấy danh sách thể loại duy nhất từ listphim
-  const genres = ['Tất cả', ...Array.from(new Set(listphim.map(item => item.the_loai)))];
+  const genres = [
+    'Tất cả',
+    ...Array.from(new Set(listphim.map(item => item.the_loai))),
+  ];
 
   // Lọc phim theo thể loại đã chọn
-  const filteredPhim = selectedGenre === 'Tất cả'
-    ? listphim
-    : listphim.filter(item => item.the_loai === selectedGenre);
+  const filteredPhim =
+    selectedGenre === 'Tất cả'
+      ? listphim
+      : listphim.filter(item => item.the_loai === selectedGenre);
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}) => {
     return (
       <View>
-        <TouchableOpacity onPress={()=>{navigation.navigate('ChiTietPhimUser',{phim : item})}} style={{ margin: 5 }} activeOpacity={0.8}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('ChiTietPhimUser', {phim: item});
+          }}
+          style={{margin: 5}}
+          activeOpacity={0.8}>
           <View style={styles.card}>
             <View style={styles.posterWrapper}>
-              <View style={{backgroundColor:item.do_tuoi < 18 ?'#99FF66' :'red',justifyContent:'flex-end',alignItems:'center',position:'absolute',zIndex:2,width:70,marginTop:10,right:0,borderTopLeftRadius:5,borderBottomLeftRadius:5}}>
-                <Text style={{fontSize:10}}>{item.do_tuoi}+</Text>
+              <View
+                style={{
+                  backgroundColor: item.do_tuoi < 18 ? '#99FF66' : 'red',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  position: 'absolute',
+                  zIndex: 2,
+                  width: 70,
+                  marginTop: 10,
+                  right: 0,
+                  borderTopLeftRadius: 5,
+                  borderBottomLeftRadius: 5,
+                }}>
+                <Text style={{fontSize: 10}}>{item.do_tuoi}+</Text>
               </View>
-              <Image style={styles.poster} source={{ uri: item.poster_url }} />
+              <Image style={styles.poster} source={{uri: item.poster_url}} />
             </View>
             <Text style={styles.title} numberOfLines={1}>
               {item.ten_phim}
@@ -46,72 +101,116 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={{ padding: 10, backgroundColor: 'white', height: '100%' }}>
+    <View style={{padding: 10, backgroundColor: 'white', height: '100%'}}>
       <TouchableOpacity
-      onPress={()=>{navigation.navigate('Profile')}}
-        style={{flexDirection:'row'}}
-      >
-
-        <Image style={{width:55,height:55,marginRight:10}} source={require('../img/profile.png')}/>
-        <View>
-          <Text>Xin chào {user.ho_ten} !</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: '55%' }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: 90 }}>
-          <Image style={{ width: 20, height: 20 }} source={require('../img/member.png')} />
-          <Text style={{ fontSize: 8 }}>member</Text>
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: 50 }}>
-          <Image style={{ width: 20, height: 20 }} source={require('../img/diem.png')} />
-          <Text style={{ fontSize: 8 }}>{user.diem}</Text>
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', width: 50 }}>
-          <Image style={{ width: 20, height: 20 }} source={require('../img/voucher.png')} />
-          <Text style={{ fontSize: 8 }}>0</Text>
-        </View>
-      </View>
-        </View>
-        
-      </TouchableOpacity>
-      
-      
-      
-      <View >
-      <BannerSlider />
-      </View>
-      {/* Thanh thể loại */}
-      <View style={{ flexDirection: 'row', marginVertical: 10 }}>
-        <FlatList
-          data={genres}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => setSelectedGenre(item)}
-              style={{
-                paddingHorizontal: 16,
-                paddingVertical: 8,
-                backgroundColor: selectedGenre === item ? '#EA5A5A' : '#eee',
-                borderRadius: 20,
-                marginRight: 8,
-              }}>
-              <Text style={{ color: selectedGenre === item ? '#fff' : '#333', fontWeight: 'bold' }}>
-                {item}
-              </Text>
+              onPress={() => navigation.navigate('Profile')}
+              style={{flexDirection: 'row'}}>
+              <Image
+                style={{width: 55, height: 55, marginRight: 10}}
+                source={require('../img/profile.png')}
+              />
+              <View>
+                <Text>Xin chào {user.ho_ten} !</Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-evenly',
+                    width: '55%',
+                  }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      width: 90,
+                    }}>
+                    <Image
+                      style={{width: 20, height: 20}}
+                      source={require('../img/member.png')}
+                    />
+                    <Text style={{fontSize: 8}}>member</Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-evenly',
+                      width: 50,
+                    }}>
+                    <Image
+                      style={{width: 20, height: 20}}
+                      source={require('../img/diem.png')}
+                    />
+                    <Text style={{fontSize: 8}}>{user.diem}</Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-evenly',
+                      width: 50,
+                    }}>
+                    <Image
+                      style={{width: 20, height: 20}}
+                      source={require('../img/voucher.png')}
+                    />
+                    <Text style={{fontSize: 8}}>{listvoucherbyid.length}</Text>
+                  </View>
+                </View>
+              </View>
             </TouchableOpacity>
-          )}
-        />
-      </View>
+      <Animated.FlatList
+        data={filteredPhim}
+        keyExtractor={item => item.phim_id}
+        renderItem={renderItem}
+        numColumns={3}
+        contentContainerStyle={styles.scrollContainer}
+        ListHeaderComponent={
+          <Animated.View
+            style={{
+              opacity: headerOpacity,
+              transform: [{translateY: headerTranslateY}],
+            }}>
+            {/* Profile, BannerSlider, Thanh thể loại */}
+            
+            <View>
+              <BannerSlider />
+            </View>
+            <View style={{flexDirection: 'row', marginVertical: 10}}>
+              <FlatList
+                data={genres}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={item => item}
+                renderItem={({item}) => (
+                  <TouchableOpacity
+                    onPress={() => setSelectedGenre(item)}
+                    style={{
+                      paddingHorizontal: 16,
+                      paddingVertical: 8,
+                      backgroundColor:
+                        selectedGenre === item ? '#EA5A5A' : '#eee',
+                      borderRadius: 20,
+                      marginRight: 8,
+                    }}>
+                    <Text
+                      style={{
+                        color: selectedGenre === item ? '#fff' : '#333',
+                        fontWeight: 'bold',
+                      }}>
+                      {item}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </Animated.View>
+        }
+        onScroll={Animated.event(
+          [{nativeEvent: {contentOffset: {y: scrollY}}}],
+          {useNativeDriver: true},
+        )}
+        scrollEventThrottle={16}
+      />
+     
 
-      {/* Danh sách phim */}
-      <View>
-        <FlatList
-          numColumns={3}
-          data={filteredPhim}
-          keyExtractor={item => item.phim_id}
-          renderItem={renderItem}
-        />
-      </View>
     </View>
   );
 };
@@ -119,11 +218,16 @@ const HomeScreen = () => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    paddingTop: 10,
+    paddingBottom: 100,
+    // marginTop: 150,
+  },
   card: {
     width: 150,
     alignItems: 'center',
     backgroundColor: 'white',
-  
+
     shadowRadius: 6,
     paddingBottom: 10,
     padding: 5,
