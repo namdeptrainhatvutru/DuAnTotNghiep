@@ -13,17 +13,19 @@ import {useDispatch, useSelector} from 'react-redux';
 import {fetchPhim} from '../redux/actions/PhimAction';
 import {useNavigation} from '@react-navigation/native';
 import BannerSlider from '../redux/actions/BannerAction';
-import { fetchVoucher } from '../redux/actions/VoucherAction';
+import {fetchVoucher} from '../redux/actions/VoucherAction';
 
 const HomeScreen = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
   const user = useSelector(state => state.user.user);
   const user_id = useSelector(state => state.user.user.khach_hang_id);
-    const listvoucher = useSelector(state => state.voucher.listvoucher);
+  const listvoucher = useSelector(state => state.voucher.listvoucher);
   const listphim = useSelector(state => state.phim.listphim);
+  const listsuatchieu = useSelector(state => state.suatchieu.listsuatchieu);
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [selectedGenre, setSelectedGenre] = useState('Tất cả');
+  const [selectedNgay, setSelectedNgay] = useState('Tất cả');
 
   //phần animation
   // Dùng để điều chỉnh chiều cao (hoặc transform)
@@ -49,7 +51,9 @@ const HomeScreen = () => {
     dispatch(fetchPhim());
     dispatch(fetchVoucher());
   }, [dispatch]);
-const listvoucherbyid = listvoucher.filter(item => item.khach_hang_id === user_id.toString())
+  const listvoucherbyid = listvoucher.filter(
+    item => item.khach_hang_id === user_id.toString(),
+  );
   // Lấy danh sách thể loại duy nhất từ listphim
   const genres = [
     'Tất cả',
@@ -61,6 +65,22 @@ const listvoucherbyid = listvoucher.filter(item => item.khach_hang_id === user_i
     selectedGenre === 'Tất cả'
       ? listphim
       : listphim.filter(item => item.the_loai === selectedGenre);
+
+  // Lấy danh sách ngày duy nhất có suất chiếu
+  const ngaySuatchieuList = [
+    'Tất cả',
+    ...Array.from(new Set(listsuatchieu.map(item => item.ngay_chieu))),
+  ];
+
+  // Lọc phim theo ngày chiếu (nếu chọn "Tất cả" thì không lọc)
+  const filteredPhimByNgay =
+    selectedNgay === 'Tất cả'
+      ? filteredPhim
+      : filteredPhim.filter(phim =>
+          listsuatchieu.some(
+            sc => sc.phim_id === phim.phim_id && sc.ngay_chieu === selectedNgay,
+          ),
+        );
 
   const renderItem = ({item}) => {
     return (
@@ -103,61 +123,61 @@ const listvoucherbyid = listvoucher.filter(item => item.khach_hang_id === user_i
   return (
     <View style={{padding: 10, backgroundColor: 'white', height: '100%'}}>
       <TouchableOpacity
-              onPress={() => navigation.navigate('Profile')}
-              style={{flexDirection: 'row'}}>
+        onPress={() => navigation.navigate('Profile')}
+        style={{flexDirection: 'row'}}>
+        <Image
+          style={{width: 55, height: 55, marginRight: 10}}
+          source={require('../img/profile.png')}
+        />
+        <View>
+          <Text>Xin chào {user.ho_ten} !</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+              width: '55%',
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                width: 90,
+              }}>
               <Image
-                style={{width: 55, height: 55, marginRight: 10}}
-                source={require('../img/profile.png')}
+                style={{width: 20, height: 20}}
+                source={require('../img/member.png')}
               />
-              <View>
-                <Text>Xin chào {user.ho_ten} !</Text>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-evenly',
-                    width: '55%',
-                  }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      width: 90,
-                    }}>
-                    <Image
-                      style={{width: 20, height: 20}}
-                      source={require('../img/member.png')}
-                    />
-                    <Text style={{fontSize: 8}}>member</Text>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-evenly',
-                      width: 50,
-                    }}>
-                    <Image
-                      style={{width: 20, height: 20}}
-                      source={require('../img/diem.png')}
-                    />
-                    <Text style={{fontSize: 8}}>{user.diem}</Text>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-evenly',
-                      width: 50,
-                    }}>
-                    <Image
-                      style={{width: 20, height: 20}}
-                      source={require('../img/voucher.png')}
-                    />
-                    <Text style={{fontSize: 8}}>{listvoucherbyid.length}</Text>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
+              <Text style={{fontSize: 8}}>member</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                width: 50,
+              }}>
+              <Image
+                style={{width: 20, height: 20}}
+                source={require('../img/diem.png')}
+              />
+              <Text style={{fontSize: 8}}>{user.diem}</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                width: 50,
+              }}>
+              <Image
+                style={{width: 20, height: 20}}
+                source={require('../img/voucher.png')}
+              />
+              <Text style={{fontSize: 8}}>{listvoucherbyid.length}</Text>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
       <Animated.FlatList
-        data={filteredPhim}
+        data={filteredPhimByNgay}
         keyExtractor={item => item.phim_id}
         renderItem={renderItem}
         numColumns={3}
@@ -169,7 +189,7 @@ const listvoucherbyid = listvoucher.filter(item => item.khach_hang_id === user_i
               transform: [{translateY: headerTranslateY}],
             }}>
             {/* Profile, BannerSlider, Thanh thể loại */}
-            
+
             <View>
               <BannerSlider />
             </View>
@@ -201,6 +221,34 @@ const listvoucherbyid = listvoucher.filter(item => item.khach_hang_id === user_i
                 )}
               />
             </View>
+            <View style={{flexDirection: 'row', marginVertical: 10}}>
+              <FlatList
+                data={ngaySuatchieuList}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={item => item}
+                renderItem={({item}) => (
+                  <TouchableOpacity
+                    onPress={() => setSelectedNgay(item)}
+                    style={{
+                      paddingHorizontal: 16,
+                      paddingVertical: 8,
+                      backgroundColor:
+                        selectedNgay === item ? '#EA5A5A' : '#eee',
+                      borderRadius: 20,
+                      marginRight: 8,
+                    }}>
+                    <Text
+                      style={{
+                        color: selectedNgay === item ? '#fff' : '#333',
+                        fontWeight: 'bold',
+                      }}>
+                      {item}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
           </Animated.View>
         }
         onScroll={Animated.event(
@@ -209,8 +257,6 @@ const listvoucherbyid = listvoucher.filter(item => item.khach_hang_id === user_i
         )}
         scrollEventThrottle={16}
       />
-     
-
     </View>
   );
 };
