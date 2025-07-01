@@ -183,55 +183,202 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
   }
 
   return (
-    <View style={{ flex: 1, justifyContent:'center' }}>
-      <Text style={styles.title}>Danh sách nhân viên</Text>
-      <TextInput style={{borderWidth:1,margin:10}} value={searchText} onChangeText={setSearchText} placeholder='tìm kiếm'/>
-      <FlatList data={search} keyExtractor={item => item.khach_hang_id} renderItem={renderItem} />
+    <View style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
+      <View style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingTop: 24,
+        paddingBottom: 10,
+        backgroundColor: '#fff',
+        borderBottomLeftRadius: 18,
+        borderBottomRightRadius: 18,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 2,
+      }}>
+        <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#BB0000' }}>
+          Danh sách nhân viên
+        </Text>
+      </View>
+
+      <View style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        marginHorizontal: 20,
+        marginTop: 18,
+        marginBottom: 8,
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 3,
+        elevation: 1,
+      }}>
+        <Image  style={{ width: 22, height: 22, marginRight: 8, tintColor: '#888' }} />
+        <TextInput
+          style={{ flex: 1, fontSize: 16 }}
+          value={searchText}
+          onChangeText={setSearchText}
+          placeholder='Tìm kiếm theo tên nhân viên...'
+          placeholderTextColor="#aaa"
+        />
+      </View>
+
+      {staff.length === 0 ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size='large' color="#BB0000" />
+        </View>
+      ) : (
+        <FlatList
+          data={search}
+          keyExtractor={item => item.khach_hang_id}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
       {/* Nút dấu + mở modal thêm */}
       <TouchableOpacity
         onPress={() => setAddModalVisible(true)}
         style={styles.fab}
+        activeOpacity={0.8}
       >
         <Text style={styles.fabIcon}>+</Text>
       </TouchableOpacity>
 
       {/* Modal thêm nhân viên */}
-      <Modal visible={addModalVisible} animationType="slide">
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
-          <Text style={styles.title}>Thêm nhân viên</Text>
-          <TextInput style={styles.input} placeholder="Họ tên" value={ho_ten} onChangeText={setHoTen} />
-          <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
-          <TextInput style={styles.input} placeholder="Mật khẩu" value={mat_khau} onChangeText={setMatKhau} secureTextEntry />
-          <TextInput style={styles.input} placeholder="Số điện thoại" value={so_dien_thoai} onChangeText={setSoDienThoai} keyboardType="phone-pad" />
-          <TextInput style={styles.input} placeholder="Ngày sinh" value={ngay_sinh} onChangeText={setNgay_sinh} />
-          <TextInput style={styles.input} placeholder="Giới tính" value={gioi_tinh} onChangeText={setGioi_tinh} />
-          <TouchableOpacity onPress={handleAddStaff} style={styles.button}>
-            <Text style={{ color: 'white' }}>Thêm nhân viên</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setAddModalVisible(false)} style={[styles.button, { backgroundColor: 'gray', marginTop: 10 }]}>
-            <Text style={{ color: 'white' }}>Đóng</Text>
-          </TouchableOpacity>
-        </ScrollView>
+      <Modal visible={addModalVisible} animationType="slide" transparent>
+        <View style={{
+          flex: 1,
+          backgroundColor: 'rgba(0,0,0,0.35)',
+          justifyContent: 'flex-end',
+        }}>
+          <View style={{
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 18,
+            borderTopRightRadius: 18,
+            padding: 20,
+            minHeight: '70%',
+            maxHeight: '90%',
+          }}>
+            <Text style={{
+              fontWeight: 'bold',
+              fontSize: 22,
+              color: '#BB0000',
+              marginBottom: 18,
+              textAlign: 'center',
+            }}>
+              Thêm nhân viên
+            </Text>
+            <ScrollView>
+              <TextInput style={styles.input} placeholder="Họ tên" value={ho_ten} onChangeText={setHoTen} />
+              <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
+              <TextInput style={styles.input} placeholder="Mật khẩu" value={mat_khau} onChangeText={setMatKhau} secureTextEntry />
+              <TextInput style={styles.input} placeholder="Số điện thoại" value={so_dien_thoai} onChangeText={setSoDienThoai} keyboardType="phone-pad" />
+              <TextInput style={styles.input} placeholder="Ngày sinh" value={ngay_sinh} onChangeText={setNgay_sinh} />
+              <TextInput style={styles.input} placeholder="Giới tính" value={gioi_tinh} onChangeText={setGioi_tinh} />
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 24}}>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#BB0000',
+                    paddingVertical: 12,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    marginRight: 8,
+                  }}
+                  onPress={handleAddStaff}
+                >
+                  <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Thêm</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#888',
+                    paddingVertical: 12,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    marginLeft: 8,
+                  }}
+                  onPress={() => setAddModalVisible(false)}
+                >
+                  <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Quay lại</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
       </Modal>
 
       {/* Modal sửa nhân viên */}
-      <Modal visible={editModalVisible} animationType="slide">
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
-          <Text style={styles.title}>Sửa nhân viên</Text>
-          <TextInput style={styles.input} placeholder="Họ tên" value={editData.ho_ten} onChangeText={(text) => setEditData({ ...editData, ho_ten: text })} />
-          <TextInput style={styles.input} placeholder="Email" value={editData.email} onChangeText={(text) => setEditData({ ...editData, email: text })} keyboardType="email-address" />
-          <TextInput style={styles.input} placeholder="Mật khẩu" value={editData.mat_khau} onChangeText={(text) => setEditData({ ...editData, mat_khau: text })} secureTextEntry />
-          <TextInput style={styles.input} placeholder="Số điện thoại" value={editData.so_dien_thoai} onChangeText={(text) => setEditData({ ...editData, so_dien_thoai: text })} keyboardType="phone-pad" />
-          <TextInput style={styles.input} placeholder="Ngày sinh" value={editData.ngay_sinh} onChangeText={(text) => setEditData({ ...editData, ngay_sinh: text })} />
-          <TextInput style={styles.input} placeholder="Giới tính" value={editData.gioi_tinh} onChangeText={(text) => setEditData({ ...editData, gioi_tinh: text })} />
-          <TouchableOpacity onPress={handleUpdateStaff} style={styles.button}>
-            <Text style={{ color: 'white' }}>Cập nhật</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setEditModalVisible(false)} style={[styles.button, { backgroundColor: 'gray', marginTop: 10 }]}>
-            <Text style={{ color: 'white' }}>Đóng</Text>
-          </TouchableOpacity>
-        </ScrollView>
+      <Modal visible={editModalVisible} animationType="slide" transparent>
+        <View style={{
+          flex: 1,
+          backgroundColor: 'rgba(0,0,0,0.35)',
+          justifyContent: 'flex-end',
+        }}>
+          <View style={{
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 18,
+            borderTopRightRadius: 18,
+            padding: 20,
+            minHeight: '70%',
+            maxHeight: '90%',
+          }}>
+            <Text style={{
+              fontWeight: 'bold',
+              fontSize: 22,
+              color: '#BB0000',
+              marginBottom: 18,
+              textAlign: 'center',
+            }}>
+              Sửa nhân viên
+            </Text>
+            <ScrollView>
+              <TextInput style={styles.input} placeholder="Họ tên" value={editData.ho_ten} onChangeText={text => setEditData({ ...editData, ho_ten: text })} />
+              <TextInput style={styles.input} placeholder="Email" value={editData.email} onChangeText={text => setEditData({ ...editData, email: text })} keyboardType="email-address" />
+              <TextInput style={styles.input} placeholder="Mật khẩu" value={editData.mat_khau} onChangeText={text => setEditData({ ...editData, mat_khau: text })} secureTextEntry />
+              <TextInput style={styles.input} placeholder="Số điện thoại" value={editData.so_dien_thoai} onChangeText={text => setEditData({ ...editData, so_dien_thoai: text })} keyboardType="phone-pad" />
+              <TextInput style={styles.input} placeholder="Ngày sinh" value={editData.ngay_sinh} onChangeText={text => setEditData({ ...editData, ngay_sinh: text })} />
+              <TextInput style={styles.input} placeholder="Giới tính" value={editData.gioi_tinh} onChangeText={text => setEditData({ ...editData, gioi_tinh: text })} />
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 24}}>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#BB0000',
+                    paddingVertical: 12,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    marginRight: 8,
+                  }}
+                  onPress={handleUpdateStaff}
+                >
+                  <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Cập nhật</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#888',
+                    paddingVertical: 12,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    marginLeft: 8,
+                  }}
+                  onPress={() => setEditModalVisible(false)}
+                >
+                  <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Quay lại</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
       </Modal>
     </View>
   );
@@ -244,7 +391,7 @@ const styles = StyleSheet.create({
     fontSize: 24, fontWeight: 'bold',margin:20
   },
   input: {
-    width: '100%', height: 48, borderWidth: 1, borderColor: '#ccc', borderRadius: 8,
+    width: '100%',  borderWidth: 1, borderColor: '#ccc', borderRadius: 8,
     marginBottom: 16, paddingHorizontal: 12, fontSize: 16,
   },
   button: {

@@ -32,6 +32,7 @@ const SuatChieu = ({route}) => {
   const [modal, setModal] = useState(false);
   const [phimModal, setPhimModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchPhim, setSearchPhim] = useState('');
   const listsuatchieu = useSelector(state => state.suatchieu.listsuatchieu);
   const listphim = useSelector(state => state.phim.listphim);
   console.log('list phim : ', listphim);
@@ -86,82 +87,98 @@ const SuatChieu = ({route}) => {
     // Xử lý ngày chiếu
     let trangThai = '';
     if (item.ngay_chieu) {
-      // Chuyển dd/mm/yyyy về yyyy-mm-dd để so sánh
       const [day, month, year] = item.ngay_chieu.split('/');
       const ngayChieuDate = new Date(`${year}-${month}-${day}`);
       const now = new Date();
-      // Đặt giờ về 0 để so sánh ngày
       ngayChieuDate.setHours(0,0,0,0);
       now.setHours(0,0,0,0);
-
       const diffTime = ngayChieuDate.getTime() - now.getTime();
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
       if (diffDays === 1) {
         trangThai = 'Sắp chiếu';
       } else if (diffDays > 1) {
         trangThai = 'Chưa chiếu';
       }
-      // Nếu diffDays <= 0 thì không hiện gì (đang chiếu hoặc đã chiếu)
     }
 
     return (
-      <View style={{borderWidth: 1, borderRadius: 20, padding: 10, margin: 5}}>
-        <Text>ID :{item.suat_chieu_id}</Text>
-        <Text>Ngày chiếu : {item.ngay_chieu}</Text>
-        <View style={{alignItems: 'center', marginBottom: 6, flexDirection: 'row'}}>
-          {phim ? (
-            <>
-              <Image
-                source={{uri: phim.poster_url}}
-                style={{width: 60, height: 90, borderRadius: 8}}
-              />
-              <View>
-                <Text style={{fontWeight: 'bold', marginTop: 4}}>
-                  {phim.ten_phim}
-                </Text>
-                {trangThai !== '' && (
-                  <Text style={{color: '#EA5A5A', fontWeight: 'bold', marginTop: 2}}>
-                    {trangThai}
-                  </Text>
-                )}
-              </View>
-            </>
-          ) : (
-            <Text style={{color: 'red'}}>Không tìm thấy phim</Text>
-          )}
-        </View>
-        <Text>Thời gian suất chiếu : </Text>
-        <View
+      <View
+        style={{
+          flexDirection: 'row',
+          backgroundColor: '#fff',
+          borderRadius: 16,
+          marginVertical: 8,
+          padding: 14,
+          shadowColor: '#000',
+          shadowOffset: {width: 0, height: 2},
+          shadowOpacity: 0.12,
+          shadowRadius: 6,
+          elevation: 3,
+          alignItems: 'center',
+        }}>
+        <Image
+          source={{uri: phim?.poster_url}}
           style={{
-            flexDirection: 'row',
-            borderWidth: 1,
-            borderRadius: 40,
-            padding: 5,
-            margin: 5,
-            width: 90,
-            justifyContent: 'space-evenly',
-          }}>
-          <Text>{item.thoi_gian_bat_dau}</Text>
-          <Text>-</Text>
-          <Text>{item.thoi_gian_ket_thuc}</Text>
+            width: 70,
+            height: 100,
+            borderRadius: 8,
+            backgroundColor: '#eee',
+            marginRight: 16,
+          }}
+        />
+        <View style={{flex: 1}}>
+          <Text style={{fontWeight: 'bold', fontSize: 16, color: '#EA5A5A'}} numberOfLines={2}>
+            {phim ? phim.ten_phim : 'Không tìm thấy phim'}
+          </Text>
+          <Text style={{color: '#444', marginTop: 2}}>
+            Ngày chiếu: <Text style={{fontWeight: 'bold'}}>{item.ngay_chieu}</Text>
+          </Text>
+          <Text style={{color: '#444', marginTop: 2}}>
+            Thời gian: <Text style={{fontWeight: 'bold'}}>{item.thoi_gian_bat_dau}h - {item.thoi_gian_ket_thuc}h</Text>
+          </Text>
+          {trangThai !== '' && (
+            <Text
+              style={{
+                marginTop: 4,
+                color: trangThai === 'Sắp chiếu' ? '#FFA500' : '#8889D6',
+                fontWeight: 'bold',
+                fontSize: 13,
+              }}>
+              {trangThai}
+            </Text>
+          )}
+          <View style={{flexDirection: 'row', marginTop: 10}}>
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#1976D2',
+                paddingVertical: 6,
+                paddingHorizontal: 18,
+                borderRadius: 6,
+                marginRight: 10,
+              }}
+              onPress={() => {
+                navigation.navigate('CapNhatSuatChieu', {
+                  phim: phim,
+                  suat_chieu: item,
+                });
+              }}>
+              <Text style={{color: '#fff', fontWeight: 'bold'}}>Chỉnh sửa</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#f55',
+                paddingVertical: 6,
+                paddingHorizontal: 18,
+                borderRadius: 6,
+              }}
+              onPress={() => {
+                dispatch(deleteSuatChieu(item.suat_chieu_id));
+                dispatch(deleteGheBySuatChieuId(item.suat_chieu_id));
+              }}>
+              <Text style={{color: '#fff', fontWeight: 'bold'}}>Xóa</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <Button
-          title="chỉnh sửa"
-          onPress={() => {
-            navigation.navigate('CapNhatSuatChieu', {
-              phim: phim,
-              suat_chieu: item,
-            });
-          }}
-        />
-        <Button
-          title="xóa"
-          onPress={() => {
-            dispatch(deleteSuatChieu(item.suat_chieu_id));
-            dispatch(deleteGheBySuatChieuId(item.suat_chieu_id));
-          }}
-        />
       </View>
     );
   };
@@ -231,52 +248,129 @@ const SuatChieu = ({route}) => {
           renderItem={renderItem}
         />
       )}
-      <Modal visible={modal} animationType="slide">
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 10,
+      <Modal visible={modal} animationType="slide" transparent>
+        <View style={{
+          flex: 1,
+          backgroundColor: 'rgba(0,0,0,0.35)',
+          justifyContent: 'flex-end',
+        }}>
+          <View style={{
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 18,
+            borderTopRightRadius: 18,
+            padding: 20,
+            minHeight: '70%',
+            maxHeight: '90%',
           }}>
-          <Text>Thêm suất chiếu</Text>
-          <TextInput
-            placeholder="dd/mm/yyyy"
-            value={ngay_chieu}
-            onChangeText={handleDateChange}
-            keyboardType="numeric"
-            maxLength={10} // 10 ký tự: dd/mm/yyyy
-          />
-          <TextInput
-            placeholder="Thời gian bắt đầu"
-            value={thoi_gian_bat_dau}
-            onChangeText={setthoi_gian_bat_dau}
-          />
-          <TextInput
-            placeholder="Thời gian kết thúc"
-            value={thoi_gian_ket_thuc}
-            onChangeText={setthoi_gian_ket_thuc}
-          />
-          <TouchableOpacity
-            style={{
-              borderWidth: 1,
-              borderRadius: 8,
-              padding: 10,
-              marginVertical: 10,
-              width: 200,
-              alignItems: 'center',
-              backgroundColor: '#eee',
-            }}
-            onPress={() => setPhimModal(true)}>
-            <Text>
-              {phim_id
-                ? listphim.find(p => p.phim_id === phim_id)?.ten_phim ||
-                  'Chọn phim'
-                : 'Chọn phim'}
+            <Text style={{
+              fontWeight: 'bold',
+              fontSize: 22,
+              color: '#EA5A5A',
+              marginBottom: 18,
+              textAlign: 'center',
+            }}>
+              Thêm suất chiếu
             </Text>
-          </TouchableOpacity>
-          <Button title="Thêm" onPress={handleAddSuatCHieu} />
-          <Button title="Quay lại" onPress={() => setModal(false)} />
+            <View style={{marginBottom: 14}}>
+              <Text style={{fontWeight: 'bold', marginBottom: 6, color: '#222', fontSize: 15}}>Ngày chiếu</Text>
+              <TextInput
+                placeholder="dd/mm/yyyy"
+                value={ngay_chieu}
+                onChangeText={handleDateChange}
+                keyboardType="numeric"
+                maxLength={10}
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  borderRadius: 8,
+                  padding: 10,
+                  fontSize: 16,
+                  backgroundColor: '#fafafa',
+                }}
+              />
+            </View>
+            <View style={{marginBottom: 14}}>
+              <Text style={{fontWeight: 'bold', marginBottom: 6, color: '#222', fontSize: 15}}>Thời gian bắt đầu</Text>
+              <TextInput
+                placeholder="Thời gian bắt đầu"
+                value={thoi_gian_bat_dau}
+                keyboardType="numeric"
+                onChangeText={setthoi_gian_bat_dau}
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  borderRadius: 8,
+                  padding: 10,
+                  fontSize: 16,
+                  backgroundColor: '#fafafa',
+                }}
+              />
+            </View>
+            <View style={{marginBottom: 14}}>
+              <Text style={{fontWeight: 'bold', marginBottom: 6, color: '#222', fontSize: 15}}>Thời gian kết thúc</Text>
+              <TextInput
+                placeholder="Thời gian kết thúc"
+                value={thoi_gian_ket_thuc}
+                keyboardType="numeric"
+                onChangeText={setthoi_gian_ket_thuc}
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  borderRadius: 8,
+                  padding: 10,
+                  fontSize: 16,
+                  backgroundColor: '#fafafa',
+                }}
+              />
+            </View>
+            <View style={{marginBottom: 14}}>
+              <Text style={{fontWeight: 'bold', marginBottom: 6, color: '#222', fontSize: 15}}>Phim</Text>
+              <TouchableOpacity
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  borderRadius: 8,
+                  padding: 12,
+                  backgroundColor: '#fafafa',
+                  alignItems: 'center',
+                }}
+                onPress={() => setPhimModal(true)}>
+                <Text style={{color: phim_id ? '#222' : '#888'}}>
+                  {phim_id
+                    ? listphim.find(p => p.phim_id === phim_id)?.ten_phim || 'Chọn phim'
+                    : 'Chọn phim'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 24}}>
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: '#EA5A5A',
+                  paddingVertical: 12,
+                  borderRadius: 8,
+                  alignItems: 'center',
+                  marginRight: 8,
+                }}
+                onPress={handleAddSuatCHieu}
+              >
+                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Thêm</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: '#888',
+                  paddingVertical: 12,
+                  borderRadius: 8,
+                  alignItems: 'center',
+                  marginLeft: 8,
+                }}
+                onPress={() => setModal(false)}
+              >
+                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Quay lại</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </Modal>
 
@@ -285,53 +379,84 @@ const SuatChieu = ({route}) => {
         <View
           style={{
             flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.3)',
-            justifyContent: 'center',
-            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.35)',
+            justifyContent: 'flex-end',
           }}>
           <View
             style={{
-              backgroundColor: 'white',
-              borderRadius: 10,
+              backgroundColor: '#fff',
+              borderTopLeftRadius: 18,
+              borderTopRightRadius: 18,
               padding: 20,
-              width: 320,
-              maxHeight: 400,
+              minHeight: '70%',
+              maxHeight: '90%',
             }}>
-            <Text style={{fontWeight: 'bold', marginBottom: 10}}>
-              Chọn phim
-            </Text>
-            <ScrollView horizontal={false}>
-              {listphim.map(item => (
-                <TouchableOpacity
-                  key={item.phim_id}
-                  onPress={() => {
-                    setphim_id(item.phim_id);
-                    setPhimModal(false);
-                  }}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginBottom: 10,
-                    borderWidth: 1,
-                    borderRadius: 8,
-                    padding: 8,
-                    backgroundColor:
-                      phim_id === item.phim_id ? '#d0ebff' : '#fff',
-                  }}>
-                  <Image
-                    source={{uri: item.poster_url}}
-                    style={{
-                      width: 50,
-                      height: 75,
-                      borderRadius: 4,
-                      marginRight: 10,
+            <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 12}}>
+              <Text style={{fontWeight: 'bold', fontSize: 20, flex: 1}}>Chọn phim</Text>
+              <TouchableOpacity onPress={() => setPhimModal(false)}>
+                <Text style={{fontSize: 18, color: '#EA5A5A', fontWeight: 'bold'}}>Đóng</Text>
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              placeholder="Tìm kiếm phim..."
+              value={searchPhim}
+              onChangeText={setSearchPhim}
+              style={{
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 8,
+                padding: 8,
+                marginBottom: 16,
+                fontSize: 16,
+              }}
+            />
+            <ScrollView>
+              {listphim
+                .filter(item =>
+                  item.ten_phim.toLowerCase().includes(searchPhim.toLowerCase())
+                )
+                .map(item => (
+                  <TouchableOpacity
+                    key={item.phim_id}
+                    onPress={() => {
+                      setphim_id(item.phim_id);
+                      setPhimModal(false);
                     }}
-                  />
-                  <Text>{item.ten_phim}</Text>
-                </TouchableOpacity>
-              ))}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginBottom: 12,
+                      borderWidth: 1,
+                      borderColor: phim_id === item.phim_id ? '#EA5A5A' : '#eee',
+                      borderRadius: 10,
+                      padding: 10,
+                      backgroundColor: phim_id === item.phim_id ? '#FFF0F0' : '#fff',
+                      shadowColor: '#000',
+                      shadowOffset: {width: 0, height: 2},
+                      shadowOpacity: 0.08,
+                      shadowRadius: 4,
+                      elevation: 2,
+                    }}>
+                    <Image
+                      source={{uri: item.poster_url}}
+                      style={{
+                        width: 60,
+                        height: 90,
+                        borderRadius: 6,
+                        marginRight: 14,
+                        backgroundColor: '#eee',
+                      }}
+                    />
+                    <Text style={{
+                      fontSize: 16,
+                      fontWeight: phim_id === item.phim_id ? 'bold' : 'normal',
+                      color: phim_id === item.phim_id ? '#EA5A5A' : '#222',
+                    }}>
+                      {item.ten_phim}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
             </ScrollView>
-            <Button title="Đóng" onPress={() => setPhimModal(false)} />
           </View>
         </View>
       </Modal>

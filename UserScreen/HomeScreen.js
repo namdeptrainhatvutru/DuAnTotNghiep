@@ -14,6 +14,7 @@ import {fetchPhim} from '../redux/actions/PhimAction';
 import {useNavigation} from '@react-navigation/native';
 import BannerSlider from '../redux/actions/BannerAction';
 import {fetchVoucher} from '../redux/actions/VoucherAction';
+import { fetchAllSuatChieu } from '../redux/actions/SuatChieuAction';
 
 const HomeScreen = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -21,7 +22,9 @@ const HomeScreen = () => {
   const user_id = useSelector(state => state.user.user.khach_hang_id);
   const listvoucher = useSelector(state => state.voucher.listvoucher);
   const listphim = useSelector(state => state.phim.listphim);
-  const listsuatchieu = useSelector(state => state.suatchieu.listsuatchieu);
+  const listsuatchieu = useSelector(
+    state => Array.isArray(state.suatchieu.listsuatchieu) ? state.suatchieu.listsuatchieu : []
+  );
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [selectedGenre, setSelectedGenre] = useState('Tất cả');
@@ -29,11 +32,7 @@ const HomeScreen = () => {
 
   //phần animation
   // Dùng để điều chỉnh chiều cao (hoặc transform)
-  const headerHeight = scrollY.interpolate({
-    inputRange: [0, 80], // thay vì 100
-    outputRange: [100, 0],
-    extrapolate: 'clamp',
-  });
+
 
   const headerOpacity = scrollY.interpolate({
     inputRange: [0, 80],
@@ -50,6 +49,7 @@ const HomeScreen = () => {
   useEffect(() => {
     dispatch(fetchPhim());
     dispatch(fetchVoucher());
+    dispatch(fetchAllSuatChieu())
   }, [dispatch]);
   const listvoucherbyid = listvoucher.filter(
     item => item.khach_hang_id === user_id.toString(),
