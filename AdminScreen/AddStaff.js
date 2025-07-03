@@ -250,7 +250,7 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
         style={styles.fab}
         activeOpacity={0.8}
       >
-        <Text style={styles.fabIcon}>+</Text>
+        <Image style={{width:50,height:50,elevation:3}} source={require('../img/add.png')}/>
       </TouchableOpacity>
 
       {/* Modal thêm nhân viên */}
@@ -402,12 +402,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: '#BB0000',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+
+ 
+    
     alignItems: 'center',
-    elevation: 5,
+  
     
   },
   fabIcon: {

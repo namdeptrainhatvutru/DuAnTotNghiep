@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, useMemo} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchPhim} from '../redux/actions/PhimAction';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import BannerSlider from '../redux/actions/BannerAction';
 import {fetchVoucher} from '../redux/actions/VoucherAction';
 import { fetchAllSuatChieu } from '../redux/actions/SuatChieuAction';
@@ -51,36 +51,39 @@ const HomeScreen = () => {
     dispatch(fetchVoucher());
     dispatch(fetchAllSuatChieu())
   }, [dispatch]);
+  
   const listvoucherbyid = listvoucher.filter(
     item => item.khach_hang_id === user_id.toString(),
   );
   // Lấy danh sách thể loại duy nhất từ listphim
-  const genres = [
+  const genres = useMemo(() => [
     'Tất cả',
     ...Array.from(new Set(listphim.map(item => item.the_loai))),
-  ];
+  ], [listphim]);
 
   // Lọc phim theo thể loại đã chọn
-  const filteredPhim =
+  const filteredPhim = useMemo(() =>
     selectedGenre === 'Tất cả'
       ? listphim
-      : listphim.filter(item => item.the_loai === selectedGenre);
+      : listphim.filter(item => item.the_loai === selectedGenre)
+  , [listphim, selectedGenre]);
 
   // Lấy danh sách ngày duy nhất có suất chiếu
-  const ngaySuatchieuList = [
+  const ngaySuatchieuList = useMemo(() => [
     'Tất cả',
     ...Array.from(new Set(listsuatchieu.map(item => item.ngay_chieu))),
-  ];
+  ], [listsuatchieu]);
 
   // Lọc phim theo ngày chiếu (nếu chọn "Tất cả" thì không lọc)
-  const filteredPhimByNgay =
+  const filteredPhimByNgay = useMemo(() =>
     selectedNgay === 'Tất cả'
       ? filteredPhim
       : filteredPhim.filter(phim =>
           listsuatchieu.some(
             sc => sc.phim_id === phim.phim_id && sc.ngay_chieu === selectedNgay,
           ),
-        );
+        )
+  , [filteredPhim, listsuatchieu, selectedNgay]);
 
   const renderItem = ({item}) => {
     return (
@@ -119,6 +122,14 @@ const HomeScreen = () => {
       </View>
     );
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedGenre('Tất cả');
+      setSelectedNgay('Tất cả');
+      dispatch(fetchAllSuatChieu())
+    }, [])
+  );
 
   return (
     <View style={{padding: 10, backgroundColor: 'white', height: '100%'}}>

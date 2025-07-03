@@ -7,6 +7,7 @@ import {
   Button,
   Modal,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import React, {useState} from 'react';
 import WebView from 'react-native-webview';
@@ -69,144 +70,182 @@ const ChiTietPhim = ({route}) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.modalScroll}>
-      <View style={styles.modalContent}>
+    <View style={{flex: 1, backgroundColor: '#f8f8f8'}}>
+      <ScrollView contentContainerStyle={{padding: 24, alignItems: 'center'}}>
         <Image style={styles.modalPoster} source={{uri: currentPhim.poster_url}} />
-        <View
-          style={{
-            width: '100%',
-            maxWidth: 320,
-            alignItems: 'center',
-            marginBottom: 10,
-          }}>
-          {modal === false && (
-            <WebView
-              source={{uri: getYouTubeEmbedUrl(currentPhim.trailer_url)}}
-              allowsFullscreenVideo
-              javaScriptEnabled
-              domStorageEnabled
-              startInLoadingState
-              mediaPlaybackRequiresUserAction={false}
-              style={styles.webview}
-            />
-          )}
-        </View>
-
         <Text style={styles.modalTitle}>{currentPhim.ten_phim}</Text>
-        <Text style={styles.modalLabel}>
-          Đạo diễn: <Text style={styles.modalValue}>{currentPhim.dao_dien}</Text>
-        </Text>
-        <Text style={styles.modalLabel}>
-          Thể loại: <Text style={styles.modalValue}>{currentPhim.the_loai}</Text>
-        </Text>
-        <Text style={styles.modalLabel}>
-          Ngôn ngữ: <Text style={styles.modalValue}>{currentPhim.ngon_ngu}</Text>
-        </Text>
-        <Text style={styles.modalLabel}>
-          Độ tuổi: <Text style={styles.modalValue}>{currentPhim.do_tuoi}+</Text>
-        </Text>
-        <Text style={styles.modalLabel}>
-          Thời lượng:{' '}
-          <Text style={styles.modalValue}>{currentPhim.thoi_luong} phút</Text>
-        </Text>
-        <Text style={styles.modalLabel}>Mô tả:</Text>
-        <Text style={styles.modalDesc}>{currentPhim.mo_ta}</Text>
-        <Button
-          title="xóa"
-          onPress={() => {
-            handleDelete(currentPhim.phim_id);
-          }}
-        />
-        <Button
-          title="cập nhật"
-          onPress={() => {
-            setModal(true);
-          }}
-        />
-      </View>
-
-      <Modal visible={modal} animationType="slide" transparent={true}>
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: 'white',
-              height: '100%',
-              width: '100%',
-              padding: 20,
-            }}>
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 10}}>Cập nhật phim</Text>
-            <TextInput
-              placeholder="Tên phim"
-              value={editPhim.ten_phim}
-              onChangeText={text => setEditPhim({...editPhim, ten_phim: text})}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Đạo diễn"
-              value={editPhim.dao_dien}
-              onChangeText={text => setEditPhim({...editPhim, dao_dien: text})}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Ngôn ngữ"
-              value={editPhim.ngon_ngu}
-              onChangeText={text => setEditPhim({...editPhim, ngon_ngu: text})}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Độ tuổi"
-              value={editPhim.do_tuoi.toString()}
-              onChangeText={text => setEditPhim({...editPhim, do_tuoi: text})}
-              style={styles.input}
-              keyboardType="numeric"
-            />
-            <TextInput
-              placeholder="Mô tả"
-              value={editPhim.mo_ta}
-              onChangeText={text => setEditPhim({...editPhim, mo_ta: text})}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Thời lượng"
-              value={editPhim.thoi_luong.toString()}
-              onChangeText={text => setEditPhim({...editPhim, thoi_luong: text})}
-              style={styles.input}
-              keyboardType="numeric"
-            />
-            <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8}}>
-              <TextInput
-                placeholder="Poster URL"
-                value={editPhim.poster_url}
-                onChangeText={text => setEditPhim({...editPhim, poster_url: text})}
-                style={[styles.input, {flex: 1}]}
-              />
-              <Button title="Chọn ảnh" onPress={handlePickImage} />
-            </View>
-            {editPhim.poster_url ? (
-              <Image
-                source={{ uri: editPhim.poster_url }}
-                style={{ width: 80, height: 120, borderRadius: 8, marginBottom: 8 }}
-              />
-            ) : null}
-            <TextInput
-              placeholder="Trailer URL"
-              value={editPhim.trailer_url}
-              onChangeText={text => setEditPhim({...editPhim, trailer_url: text})}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Thể loại"
-              value={editPhim.the_loai}
-              onChangeText={text => setEditPhim({...editPhim, the_loai: text})}
-              style={styles.input}
-            />
-            <Button title="Cập nhật" onPress={handleUpdate} />
-            <Button title="Đóng" onPress={() => setModal(false)} />
-          </View>
+        <View style={{width: '100%', maxWidth: 400, marginVertical: 10,alignItems:'center'}}>
+          <WebView
+            source={{uri: getYouTubeEmbedUrl(currentPhim.trailer_url)}}
+            allowsFullscreenVideo
+            javaScriptEnabled
+            domStorageEnabled
+            startInLoadingState
+            mediaPlaybackRequiresUserAction={false}
+            style={styles.webview}
+          />
         </View>
+        <View style={{
+          backgroundColor: '#fff',
+          borderRadius: 14,
+          padding: 16,
+          width: '100%',
+          maxWidth: 400,
+          marginBottom: 18,
+          shadowColor: '#000',
+          shadowOffset: {width: 0, height: 2},
+          shadowOpacity: 0.06,
+          shadowRadius: 3,
+          elevation: 1,
+        }}>
+          <Text style={styles.modalLabel}>
+            Đạo diễn: <Text style={styles.modalValue}>{currentPhim.dao_dien}</Text>
+          </Text>
+          <Text style={styles.modalLabel}>
+            Thể loại: <Text style={styles.modalValue}>{currentPhim.the_loai}</Text>
+          </Text>
+          <Text style={styles.modalLabel}>
+            Ngôn ngữ: <Text style={styles.modalValue}>{currentPhim.ngon_ngu}</Text>
+          </Text>
+          <Text style={styles.modalLabel}>
+            Độ tuổi: <Text style={styles.modalValue}>{currentPhim.do_tuoi}+</Text>
+          </Text>
+          <Text style={styles.modalLabel}>
+            Thời lượng: <Text style={styles.modalValue}>{currentPhim.thoi_luong} phút</Text>
+          </Text>
+          <Text style={styles.modalLabel}>Mô tả:</Text>
+          <Text style={styles.modalDesc}>{currentPhim.mo_ta}</Text>
+        </View>
+        <View style={{flexDirection: 'row', justifyContent: 'center', width: '100%', maxWidth: 400}}>
+          <Button
+            title="Xóa"
+            color="#888"
+            onPress={() => handleDelete(currentPhim.phim_id)}
+          />
+          <View style={{width: 16}} />
+          <Button
+            title="Cập nhật"
+            color="#EA5A5A"
+            onPress={() => setModal(true)}
+          />
+        </View>
+      </ScrollView>
+
+      {/* Modal cập nhật phim */}
+      <Modal visible={modal} animationType="slide" transparent>
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setModal(false)}
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.35)',
+            justifyContent: 'flex-end',
+          }}>
+          <TouchableOpacity
+            activeOpacity={1}
+            style={{
+              backgroundColor: '#fff',
+              borderTopLeftRadius: 18,
+              borderTopRightRadius: 18,
+              padding: 20,
+              minHeight: '70%',
+              maxHeight: '90%',
+            }}
+            onPress={() => {}} // Ngăn sự kiện nổi bọt lên overlay
+          >
+            <Text style={{
+              fontSize: 22,
+              fontWeight: 'bold',
+              color: '#EA5A5A',
+              marginBottom: 18,
+              textAlign: 'center',
+            }}>
+              Cập nhật phim
+            </Text>
+            <ScrollView>
+              <TextInput
+                placeholder="Tên phim"
+                value={editPhim.ten_phim}
+                onChangeText={text => setEditPhim({...editPhim, ten_phim: text})}
+                style={styles.input}
+              />
+              <TextInput
+                placeholder="Đạo diễn"
+                value={editPhim.dao_dien}
+                onChangeText={text => setEditPhim({...editPhim, dao_dien: text})}
+                style={styles.input}
+              />
+              <TextInput
+                placeholder="Ngôn ngữ"
+                value={editPhim.ngon_ngu}
+                onChangeText={text => setEditPhim({...editPhim, ngon_ngu: text})}
+                style={styles.input}
+              />
+              <TextInput
+                placeholder="Độ tuổi"
+                value={editPhim.do_tuoi?.toString()}
+                onChangeText={text => setEditPhim({...editPhim, do_tuoi: text})}
+                style={styles.input}
+                keyboardType="numeric"
+              />
+              <TextInput
+                placeholder="Mô tả"
+                value={editPhim.mo_ta}
+                onChangeText={text => setEditPhim({...editPhim, mo_ta: text})}
+                style={[styles.input, {height: 80, textAlignVertical: 'top'}]}
+                multiline
+              />
+              <TextInput
+                placeholder="Thời lượng"
+                value={editPhim.thoi_luong?.toString()}
+                onChangeText={text => setEditPhim({...editPhim, thoi_luong: text})}
+                style={styles.input}
+                keyboardType="numeric"
+              />
+              <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8}}>
+                <TextInput
+                  placeholder="Poster URL"
+                  value={editPhim.poster_url}
+                  onChangeText={text => setEditPhim({...editPhim, poster_url: text})}
+                  style={[styles.input, {flex: 1, marginRight: 8}]}
+                />
+                <Button title="Chọn ảnh" onPress={handlePickImage} />
+              </View>
+              {editPhim.poster_url ? (
+                <Image
+                  source={{ uri: editPhim.poster_url }}
+                  style={{
+                    width: 120,
+                    height: 180,
+                    borderRadius: 10,
+                    alignSelf: 'center',
+                    marginBottom: 14,
+                    borderWidth: 1,
+                    borderColor: '#eee',
+                  }}
+                />
+              ) : null}
+              <TextInput
+                placeholder="Trailer URL"
+                value={editPhim.trailer_url}
+                onChangeText={text => setEditPhim({...editPhim, trailer_url: text})}
+                style={styles.input}
+              />
+              <TextInput
+                placeholder="Thể loại"
+                value={editPhim.the_loai}
+                onChangeText={text => setEditPhim({...editPhim, the_loai: text})}
+                style={styles.input}
+              />
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 24}}>
+                <Button title="Cập nhật" color="#EA5A5A" onPress={handleUpdate} />
+                <Button title="Đóng" color="#888" onPress={() => setModal(false)} />
+              </View>
+            </ScrollView>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
-    </ScrollView>
+    </View>
   );
 };
 

@@ -38,40 +38,42 @@ const SuatChieu = ({route}) => {
   console.log('list phim : ', listphim);
   const navigation = useNavigation();
 
-  const handleDateChange = (text) => {
-  // Loại bỏ ký tự không phải số
-  const cleaned = text.replace(/[^\d]/g, '');
+  const handleDateChange = text => {
+    // Loại bỏ ký tự không phải số
+    const cleaned = text.replace(/[^\d]/g, '');
 
-  let formatted = '';
+    let formatted = '';
 
-  if (cleaned.length <= 2) {
-    formatted = cleaned;
-  } else if (cleaned.length <= 4) {
-    formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
-  } else {
-    formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`;
-  }
+    if (cleaned.length <= 2) {
+      formatted = cleaned;
+    } else if (cleaned.length <= 4) {
+      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
+    } else {
+      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(
+        2,
+        4,
+      )}/${cleaned.slice(4, 8)}`;
+    }
 
-  // Validate giới hạn ngày và tháng
-  const parts = formatted.split('/');
-  const day = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10);
+    // Validate giới hạn ngày và tháng
+    const parts = formatted.split('/');
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
 
-  if (day > 31) parts[0] = '31';
-  if (month > 12) parts[1] = '12';
+    if (day > 31) parts[0] = '31';
+    if (month > 12) parts[1] = '12';
 
-  // Gộp lại nếu cần
-  if (parts.length === 3) {
-    formatted = `${parts[0]}/${parts[1]}/${parts[2]}`;
-  } else if (parts.length === 2) {
-    formatted = `${parts[0]}/${parts[1]}`;
-  } else {
-    formatted = parts[0];
-  }
+    // Gộp lại nếu cần
+    if (parts.length === 3) {
+      formatted = `${parts[0]}/${parts[1]}/${parts[2]}`;
+    } else if (parts.length === 2) {
+      formatted = `${parts[0]}/${parts[1]}`;
+    } else {
+      formatted = parts[0];
+    }
 
-  setngay_chieu(formatted);
-};
-
+    setngay_chieu(formatted);
+  };
 
   useEffect(() => {
     setLoading(true); // Bắt đầu loading khi room_id đổi
@@ -90,8 +92,8 @@ const SuatChieu = ({route}) => {
       const [day, month, year] = item.ngay_chieu.split('/');
       const ngayChieuDate = new Date(`${year}-${month}-${day}`);
       const now = new Date();
-      ngayChieuDate.setHours(0,0,0,0);
-      now.setHours(0,0,0,0);
+      ngayChieuDate.setHours(0, 0, 0, 0);
+      now.setHours(0, 0, 0, 0);
       const diffTime = ngayChieuDate.getTime() - now.getTime();
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
       if (diffDays === 1) {
@@ -127,14 +129,20 @@ const SuatChieu = ({route}) => {
           }}
         />
         <View style={{flex: 1}}>
-          <Text style={{fontWeight: 'bold', fontSize: 16, color: '#EA5A5A'}} numberOfLines={2}>
+          <Text
+            style={{fontWeight: 'bold', fontSize: 16, color: '#EA5A5A'}}
+            numberOfLines={2}>
             {phim ? phim.ten_phim : 'Không tìm thấy phim'}
           </Text>
           <Text style={{color: '#444', marginTop: 2}}>
-            Ngày chiếu: <Text style={{fontWeight: 'bold'}}>{item.ngay_chieu}</Text>
+            Ngày chiếu:{' '}
+            <Text style={{fontWeight: 'bold'}}>{item.ngay_chieu}</Text>
           </Text>
           <Text style={{color: '#444', marginTop: 2}}>
-            Thời gian: <Text style={{fontWeight: 'bold'}}>{item.thoi_gian_bat_dau}h - {item.thoi_gian_ket_thuc}h</Text>
+            Thời gian:{' '}
+            <Text style={{fontWeight: 'bold'}}>
+              {item.thoi_gian_bat_dau}h - {item.thoi_gian_ket_thuc}h
+            </Text>
           </Text>
           {trangThai !== '' && (
             <Text
@@ -237,8 +245,25 @@ const SuatChieu = ({route}) => {
           source={require('../img/add.png')}
         />
       </TouchableOpacity>
-      <Text>Phòng : {ten_phong}</Text>
-      <Text>Danh sách suất chiếu</Text>
+      <View
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          padding: 20,
+          backgroundColor: '#f9f9f9',
+        }}>
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: 'bold',
+            color: '#333',
+            marginBottom: 10,
+          }}>
+          Phòng: {ten_phong}
+        </Text>
+        <Text style={{fontSize: 18, color: '#555'}}>Danh sách suất chiếu</Text>
+      </View>
       {!Array.isArray(listsuatchieu) || listsuatchieu.length === 0 ? (
         <Text>Không có suất chiếu nào</Text>
       ) : (
@@ -249,30 +274,41 @@ const SuatChieu = ({route}) => {
         />
       )}
       <Modal visible={modal} animationType="slide" transparent>
-        <View style={{
-          flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.35)',
-          justifyContent: 'flex-end',
-        }}>
-          <View style={{
-            backgroundColor: '#fff',
-            borderTopLeftRadius: 18,
-            borderTopRightRadius: 18,
-            padding: 20,
-            minHeight: '70%',
-            maxHeight: '90%',
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.35)',
+            justifyContent: 'flex-end',
           }}>
-            <Text style={{
-              fontWeight: 'bold',
-              fontSize: 22,
-              color: '#EA5A5A',
-              marginBottom: 18,
-              textAlign: 'center',
+          <View
+            style={{
+              backgroundColor: '#fff',
+              borderTopLeftRadius: 18,
+              borderTopRightRadius: 18,
+              padding: 20,
+              minHeight: '70%',
+              maxHeight: '90%',
             }}>
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 22,
+                color: '#EA5A5A',
+                marginBottom: 18,
+                textAlign: 'center',
+              }}>
               Thêm suất chiếu
             </Text>
             <View style={{marginBottom: 14}}>
-              <Text style={{fontWeight: 'bold', marginBottom: 6, color: '#222', fontSize: 15}}>Ngày chiếu</Text>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  marginBottom: 6,
+                  color: '#222',
+                  fontSize: 15,
+                }}>
+                Ngày chiếu
+              </Text>
               <TextInput
                 placeholder="dd/mm/yyyy"
                 value={ngay_chieu}
@@ -290,7 +326,15 @@ const SuatChieu = ({route}) => {
               />
             </View>
             <View style={{marginBottom: 14}}>
-              <Text style={{fontWeight: 'bold', marginBottom: 6, color: '#222', fontSize: 15}}>Thời gian bắt đầu</Text>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  marginBottom: 6,
+                  color: '#222',
+                  fontSize: 15,
+                }}>
+                Thời gian bắt đầu
+              </Text>
               <TextInput
                 placeholder="Thời gian bắt đầu"
                 value={thoi_gian_bat_dau}
@@ -307,7 +351,15 @@ const SuatChieu = ({route}) => {
               />
             </View>
             <View style={{marginBottom: 14}}>
-              <Text style={{fontWeight: 'bold', marginBottom: 6, color: '#222', fontSize: 15}}>Thời gian kết thúc</Text>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  marginBottom: 6,
+                  color: '#222',
+                  fontSize: 15,
+                }}>
+                Thời gian kết thúc
+              </Text>
               <TextInput
                 placeholder="Thời gian kết thúc"
                 value={thoi_gian_ket_thuc}
@@ -324,7 +376,15 @@ const SuatChieu = ({route}) => {
               />
             </View>
             <View style={{marginBottom: 14}}>
-              <Text style={{fontWeight: 'bold', marginBottom: 6, color: '#222', fontSize: 15}}>Phim</Text>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  marginBottom: 6,
+                  color: '#222',
+                  fontSize: 15,
+                }}>
+                Phim
+              </Text>
               <TouchableOpacity
                 style={{
                   borderWidth: 1,
@@ -337,12 +397,18 @@ const SuatChieu = ({route}) => {
                 onPress={() => setPhimModal(true)}>
                 <Text style={{color: phim_id ? '#222' : '#888'}}>
                   {phim_id
-                    ? listphim.find(p => p.phim_id === phim_id)?.ten_phim || 'Chọn phim'
+                    ? listphim.find(p => p.phim_id === phim_id)?.ten_phim ||
+                      'Chọn phim'
                     : 'Chọn phim'}
                 </Text>
               </TouchableOpacity>
             </View>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 24}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 24,
+              }}>
               <TouchableOpacity
                 style={{
                   flex: 1,
@@ -352,9 +418,10 @@ const SuatChieu = ({route}) => {
                   alignItems: 'center',
                   marginRight: 8,
                 }}
-                onPress={handleAddSuatCHieu}
-              >
-                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Thêm</Text>
+                onPress={handleAddSuatCHieu}>
+                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>
+                  Thêm
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{
@@ -365,9 +432,10 @@ const SuatChieu = ({route}) => {
                   alignItems: 'center',
                   marginLeft: 8,
                 }}
-                onPress={() => setModal(false)}
-              >
-                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Quay lại</Text>
+                onPress={() => setModal(false)}>
+                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>
+                  Quay lại
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -391,10 +459,20 @@ const SuatChieu = ({route}) => {
               minHeight: '70%',
               maxHeight: '90%',
             }}>
-            <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 12}}>
-              <Text style={{fontWeight: 'bold', fontSize: 20, flex: 1}}>Chọn phim</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginBottom: 12,
+              }}>
+              <Text style={{fontWeight: 'bold', fontSize: 20, flex: 1}}>
+                Chọn phim
+              </Text>
               <TouchableOpacity onPress={() => setPhimModal(false)}>
-                <Text style={{fontSize: 18, color: '#EA5A5A', fontWeight: 'bold'}}>Đóng</Text>
+                <Text
+                  style={{fontSize: 18, color: '#EA5A5A', fontWeight: 'bold'}}>
+                  Đóng
+                </Text>
               </TouchableOpacity>
             </View>
             <TextInput
@@ -413,7 +491,9 @@ const SuatChieu = ({route}) => {
             <ScrollView>
               {listphim
                 .filter(item =>
-                  item.ten_phim.toLowerCase().includes(searchPhim.toLowerCase())
+                  item.ten_phim
+                    .toLowerCase()
+                    .includes(searchPhim.toLowerCase()),
                 )
                 .map(item => (
                   <TouchableOpacity
@@ -427,10 +507,12 @@ const SuatChieu = ({route}) => {
                       alignItems: 'center',
                       marginBottom: 12,
                       borderWidth: 1,
-                      borderColor: phim_id === item.phim_id ? '#EA5A5A' : '#eee',
+                      borderColor:
+                        phim_id === item.phim_id ? '#EA5A5A' : '#eee',
                       borderRadius: 10,
                       padding: 10,
-                      backgroundColor: phim_id === item.phim_id ? '#FFF0F0' : '#fff',
+                      backgroundColor:
+                        phim_id === item.phim_id ? '#FFF0F0' : '#fff',
                       shadowColor: '#000',
                       shadowOffset: {width: 0, height: 2},
                       shadowOpacity: 0.08,
@@ -447,11 +529,13 @@ const SuatChieu = ({route}) => {
                         backgroundColor: '#eee',
                       }}
                     />
-                    <Text style={{
-                      fontSize: 16,
-                      fontWeight: phim_id === item.phim_id ? 'bold' : 'normal',
-                      color: phim_id === item.phim_id ? '#EA5A5A' : '#222',
-                    }}>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontWeight:
+                          phim_id === item.phim_id ? 'bold' : 'normal',
+                        color: phim_id === item.phim_id ? '#EA5A5A' : '#222',
+                      }}>
                       {item.ten_phim}
                     </Text>
                   </TouchableOpacity>
