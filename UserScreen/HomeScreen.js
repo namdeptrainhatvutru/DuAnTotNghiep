@@ -199,8 +199,10 @@ const HomeScreen = () => {
               opacity: headerOpacity,
               transform: [{translateY: headerTranslateY}],
             }}>
-            {/* Profile, BannerSlider, Thanh thể loại */}
+            
+    
 
+                
             <View>
               <BannerSlider />
             </View>

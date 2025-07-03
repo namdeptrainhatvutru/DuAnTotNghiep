@@ -137,13 +137,33 @@ const ThongTinVe = ({route}) => {
   return (
     <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={{padding: 20, paddingBottom: 120}}>
-        <Text style={{fontWeight: 'bold', fontSize: 18}}>Thông tin vé</Text>
-        <Text>Tên phim: {thongTinVe.ten_phim}</Text>
-        <Text>Ngày chiếu: {thongTinVe.ngay_chieu}</Text>
-        <Text>Suất chiếu: {thongTinVe.gio_chieu}</Text>
-        <Text>Phòng chiếu: {thongTinVe.ten_phong}</Text>
-        <Text>Rạp: {thongTinVe.dia_chi_rap}</Text>
-        <Text>Số ghế: {thongTinVe.vi_tri_ghe}</Text>
+        <View style={styles.ticketCard}>
+          <Text style={styles.ticketTitle}>Thông tin vé</Text>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Tên phim:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.ten_phim}</Text>
+          </View>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Ngày chiếu:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.ngay_chieu}</Text>
+          </View>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Suất chiếu:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.gio_chieu}</Text>
+          </View>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Phòng chiếu:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.ten_phong}</Text>
+          </View>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Rạp:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.dia_chi_rap}</Text>
+          </View>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Số ghế:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.vi_tri_ghe}</Text>
+          </View>
+        </View>
 
         <View style={{flexDirection: 'row', marginRight: 20, marginTop: 10}}>
           <Text style={{fontSize: 10}}>Đang chọn :</Text>
@@ -534,5 +554,36 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  ticketCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  ticketTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#EA5A5A',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  ticketRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  ticketLabel: {
+    fontWeight: 'bold',
+    color: '#333',
+    width: 110,
+  },
+  ticketValue: {
+    color: '#444',
+    flex: 1,
   },
 });
