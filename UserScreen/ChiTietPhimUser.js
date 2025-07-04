@@ -18,6 +18,7 @@ const ChiTietPhimUser = ({ route }) => {
   const dispatch = useDispatch();
   const listSuatChieu = useSelector(state => state.suatchieu.listsuatchieu);
   const listPhongChieu = useSelector(state => state.phongchieu.listphongchieu);
+  const listGhe = useSelector(state => state.ghe.listghe); // Lấy danh sách ghế từ redux
 
   const [selected, setSelected] = useState(null);
 
@@ -29,6 +30,33 @@ const ChiTietPhimUser = ({ route }) => {
     if (!url) return '';
     const videoId = url.split('v=')[1];
     return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1`;
+  };
+
+  const isSuatChieuOver = (item) => {
+    // item.ngay_chieu dạng 'dd/mm/yyyy'
+    if (!item.ngay_chieu) return false;
+    const [day, month, year] = item.ngay_chieu.split('/');
+    const now = new Date();
+    const ngayChieu = new Date(`${year}-${month}-${day}`);
+    if (
+      now.toDateString() !== ngayChieu.toDateString()
+    ) {
+      // Nếu ngày chiếu đã qua
+      return now > ngayChieu;
+    }
+    // Nếu là hôm nay, kiểm tra giờ
+    const nowHour = now.getHours();
+    const gioKetThuc = parseInt(item.thoi_gian_ket_thuc, 10);
+    return nowHour >= gioKetThuc;
+  };
+
+  // Hàm kiểm tra suất chiếu đã full ghế
+  const isFullGhe = (suatChieuId, listghe) => {
+    const gheOfSuat = listghe.filter(ghe => ghe.suat_chieu_id === suatChieuId);
+    // Nếu không có ghế thì không full
+    if (gheOfSuat.length === 0) return false;
+    // Nếu tất cả ghế đều khác 'trống' thì full
+    return gheOfSuat.every(ghe => ghe.trang_thai !== 'trống');
   };
 
   const suatChieuRender = useMemo(() => {
@@ -80,35 +108,61 @@ const ChiTietPhimUser = ({ route }) => {
             <Text style={styles.genre}>{phim.the_loai}</Text>
           </View>
         </View>
+        
 
-        <View style={styles.section}>
-          <Text style={styles.sectionText}>{phim.mo_ta}</Text>
-        </View>
+        
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🎬 Chọn suất chiếu</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {suatChieuRender.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => setSelected(item)}
-                style={[
-                  styles.showtimeButton,
-                  selected === item && styles.selectedShowtime,
-                ]}>
-                <Text style={styles.showtimeText}>
-                  {item.thoi_gian_bat_dau}h - {item.thoi_gian_ket_thuc}h
-                </Text>
-                <Text style={styles.showtimeDate}>{item.ngay_chieu}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+          {suatChieuRender.length === 0 ? (
+            <Text style={{ color: '#888', fontStyle: 'italic', marginLeft: 8 }}>
+              Không có suất chiếu
+            </Text>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {suatChieuRender.map((item, index) => {
+                if (isSuatChieuOver(item)) return null;
+                const full = isFullGhe(item.suat_chieu_id, listGhe);
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => !full && setSelected(item)}
+                    disabled={full}
+                    style={[
+                      styles.showtimeButton,
+                      selected === item && styles.selectedShowtime,
+                      full && { backgroundColor: '#eee', borderColor: '#aaa' },
+                    ]}>
+                    <Text style={styles.showtimeText}>
+                      {item.thoi_gian_bat_dau}h - {item.thoi_gian_ket_thuc}h
+                    </Text>
+                    <Text style={styles.showtimeDate}>{item.ngay_chieu}</Text>
+                    {full && (
+                      <View style={{
+                        backgroundColor: '#e74c3c',
+                        borderRadius: 8,
+                        paddingHorizontal: 8,
+                        paddingVertical: 2,
+                        marginTop: 4,
+                        alignSelf: 'center',
+                      }}>
+                        <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Đã full ghế</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          )}
         </View>
 
         <View style={styles.section}>
           <View style={styles.infoRow}><Text style={styles.infoLabel}>Đạo diễn:</Text><Text>{phim.dao_dien}</Text></View>
           <View style={styles.infoRow}><Text style={styles.infoLabel}>Ngôn ngữ:</Text><Text>{phim.ngon_ngu}</Text></View>
           <View style={styles.infoRow}><Text style={styles.infoLabel}>Thể loại:</Text><Text>{phim.the_loai}</Text></View>
+        </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionText}>{phim.mo_ta}</Text>
         </View>
       </ScrollView>
 
@@ -156,6 +210,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 12,
     justifyContent: 'center',
+    marginTop:30
   },
   title: {
     fontSize: 18,
@@ -197,6 +252,10 @@ const styles = StyleSheet.create({
   selectedShowtime: {
     backgroundColor: '#fdecea',
     borderColor: '#e74c3c',
+  },
+  showtimeOver: {
+    backgroundColor: '#eee',
+    borderColor: '#aaa',
   },
   showtimeText: {
     fontWeight: '500',

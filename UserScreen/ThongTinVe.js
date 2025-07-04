@@ -522,6 +522,16 @@ const styles = StyleSheet.create({
     padding: 5,
     marginBottom: 20,
     borderWidth: 1,
+    backgroundColor: '#fff',
+  borderRadius: 16,
+  padding: 18,
+  marginBottom: 18,
+  // Đổ bóng cho cả iOS và Android
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.15,
+  shadowRadius: 8,
+  elevation: 6, // Android
   },
   imgpayment: {width: 50, height: 50, marginRight: 10},
   modal: {
@@ -556,16 +566,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   ticketCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
-  },
+  backgroundColor: '#fff',
+  borderRadius: 16,
+  padding: 18,
+  marginBottom: 18,
+  // Đổ bóng cho cả iOS và Android
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.15,
+  shadowRadius: 8,
+  elevation: 6, // Android
+},
   ticketTitle: {
     fontSize: 20,
     fontWeight: 'bold',

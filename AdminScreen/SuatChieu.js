@@ -33,6 +33,7 @@ const SuatChieu = ({route}) => {
   const [phimModal, setPhimModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchPhim, setSearchPhim] = useState('');
+  const [activeTab, setActiveTab] = useState('chua'); // 'chua' | 'ketthuc'
   const listsuatchieu = useSelector(state => state.suatchieu.listsuatchieu);
   const listphim = useSelector(state => state.phim.listphim);
   console.log('list phim : ', listphim);
@@ -83,10 +84,41 @@ const SuatChieu = ({route}) => {
     });
   }, [dispatch, room_id]);
 
+  const getTrangThai = item => {
+    if (!item.ngay_chieu) return '';
+    const [day, month, year] = item.ngay_chieu.split('/');
+    const ngayChieuDate = new Date(`${year}-${month}-${day}`);
+    const now = new Date();
+    ngayChieuDate.setHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
+    const diffTime = ngayChieuDate.getTime() - now.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    const nowHour = new Date().getHours();
+    const gioKetThuc = parseInt(item.thoi_gian_ket_thuc, 10);
+
+    if (diffDays === 0) {
+      if (nowHour >= gioKetThuc) return 'Đã kết thúc';
+      return 'Chưa chiếu';
+    } else if (diffDays < 0) {
+      return 'Đã kết thúc';
+    } else {
+      return 'Chưa chiếu';
+    }
+  };
+
+  // Lọc danh sách theo tab
+  const filteredList = Array.isArray(listsuatchieu)
+    ? listsuatchieu.filter(item =>
+        activeTab === 'chua'
+          ? getTrangThai(item) !== 'Đã kết thúc'
+          : getTrangThai(item) === 'Đã kết thúc',
+      )
+    : [];
+
   const renderItem = ({item}) => {
     const phim = listphim.find(p => p.phim_id === item.phim_id);
 
-    // Xử lý ngày chiếu
+    // Xử lý ngày chiếu và trạng thái
     let trangThai = '';
     if (item.ngay_chieu) {
       const [day, month, year] = item.ngay_chieu.split('/');
@@ -96,7 +128,23 @@ const SuatChieu = ({route}) => {
       now.setHours(0, 0, 0, 0);
       const diffTime = ngayChieuDate.getTime() - now.getTime();
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-      if (diffDays === 1) {
+
+      // Lấy giờ hiện tại
+      const nowHour = new Date().getHours();
+
+      // Lấy giờ kết thúc của suất chiếu (chuyển string sang số)
+      const gioKetThuc = parseInt(item.thoi_gian_ket_thuc, 10);
+
+      if (diffDays === 0) {
+        // Nếu là hôm nay, kiểm tra giờ
+        if (nowHour >= gioKetThuc) {
+          trangThai = 'Đã kết thúc';
+        } else {
+          trangThai = 'Đang chiếu';
+        }
+      } else if (diffDays < 0) {
+        trangThai = 'Đã kết thúc';
+      } else if (diffDays === 1) {
         trangThai = 'Sắp chiếu';
       } else if (diffDays > 1) {
         trangThai = 'Chưa chiếu';
@@ -148,7 +196,12 @@ const SuatChieu = ({route}) => {
             <Text
               style={{
                 marginTop: 4,
-                color: trangThai === 'Sắp chiếu' ? '#FFA500' : '#8889D6',
+                color:
+                  trangThai === 'Sắp chiếu'
+                    ? '#FFA500'
+                    : trangThai === 'Đã kết thúc'
+                    ? '#888'
+                    : '#8889D6',
                 fontWeight: 'bold',
                 fontSize: 13,
               }}>
@@ -198,36 +251,47 @@ const SuatChieu = ({route}) => {
     );
   }
 
-  const handleAddSuatCHieu = () => {
-    const suatchieu = {
-      room_id: room_id,
-      ngay_chieu: ngay_chieu,
-      thoi_gian_bat_dau: thoi_gian_bat_dau,
-      thoi_gian_ket_thuc: thoi_gian_ket_thuc,
-      phim_id: phim_id,
-    };
-    dispatch(addSuatChieu(suatchieu)).then(res => {
-      const createdSuatChieu = res.payload;
-      // Tạo 30 ghế cho suất chiếu này
-      if (createdSuatChieu && createdSuatChieu.suat_chieu_id) {
-        for (let i = 1; i <= 30; i++) {
-          const newGhe = {
-            vi_tri: `G${i}`,
-            suat_chieu_id: createdSuatChieu.suat_chieu_id,
-            trang_thai: 'trống',
-          };
-          dispatch(addGhe(newGhe));
-        }
-      }
-      dispatch(fetchSuatChieu(room_id));
-      Alert.alert('Thêm thành công');
-      setModal(false);
-      setngay_chieu('');
-      setthoi_gian_bat_dau('');
-      setthoi_gian_ket_thuc('');
-      setphim_id('');
-    });
+ const handleAddSuatCHieu = async () => {
+  const suatchieu = {
+    room_id: room_id,
+    ngay_chieu: ngay_chieu,
+    thoi_gian_bat_dau: thoi_gian_bat_dau,
+    thoi_gian_ket_thuc: thoi_gian_ket_thuc,
+    phim_id: phim_id,
   };
+  try {
+    const res = await dispatch(addSuatChieu(suatchieu));
+    const createdSuatChieu = res.payload;
+    const suatChieuId = createdSuatChieu?.suat_chieu_id;
+
+    if (!suatChieuId) {
+      Alert.alert('Không lấy được ID suất chiếu!');
+      return;
+    }
+
+    // Tạo 30 ghế cho suất chiếu này
+    for (let i = 1; i <= 30; i++) {
+      const newGhe = {
+        vi_tri: `G${i}`,
+        suat_chieu_id: suatChieuId,
+        trang_thai: 'trống',
+      };
+      const gheRes = await dispatch(addGhe(newGhe));
+      console.log('addGhe', i, gheRes);
+    }
+
+    await dispatch(fetchSuatChieu(room_id));
+    Alert.alert('Thêm thành công');
+    setModal(false);
+    setngay_chieu('');
+    setthoi_gian_bat_dau('');
+    setthoi_gian_ket_thuc('');
+    setphim_id('');
+  } catch (err) {
+    Alert.alert('Có lỗi xảy ra, vui lòng thử lại!');
+    console.log('Add suatchieu error:', err);
+  }
+};
   if (loading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -237,14 +301,54 @@ const SuatChieu = ({route}) => {
   }
   return (
     <View style={{flex: 1, padding: 10}}>
-      <TouchableOpacity
-        onPress={() => setModal(true)}
-        style={{position: 'absolute', zIndex: 2, right: 20, bottom: 90}}>
-        <Image
-          style={{width: 80, height: 80}}
-          source={require('../img/add.png')}
-        />
-      </TouchableOpacity>
+      {/* Tab */}
+      <View
+        style={{
+          flexDirection: 'row',
+          marginBottom: 10,
+          marginTop: 10,
+          alignSelf: 'center',
+        }}>
+        <TouchableOpacity
+          style={{
+            backgroundColor: activeTab === 'chua' ? '#EA5A5A' : '#fff',
+            paddingVertical: 10,
+            paddingHorizontal: 30,
+            borderTopLeftRadius: 16,
+            borderBottomLeftRadius: 16,
+            borderWidth: 1,
+            borderColor: '#EA5A5A',
+          }}
+          onPress={() => setActiveTab('chua')}>
+          <Text
+            style={{
+              color: activeTab === 'chua' ? '#fff' : '#EA5A5A',
+              fontWeight: 'bold',
+            }}>
+            Chưa chiếu
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            backgroundColor: activeTab === 'ketthuc' ? '#EA5A5A' : '#fff',
+            paddingVertical: 10,
+            paddingHorizontal: 30,
+            borderTopRightRadius: 16,
+            borderBottomRightRadius: 16,
+            borderWidth: 1,
+            borderColor: '#EA5A5A',
+          }}
+          onPress={() => setActiveTab('ketthuc')}>
+          <Text
+            style={{
+              color: activeTab === 'ketthuc' ? '#fff' : '#EA5A5A',
+              fontWeight: 'bold',
+            }}>
+            Đã kết thúc
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <View
         style={{
           justifyContent: 'center',
@@ -264,11 +368,13 @@ const SuatChieu = ({route}) => {
         </Text>
         <Text style={{fontSize: 18, color: '#555'}}>Danh sách suất chiếu</Text>
       </View>
-      {!Array.isArray(listsuatchieu) || listsuatchieu.length === 0 ? (
-        <Text>Không có suất chiếu nào</Text>
+      {filteredList.length === 0 ? (
+        <Text style={{textAlign: 'center', marginTop: 20}}>
+          Không có suất chiếu nào
+        </Text>
       ) : (
         <FlatList
-          data={listsuatchieu}
+          data={filteredList}
           keyExtractor={item => item.suat_chieu_id}
           renderItem={renderItem}
         />
@@ -544,6 +650,35 @@ const SuatChieu = ({route}) => {
           </View>
         </View>
       </Modal>
+      <TouchableOpacity
+        style={{
+          position: 'absolute',
+          bottom: 28,
+          right: 28,
+          backgroundColor: '#EA5A5A',
+          width: 60,
+          height: 60,
+          borderRadius: 30,
+          justifyContent: 'center',
+          alignItems: 'center',
+          shadowColor: '#000',
+          shadowOffset: {width: 0, height: 2},
+          shadowOpacity: 0.18,
+          shadowRadius: 6,
+          elevation: 6,
+          zIndex: 10,
+        }}
+        onPress={() => setModal(true)}>
+        <Text
+          style={{
+            color: '#fff',
+            fontSize: 36,
+            fontWeight: 'bold',
+            marginTop: -2,
+          }}>
+          +
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };

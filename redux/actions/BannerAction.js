@@ -57,7 +57,7 @@ const BannerSlider = () => {
         renderItem={({ item }) => (
           <View style={{
             overflow: 'hidden',
-            borderTopRightRadius: 20,
+            
             borderBottomRightRadius: 20,
             width: width,
             height: 160,
@@ -67,7 +67,7 @@ const BannerSlider = () => {
               style={{
                 width: width,
                 height: 160,
-                borderTopRightRadius: 20,
+                
                 borderBottomRightRadius: 20,
                 resizeMode: 'cover',
               }}

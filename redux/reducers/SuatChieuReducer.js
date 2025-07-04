@@ -19,7 +19,8 @@ const SuatChieuSlice = createSlice({
   },
   extraReducers: builder => {
       builder.addCase(addSuatChieu.fulfilled,(state,action)=>{
-        state.listsuatchieu.push(action.payload)
+        if (!Array.isArray(state.listsuatchieu)) state.listsuatchieu = [];
+    state.listsuatchieu.push(action.payload);
       })
       builder.addCase(deleteSuatChieu.fulfilled,(state,action)=>{
         state.listsuatchieu = state.listsuatchieu.filter(item => item.suat_chieu_id !== action.payload)
