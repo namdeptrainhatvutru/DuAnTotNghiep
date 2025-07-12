@@ -116,7 +116,7 @@ const Login = () => {
           />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => { Linking.openURL(`http://${BASE}:3000`) }}>
+      <TouchableOpacity onPress={() => { Linking.openURL(`https://namdeptrainhatvutru.github.io/forgotpass/`) }}>
         <Text style={{color: '#373FE2', margin: 20,textDecorationLine:'underline'}}>Quên mật khẩu?</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={handleLogin} style={{backgroundColor: '#BB0000', width: '85%', height: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 50}}>

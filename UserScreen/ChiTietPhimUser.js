@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 12,
     justifyContent: 'center',
-    marginTop:30
+    marginTop:70
   },
   title: {
     fontSize: 18,

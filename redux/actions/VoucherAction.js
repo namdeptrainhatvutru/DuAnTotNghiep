@@ -21,18 +21,19 @@ export const fetchVoucher = () => {
     }
   };
 };
-export const fetchVoucher2 = () => {
-  return async dispatch => {
-    try {
-      const response = await fetch(`${api_voucher}?khach_hang_id=""`);
-      let data = await response.json();
-      data = data.map(convertVoucher);
-      dispatch(setVoucher(data));
-    } catch (error) {
-      console.error('Error fetching voucher:', error);
-    }
-  };
-};
+
+// export const fetchVoucher2 = () => {
+//   return async dispatch => {
+//     try {
+//       const response = await fetch(`${api_voucher}?khach_hang_id=""`);
+//       let data = await response.json();
+//       data = data.map(convertVoucher);
+//       dispatch(setVoucher(data));
+//     } catch (error) {
+//       console.error('Error fetching voucher:', error);
+//     }
+//   };
+// };
 
 export const fetchVoucherById = (id) => {
   return async dispatch => {
