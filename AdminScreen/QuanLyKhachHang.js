@@ -185,15 +185,25 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
   return (
     <View style={{ flex: 1, justifyContent:'center' }}>
       <Text style={styles.title}>Danh sách khách hàng</Text>
-      <TextInput style={{borderWidth:1,margin:10}} value={searchText} onChangeText={setSearchText} placeholder='tìm kiếm'/>
+      <View style={styles.searchWrapper}>
+  <Image source={require('../img/search.png')} style={styles.searchIcon} />
+  <TextInput
+    style={styles.searchInput}
+    value={searchText}
+    onChangeText={setSearchText}
+    placeholder="Tìm kiếm khách hàng..."
+    placeholderTextColor="#888"
+  />
+</View>
       <FlatList data={search} keyExtractor={item => item.khach_hang_id} renderItem={renderItem} />
 
       {/* Nút dấu + mở modal thêm */}
       <TouchableOpacity
         onPress={() => setAddModalVisible(true)}
         style={styles.fab}
+        activeOpacity={0.8}
       >
-        <Text style={styles.fabIcon}>+</Text>
+        <Image style={{width:50,height:50}} source={require('../img/add.png')}/>
       </TouchableOpacity>
 
     
@@ -240,68 +250,131 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
 export default QuanLyKhachHang;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f7f7fa',
+  },
   title: {
-    fontSize: 20, fontWeight: 'bold',margin:20
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginVertical: 24,
+    alignSelf: 'center',
+    color: '#BB0000',
+    letterSpacing: 1,
   },
   input: {
-    width: '100%', height: 48, borderWidth: 1, borderColor: '#ccc', borderRadius: 8,
-    marginBottom: 16, paddingHorizontal: 12, fontSize: 16,
+    width: '100%',
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 12,
+    marginBottom: 18,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    color: '#222',
   },
   button: {
-    backgroundColor: '#BB0000', width: '100%', height: 50,
-    justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginTop: 10,
+    backgroundColor: '#BB0000',
+    width: '100%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 14,
+    marginTop: 14,
+    shadowColor: '#BB0000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 6,
+    elevation: 3,
   },
   fab: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
+    bottom: 28,
+    right: 28,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#BB0000',
     width: 60,
     height: 60,
-    borderRadius: 30,
-    alignItems: 'center',
-    elevation: 5,
-    
+    shadowColor: '#BB0000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
   fabIcon: {
-    fontSize: 30,
+    fontSize: 32,
     color: 'white',
-    position: 'absolute',
-    bottom: -7,
   },
-card: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: '#fff',
-  borderRadius: 14,
-  padding: 16,
-  marginHorizontal: 16,
-  marginVertical: 8,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 6,
-  elevation: 3,
-},
-avatar: {
-  width: 70,
-  height: 70,
-  borderRadius: 35,
-  backgroundColor: '#eee',
-},
-cardTitle: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  marginBottom: 4,
-},
-cardText: {
-  fontSize: 15,
-  color: '#333',
-  marginBottom: 2,
-},
-cardBtn: {
-  paddingVertical: 6,
-  paddingHorizontal: 18,
-  borderRadius: 8,
-},
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 18,
+    marginHorizontal: 16,
+    marginVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.09,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  avatar: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#eee',
+    borderWidth: 2,
+    borderColor: '#BB0000',
+  },
+  cardTitle: {
+    fontSize: 19,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    color: '#BB0000',
+  },
+  cardText: {
+    fontSize: 15,
+    color: '#444',
+    marginBottom: 3,
+  },
+  cardBtn: {
+    paddingVertical: 7,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginRight: 8,
+    marginTop: 4,
+  },
+  searchWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#eee',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 2,
+    height: 48,
+  },
+  searchIcon: {
+    width: 22,
+    height: 22,
+    tintColor: '#BB0000',
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#222',
+    paddingVertical: 0,
+  },
 });

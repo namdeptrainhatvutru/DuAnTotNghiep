@@ -18,6 +18,8 @@ import { Alert } from 'react-native';
 const KhoVe = () => {
   const user = useSelector(state => state.user.user);
   const listve = useSelector(state => state.ve.listve);
+  const [listVe, setListVe] = useState([]);
+
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedVe, setSelectedVe] = useState(null);
@@ -31,14 +33,18 @@ const KhoVe = () => {
     });
   }, []);
 
+  useEffect(() => {
+    setListVe(Array.isArray(listve) ? listve : []);
+  }, [listve]);
+
   // Hàm kiểm tra vé còn hạn/hết hạn
   const isVeConHan = ve => {
     const ngay = ve.ngay_chieu.split('/').reverse().join('-');
     return new Date(ngay) >= new Date();
   };
 
-  const veConHan = listve.filter(isVeConHan);
-  const veHetHan = listve.filter(ve => !isVeConHan(ve));
+  const veConHan = (Array.isArray(listVe) ? listVe : []).filter(isVeConHan);
+  const veHetHan = (Array.isArray(listVe) ? listVe : []).filter(ve => !isVeConHan(ve));
 
 
 

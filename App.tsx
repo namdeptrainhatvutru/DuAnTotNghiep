@@ -90,19 +90,19 @@ const MyTabs = () => {
       }} component={HomeScreen} />
       <Tab.Screen name="Location" options={{
         headerShown: true
-        , headerTitle: 'Location', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#EA5A5A' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+        , headerTitle: 'Location', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
       }} component={LocationScreen} />
       <Tab.Screen name="Voucher" options={{
         headerShown: true
-        , headerTitle: 'Voucher', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#EA5A5A' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+        , headerTitle: 'Voucher', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
       }} component={VoucherScreen} />
       <Tab.Screen name="Khuyến mãi" options={{
         headerShown: true
-        , headerTitle: 'Khuyến mãi', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#EA5A5A' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+        , headerTitle: 'Khuyến mãi', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
       }} component={PromotionalScreen} />
       <Tab.Screen name="Khác" options={{
         headerShown: true
-        , headerTitle: 'Khác', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#EA5A5A' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+        , headerTitle: 'Khác', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
       }} component={DifferentScreen} />
     </Tab.Navigator>
   );

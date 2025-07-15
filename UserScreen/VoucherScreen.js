@@ -114,7 +114,7 @@ const VoucherScreen = () => {
           style={{
             flex: 1,
             borderWidth: 1,
-            borderColor: '#EA5A5A',
+            borderColor: '#8B0000',
             borderRadius: 10,
             paddingHorizontal: 14,
             paddingVertical: 8,
@@ -126,7 +126,7 @@ const VoucherScreen = () => {
         />
         <TouchableOpacity
           style={{
-            backgroundColor: '#EA5A5A',
+            backgroundColor: '#8B0000',
             borderRadius: 10,
             paddingVertical: 10,
             paddingHorizontal: 18,
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   exchangeBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EA5A5A',
+    backgroundColor: '#8B0000',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 12,

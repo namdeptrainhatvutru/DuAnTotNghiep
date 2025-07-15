@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   logoutButton: {
-    backgroundColor: '#EA5A5A',
+    backgroundColor: '#8B0000',
     marginTop: 8,
   },
 });

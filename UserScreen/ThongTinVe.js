@@ -356,7 +356,7 @@ const ThongTinVe = ({route}) => {
       <TouchableOpacity
         style={{
           backgroundColor:
-            gheSelected.length === 0 || !payment ? 'gray' : 'red',
+            gheSelected.length === 0 || !payment ? 'gray' : '#8B0000',
           padding: 20,
           borderRadius: 15,
           position: 'absolute',

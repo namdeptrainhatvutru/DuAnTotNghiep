@@ -73,7 +73,7 @@ const ChiTietPhimUser = ({ route }) => {
       );
     }
     return listSuatChieu.filter(suat => suat.phim_id === phim.phim_id);
-  }, [listSuatChieu, listPhongChieu, cinema_id, phim.phim_id]);
+  }, [listSuatChieu, listPhongChieu, cinema_id, phim.phim_id, listGhe]);
 
   const handleDatVe = () => {
     if (!selected) {
@@ -90,6 +90,7 @@ const ChiTietPhimUser = ({ route }) => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
         <View style={styles.trailerContainer}>
+          <View style={styles.trailerOverlay} />
           <WebView
             source={{ uri: getYouTubeEmbedUrl(phim.trailer_url) }}
             style={styles.webview}
@@ -97,12 +98,13 @@ const ChiTietPhimUser = ({ route }) => {
             javaScriptEnabled
             domStorageEnabled
             startInLoadingState
+            mediaPlaybackRequiresUserAction={false}
           />
         </View>
 
         <View style={styles.posterWrapper}>
           <Image source={{ uri: phim.poster_url }} style={styles.poster} />
-          <View style={styles.infoContainer}>
+          <View style={styles.infoCard}>
             <Text style={styles.title}>{phim.ten_phim}</Text>
             <Text style={styles.subtitle}>{phim.thoi_luong} phút | {phim.do_tuoi}+</Text>
             <Text style={styles.genre}>{phim.the_loai}</Text>
@@ -146,7 +148,7 @@ const ChiTietPhimUser = ({ route }) => {
                         marginTop: 4,
                         alignSelf: 'center',
                       }}>
-                        <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Đã full ghế</Text>
+                        <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Đã hết ghế</Text>
                       </View>
                     )}
                   </TouchableOpacity>
@@ -157,18 +159,36 @@ const ChiTietPhimUser = ({ route }) => {
         </View>
 
         <View style={styles.section}>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Đạo diễn:</Text><Text>{phim.dao_dien}</Text></View>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Ngôn ngữ:</Text><Text>{phim.ngon_ngu}</Text></View>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Thể loại:</Text><Text>{phim.the_loai}</Text></View>
+          <View style={styles.infoCardDetail}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoIcon}>🎬</Text>
+              <Text style={styles.infoLabel}>Đạo diễn:</Text>
+              <Text style={styles.infoValue}>{phim.dao_dien}</Text>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.infoRow}>
+              <Text style={styles.infoIcon}>🌐</Text>
+              <Text style={styles.infoLabel}>Ngôn ngữ:</Text>
+              <Text style={styles.infoValue}>{phim.ngon_ngu}</Text>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.infoRow}>
+              <Text style={styles.infoIcon}>🏷️</Text>
+              <Text style={styles.infoLabel}>Thể loại:</Text>
+              <Text style={styles.infoValue}>{phim.the_loai}</Text>
+            </View>
+          </View>
         </View>
         <View style={styles.section}>
-          <Text style={styles.sectionText}>{phim.mo_ta}</Text>
+          <View style={styles.descCard}>
+            <Text style={styles.sectionText}>{phim.mo_ta}</Text>
+          </View>
         </View>
       </ScrollView>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: selected ? '#e74c3c' : '#ccc' }]}
+          style={[styles.button, { backgroundColor: selected ? '#8B0000' : '#ccc' }]}
           onPress={handleDatVe}
           disabled={!selected}>
           <Text style={styles.buttonText}>Đặt vé</Text>
@@ -189,6 +209,17 @@ const styles = StyleSheet.create({
     height: 230,
     backgroundColor: '#000',
   },
+  trailerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    zIndex: 1,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
   webview: {
     flex: 1,
     borderBottomLeftRadius: 16,
@@ -203,14 +234,26 @@ const styles = StyleSheet.create({
   poster: {
     width: 120,
     height: 180,
-    borderRadius: 12,
+    borderRadius: 16,
     backgroundColor: '#eee',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  infoContainer: {
+  infoCard: {
     flex: 1,
-    marginLeft: 12,
-    justifyContent: 'center',
-    marginTop:70
+    marginLeft: 16,
+    marginTop: 70,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   title: {
     fontSize: 18,
@@ -265,13 +308,51 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#555',
   },
+  infoCardDetail: {
+    backgroundColor: '#f7f7fa',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
   infoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
+  },
+  infoIcon: {
+    fontSize: 18,
+    marginRight: 8,
   },
   infoLabel: {
     fontWeight: '600',
+    color: '#444',
+    width: 90,
+  },
+  infoValue: {
+    flex: 1,
+    color: '#222',
+    fontSize: 14,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#eee',
+    marginVertical: 4,
+    borderRadius: 1,
+  },
+  descCard: {
+    backgroundColor: '#fdf6f0',
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   buttonContainer: {
     position: 'absolute',
@@ -287,10 +368,17 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 30,
     alignItems: 'center',
+    backgroundColor: '#e74c3c',
+    shadowColor: '#e74c3c',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 18,
+    letterSpacing: 1,
   },
 });

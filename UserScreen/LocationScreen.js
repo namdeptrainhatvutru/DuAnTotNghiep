@@ -77,7 +77,7 @@ useFocusEffect(
         style={{
           borderWidth: 1,
           borderRadius: 8,
-          borderColor: '#ddd',
+          borderColor: '#8B0000',
           marginBottom: 16,
         }}>
         <Picker selectedValue={selectedCinema} onValueChange={handlePickCinema}>
