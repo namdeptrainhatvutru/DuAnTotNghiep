@@ -15,7 +15,7 @@ import {
 const Chatbot = () => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([
-    {from: 'bot', text: 'Xin chào! Tôi là Movix Bot. Bạn cần hỗ trợ gì?'},
+    {from: 'bot', text: 'Xin chào quý khách! Tôi là Movix Bot. Bạn cần hỗ trợ gì?'},
   ]);
   const flatListRef = useRef();
 
