@@ -186,7 +186,7 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
     <View style={{ flex: 1, justifyContent:'center' }}>
       <Text style={styles.title}>Danh sách khách hàng</Text>
       <View style={styles.searchWrapper}>
-  <Image source={require('../img/search.png')} style={styles.searchIcon} />
+  
   <TextInput
     style={styles.searchInput}
     value={searchText}
