@@ -5,11 +5,14 @@ import {
   useCameraDevice,
   useCodeScanner,
 } from 'react-native-vision-camera';
+import { useDispatch } from 'react-redux';
+import { updateTrangThaiVe } from '../redux/actions/VeAction';
 
 const StaffScreen = () => {
   const device = useCameraDevice('back');
   const [isScanning, setIsScanning] = useState(true);
   const [qrInfo, setQrInfo] = useState(null);
+  const dispatch = useDispatch();
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
@@ -33,6 +36,7 @@ const StaffScreen = () => {
     );
   }
 
+  // Thêm nút xác nhận sử dụng vé
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.cameraContainer}>
@@ -45,6 +49,9 @@ const StaffScreen = () => {
       </View>
       <View style={styles.infoContainer}>
         <Text style={styles.infoTitle}>Thông tin QR:</Text>
+        <Text style={{color: '#fff'}}>
+          ID vé  : {qrInfo ? qrInfo.ve_id : ''}
+        </Text>
         <Text style={{color: '#fff'}}>
           Phim : {qrInfo ? qrInfo.ten_phim : ''}
         </Text>
@@ -65,13 +72,22 @@ const StaffScreen = () => {
         </Text>
         <Text style={{color: '#fff'}}>
           Trạng thái:{' '}
-          {qrInfo && qrInfo.ngay_chieu
-            ? new Date(qrInfo.ngay_chieu.split('/').reverse().join('-')) <
-              new Date()
-              ? 'Quá hạn'
-              : 'Còn hạn'
-            : ''}
+          {qrInfo && qrInfo.trang_thai}
         </Text>
+
+        {qrInfo && qrInfo.ve_id && (
+          <View style={{marginTop: 20}}>
+            <Text
+              style={styles.scanAgainButton}
+              onPress={async () => {
+                await dispatch(updateTrangThaiVe({ ve_id: qrInfo.ve_id, trang_thai: 'đã sử dụng' }));
+                setQrInfo({ ...qrInfo, trang_thai: 'đã sử dụng' });
+              }}
+            >
+              Xác nhận vé đã sử dụng
+            </Text>
+          </View>
+        )}
 
         {!isScanning && (
           <View style={{marginTop: 20}}>

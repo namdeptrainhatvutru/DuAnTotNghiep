@@ -66,3 +66,25 @@ export const updateVe = createAsyncThunk(
         if (response.ok) return data;
     }
 );
+
+export const updateTrangThaiVe = createAsyncThunk(
+  've/updateTrangThaiVe',
+  async ({ ve_id, trang_thai }) => {
+    const response = await fetch(`${link_ve}/${ve_id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trang_thai }),
+    });
+    const data = await response.json();
+    if (response.ok) return data;
+  }
+);
+
+export const fetchVeById = createAsyncThunk(
+  've/fetchVeById',
+  async (ve_id) => {
+    const response = await fetch(`${link_ve}/${ve_id}`);
+    const data = await response.json();
+    if (response.ok) return data;
+  }
+);

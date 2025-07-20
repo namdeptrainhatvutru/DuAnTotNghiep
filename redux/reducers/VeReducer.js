@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addVe, deleteVe, updateVe } from "../actions/VeAction";
+import { addVe, deleteVe, updateVe, updateTrangThaiVe } from "../actions/VeAction";
 
 const initialState = {
   listve: [],
@@ -24,6 +24,12 @@ const VeSlice = createSlice({
       const index = state.listve.findIndex(item => item.ve_id === action.payload.id);
       if (index !== -1) {
         state.listve[index] = action.payload;
+      }
+    });
+    builder.addCase(updateTrangThaiVe.fulfilled, (state, action) => {
+      const index = state.listve.findIndex(item => item.ve_id === action.payload.ve_id);
+      if (index !== -1) {
+        state.listve[index] = { ...state.listve[index], ...action.payload };
       }
     });
   }

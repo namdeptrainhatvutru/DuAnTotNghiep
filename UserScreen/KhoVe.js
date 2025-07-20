@@ -207,9 +207,28 @@ const handleDelete = ve_id => {
                     {selectedVe.gio_chieu}
                   </Text>
                 </Text>
+                <Text style={styles.modalText}>
+                  Mã vé: <Text style={{fontWeight: 'bold'}}>
+                    {selectedVe.ve_id || (selectedVe.ma_qr && JSON.parse(selectedVe.ma_qr).ve_id)}
+                  </Text>
+                </Text>
                 <Text style={styles.modalText}>Mã QR:</Text>
                 <View style={{alignItems: 'center', marginVertical: 10}}>
-                  <QRCode value={selectedVe.ma_qr} size={240} />
+                  <QRCode
+                    // Tạo QR code từ object vé hiện tại, đảm bảo có ve_id
+                    value={JSON.stringify({
+                      ve_id: selectedVe.ve_id,
+                      ten_phim: selectedVe.ten_phim,
+                      ngay_chieu: selectedVe.ngay_chieu,
+                      gio_chieu: selectedVe.gio_chieu,
+                      ten_phong: selectedVe.ten_phong,
+                      dia_chi_rap: selectedVe.dia_chi_rap,
+                      vi_tri_ghe: selectedVe.vi_tri_ghe,
+                      trang_thai: selectedVe.trang_thai,
+                      // thêm các trường khác nếu muốn
+                    })}
+                    size={240}
+                  />
                 </View>
               </>
             )}

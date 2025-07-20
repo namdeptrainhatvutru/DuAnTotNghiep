@@ -42,6 +42,10 @@ const VeCuaBan = ({route}) => {
           <Text style={styles.label}>Số ghế:</Text>
           <Text style={styles.value}>{thongTinVe.vi_tri_ghe}</Text>
         </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Mã vé:</Text>
+          <Text style={styles.value}>{thongTinVe.ve_id}</Text>
+        </View>
         <View style={{alignItems: 'center', marginVertical: 20}}>
           <QRCode value={qrData} size={180} />
         </View>
