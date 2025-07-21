@@ -210,11 +210,13 @@ const App = () => {
             component={VeCuaBan} />
         
             <Stack.Screen name="KhoVe"
-              component={KhoVe} />
+              component={KhoVe}
+              options={{ headerShown: false }} />
      
 
           <Stack.Screen name="KhoVoucher"
-            component={KhoVoucher} />
+            component={KhoVoucher} 
+            options={{ headerShown: false }} />
           <Stack.Screen name="Profile"
             component={Profile} />
           <Stack.Screen name="ChangePass"

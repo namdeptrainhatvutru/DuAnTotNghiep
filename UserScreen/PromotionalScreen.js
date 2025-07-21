@@ -39,7 +39,7 @@ const PromotionalScreen = () => {
                 <Image source={{ uri: item.imgTinTuc }} style={styles.image} />
                 <View style={styles.content}>
                   <Text style={styles.title}>{item.title}</Text>
-                  <Text style={styles.desc}>{item.desc}</Text>
+                  <Text numberOfLines={1} style={styles.desc}>{item.desc}</Text>
                   <Text style={styles.date}>{getCurrentDate()}</Text>
                 </View>
               </View>
@@ -49,7 +49,7 @@ const PromotionalScreen = () => {
       )}
 
       {/* Modal chi tiết tin tức */}
-      <Modal visible={!!selectedNews} transparent animationType="slide" onRequestClose={() => setSelectedNews(null)}>
+      <Modal visible={!!selectedNews} transparent animationType="fade" onRequestClose={() => setSelectedNews(null)}>
         <TouchableWithoutFeedback onPress={() => setSelectedNews(null)}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
@@ -57,7 +57,7 @@ const PromotionalScreen = () => {
                 <>
                   <Image source={{ uri: selectedNews.imgTinTuc }} style={styles.modalImage} />
                   <Text style={styles.modalTitle}>{selectedNews.title}</Text>
-                  <Text style={styles.modalDesc}>{selectedNews.desc}</Text>
+                  <Text  style={styles.modalDesc}>{selectedNews.desc}</Text>
                 </>
               )}
             </View>

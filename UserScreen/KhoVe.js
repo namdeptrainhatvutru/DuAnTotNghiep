@@ -6,6 +6,7 @@ import {
   Modal,
   TouchableOpacity,
   Image,
+  ImageBackground,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
@@ -26,16 +27,36 @@ const KhoVe = () => {
   const [tab, setTab] = useState('conhan'); // 'conhan' hoặc 'hethanh'
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
-    dispatch(fetchVeByKhachHangId(user.khach_hang_id)).then(() => {
-      setLoading(false);
-    });
-  }, []);
+  // 1. Auto fetch mỗi 3 giây
+useEffect(() => {
+  const interval = setInterval(() => {
+    dispatch(fetchVeByKhachHangId(user.khach_hang_id));
+  }, 3000);
 
-  useEffect(() => {
-    setListVe(Array.isArray(listve) ? listve : []);
-  }, [listve]);
+  return () => clearInterval(interval);
+}, []);
+
+// 2. Cập nhật listVe và selectedVe khi listve thay đổi
+useEffect(() => {
+  setListVe(Array.isArray(listve) ? listve : []);
+
+  if (selectedVe) {
+    const updated = listve.find(v => v.ve_id === selectedVe.ve_id);
+    if (updated) {
+      setSelectedVe(updated);
+    }
+  }
+}, [listve]);
+
+// 3. Nếu selectedVe đã bị xóa thì đóng modal
+useEffect(() => {
+  if (selectedVe && !listve.some(v => v.ve_id === selectedVe.ve_id)) {
+    setModalVisible(false);
+    setSelectedVe(null);
+  }
+}, [listve]);
+
+
 
   // Hàm kiểm tra vé còn hạn/hết hạn
   const isVeConHan = ve => {
@@ -76,8 +97,10 @@ const handleDelete = ve_id => {
         backgroundColor: 'red',
         justifyContent: 'center',
         alignItems: 'center',
-        height: 199,
-        width:150
+        height: '70%',
+        width:150,
+        marginTop: 24,
+        
       }}
       onPress={onDelete}>
         <Image style={{width:50,height:50}} source={require('../img/delete.png')}/>
@@ -92,6 +115,7 @@ const handleDelete = ve_id => {
       }
       // onSwipeableRightOpen={() => handleDelete(item.ve_id)} 
     >
+
       <TouchableOpacity
         style={styles.itemContainer}
         onPress={() => {
@@ -99,10 +123,17 @@ const handleDelete = ve_id => {
           setModalVisible(true);
         }}
         activeOpacity={0.7}>
-        <Text style={styles.itemTitle}>{item.ten_phim}</Text>
+          <ImageBackground 
+          source={require('../img/ticketpng.png')}
+          style={{width: '100%', height: 150, justifyContent: 'center', alignItems: 'center'}}
+          imageStyle={{borderRadius: 14}}
+          >
+            <Text style={styles.itemTitle}>{item.ten_phim}</Text>
         <Text>Ngày chiếu: {item.ngay_chieu}</Text>
         <Text>Giờ chiếu: {item.gio_chieu}</Text>
         <Text>Trạng thái: {isVeConHan(item) ? 'Còn hạn' : 'Hết hạn'}</Text>
+          </ImageBackground>
+        
       </TouchableOpacity>
     </Swipeable>
   );
@@ -249,69 +280,93 @@ export default KhoVe;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
-    paddingHorizontal: 10,
-    paddingTop: 10,
+    backgroundColor: '#b1b1b1ff',
+    paddingHorizontal: 12,
+    paddingTop: 12,
   },
   header: {
     fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 10,
     color: '#EA5A5A',
-    alignSelf: 'center',
+    marginBottom: 12,
+    textAlign: 'center',
   },
   tabContainer: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    borderRadius: 8,
-    marginBottom: 8,
-    marginHorizontal: 0,
+    borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#EA5A5A',
+    marginBottom: 12,
   },
   tabBtn: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 12,
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
   tabActive: {
     backgroundColor: '#EA5A5A',
   },
   tabText: {
-    color: '#EA5A5A',
-    fontWeight: 'bold',
     fontSize: 16,
+    fontWeight: '600',
+    color: '#EA5A5A',
   },
   tabTextActive: {
     color: '#fff',
   },
   note: {
     fontSize: 13,
-    color: '#444',
+    color: '#555',
     textAlign: 'center',
     marginBottom: 10,
-    marginTop: 4,
+    paddingHorizontal: 10,
   },
   itemContainer: {
-    backgroundColor: '#fff',
-    borderRadius:12,
-    borderTopEndRadius: 0,
-    borderBottomRightRadius: 0,
+    backgroundColor: 'transparent',
+    borderRadius: 14,
     padding: 16,
     marginBottom: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    shadowOffset: {width: 0, height: 2},
   },
   itemTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#EA5A5A',
-    marginBottom: 4,
+    marginBottom: 6,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalContent: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#EA5A5A',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 10,
+  },
+  closeBtn: {
+    backgroundColor: '#EA5A5A',
+    marginTop: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
   },
   deleteBtn: {
     color: '#fff',
@@ -324,37 +379,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontWeight: 'bold',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 24,
-    width: '100%',
-    alignItems: 'center',
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#EA5A5A',
-    marginBottom: 18,
-  },
-  modalText: {
-    fontSize: 16,
-    marginBottom: 10,
-    color: '#222',
-  },
-  closeBtn: {
-    marginTop: 18,
-    backgroundColor: '#EA5A5A',
-    paddingVertical: 10,
-    paddingHorizontal: 32,
-    borderRadius: 8,
-  },
 });
+

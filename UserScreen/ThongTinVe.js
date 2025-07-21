@@ -393,8 +393,8 @@ const ThongTinVe = ({route}) => {
               suat_chieu_id: suatChieu.suat_chieu_id,
             }),
           );
-          await dispatch(tangDiemUser(user));
-          ToastAndroid.show('Tích điểm: +10 điểm', ToastAndroid.SHORT);
+          await dispatch(tangDiemUser({user:user, soluong: gheSelected.length}));
+          ToastAndroid.show(`Tích điểm: ${gheSelected.length *10} điểm`, ToastAndroid.SHORT);
           dispatch(deleteVoucher(voucherSelected?.voucher_id));
 
           // 5. Tạo lại dữ liệu QR với ve_id
@@ -444,8 +444,8 @@ const ThongTinVe = ({route}) => {
               await dispatch(addThanhToan(thanhToanData));
               // 4. Các thao tác khác
               dispatch(updateNhieuGhe({ listghe, gheSelected, suat_chieu_id: suatChieu.suat_chieu_id }))
-              await dispatch(tangDiemUser(user));
-              ToastAndroid.show('Tích điểm: +10 điểm', ToastAndroid.SHORT);
+              await dispatch(tangDiemUser({user:user, soluong: gheSelected.length}));
+          ToastAndroid.show(`Tích điểm: ${gheSelected.length *10} điểm`, ToastAndroid.SHORT);
               dispatch(deleteVoucher(voucherSelected?.voucher_id));
 
               // 5. Tạo lại dữ liệu QR với ve_id

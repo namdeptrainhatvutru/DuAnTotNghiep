@@ -61,9 +61,9 @@ export const deleteUser = createAsyncThunk(
 
 export const tangDiemUser = createAsyncThunk(
   'user/tangDiemUser',
-  async (user) => {
+  async ({user,soluong}) => {
     const id = user.khach_hang_id || user.id;
-    const newUser = { ...user, diem: (user.diem || 0) + 10 };
+    const newUser = { ...user, diem: (user.diem || 0) + soluong*10 };
     const response = await fetch(`${api_khach_hang}/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

@@ -18,6 +18,24 @@ const Chatbot = () => {
     {from: 'bot', text: 'Xin chào quý khách! Tôi là Movix Bot. Bạn cần hỗ trợ gì?'},
   ]);
   const flatListRef = useRef();
+const suggestions = [
+  'mua vé',
+  'voucher',
+  'đăng ký',
+  'đăng nhập',
+  'xem phim',
+  'thanh toán',
+  'thống kê',
+  'hỗ trợ'
+];
+
+const handleSuggestionPress = (text) => {
+  setInput(text);
+  const userMessage = {from: 'user', text};
+  const botMessage = {from: 'bot', text: getBotResponse(text)};
+  setMessages(prev => [...prev, userMessage, botMessage]);
+  Keyboard.dismiss();
+};
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -98,9 +116,6 @@ const Chatbot = () => {
       <Text style={{ marginBottom: 2 }}>2. Chọn suất chiếu, ngày và giờ phù hợp</Text>
       <Text style={{ marginBottom: 2 }}>3. Chọn ghế trong sơ đồ rạp</Text>
       <Text style={{ marginBottom: 10 }}>4. Tiến hành thanh toán và nhận mã vé</Text>
-
-      
-
       <Image
         source={require('../img/thanhtoan.png')}
         style={{ width: 500, height: 200, borderRadius: 12 }}
@@ -231,6 +246,23 @@ const Chatbot = () => {
         contentContainerStyle={styles.chatArea}
         showsVerticalScrollIndicator={false}
       />
+      <View style={styles.suggestionWrapper}>
+  <FlatList
+    data={suggestions}
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    keyExtractor={(item, index) => index.toString()}
+    renderItem={({ item }) => (
+      <TouchableOpacity
+        style={styles.suggestionItem}
+        onPress={() => handleSuggestionPress(item)}
+      >
+        <Text style={styles.suggestionText}>{item}</Text>
+      </TouchableOpacity>
+    )}
+  />
+</View>
+
       <View style={styles.inputArea}>
         <TextInput
           style={styles.input}
@@ -258,7 +290,7 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 38,
     paddingBottom: 16,
-    backgroundColor: '#EA5A5A',
+    backgroundColor: '#8B0000',
     alignItems: 'center',
     borderBottomLeftRadius: 18,
     borderBottomRightRadius: 18,
@@ -349,7 +381,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   sendBtn: {
-    backgroundColor: '#EA5A5A',
+    backgroundColor: '#8B0000',
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -362,4 +394,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
     letterSpacing: 1,
   },
+  suggestionWrapper: {
+  paddingHorizontal: 12,
+  paddingBottom: 6,
+},
+suggestionItem: {
+  backgroundColor: '#8B0000',
+  paddingHorizontal: 14,
+  paddingVertical: 8,
+  borderRadius: 20,
+  marginRight: 8,
+},
+suggestionText: {
+  color: '#fff',
+  fontWeight: '500',
+  fontSize: 14,
+},
 });
