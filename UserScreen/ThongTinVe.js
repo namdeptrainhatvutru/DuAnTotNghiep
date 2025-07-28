@@ -37,13 +37,16 @@ const ThongTinVe = ({route}) => {
   const [payment, setPayment] = useState('');
   const [voucherSelected, setVoucherSelected] = useState(null);
   const [showVietQR, setShowVietQR] = useState(false);
+  const [foodList, setFoodList] = useState([]);
+  const [foodSelected, setFoodSelected] = useState([]); // lưu id đồ ăn đã chọn
   const listvoucherbyid = listvoucher.filter(
     item => item.khach_hang_id === user_id.toString(),
   );
   const giamGia = voucherSelected?.giam_gia || 0;
 
+  const foodTotal = foodSelected.reduce((sum, item) => sum + Number(item.price), 0);
   const so_tien =
-    gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * giamGia;
+    gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * giamGia + foodTotal;
   const now = new Date();
   const ngay_mua =
     String(now.getDate()).padStart(2, '0') +
@@ -63,6 +66,11 @@ const ThongTinVe = ({route}) => {
     if (user_id) {
       dispatch(fetchVoucher());
     }
+
+    // Fetch danh sách đồ ăn
+    fetch('https://688253a466a7eb81224e3f86.mockapi.io/doan/food')
+      .then(res => res.json())
+      .then(data => setFoodList(data));
   }, []);
 
   const handleSelectGhe = vi_tri => {
@@ -71,6 +79,15 @@ const ThongTinVe = ({route}) => {
         ? prev.filter(g => g !== vi_tri)
         : [...prev, vi_tri],
     );
+  };
+
+  const handleSelectFood = (food) => {
+    setFoodSelected(prev => {
+      if (prev.find(f => f.id === food.id)) {
+        return prev.filter(f => f.id !== food.id);
+      }
+      return [...prev, food];
+    });
   };
 
   const phongchieu = listPhongChieu.find(
@@ -172,6 +189,24 @@ const ThongTinVe = ({route}) => {
       thongTinVe: thongTinVeWithId,
       qrData: qrData,
     });
+
+    // Cập nhật khach_hang_id cho từng đồ ăn đã chọn
+    for (const food of foodSelected) {
+      await fetch(`https://688253a466a7eb81224e3f86.mockapi.io/doan/food/${food.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          khach_hang_id: [
+            ...(Array.isArray(food.khach_hang_id) ? food.khach_hang_id : []),
+            { 
+              id: user.khach_hang_id, 
+              ngay_dat: ngay_mua,
+              gio_chieu: suatChieu.thoi_gian_bat_dau // truyền thêm giờ chiếu
+            }
+          ],
+        }),
+      });
+    }
   };
 
   return (
@@ -212,6 +247,32 @@ const ThongTinVe = ({route}) => {
           <View style={styles.boxWhite} />
           <Text style={{fontSize: 10}}>Đã hết :</Text>
           <View style={styles.boxPurple} />
+        </View>
+
+        <View style={{marginVertical: 20}}>
+          <Text style={{fontWeight: 'bold', marginBottom: 8}}>Chọn đồ ăn:</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {foodList
+              .filter(food => food.status === true) // chỉ hiện đồ ăn còn hàng
+              .map(food => (
+                <TouchableOpacity
+                  key={food.id}
+                  onPress={() => handleSelectFood(food)}
+                  style={{
+                    borderWidth: 2,
+                    borderColor: foodSelected.find(f => f.id === food.id) ? 'red' : 'black',
+                    borderRadius: 10,
+                    padding: 10,
+                    marginRight: 10,
+                    alignItems: 'center',
+                    backgroundColor: foodSelected.find(f => f.id === food.id) ? '#ffeaea' : '#fff',
+                  }}>
+                  <Image source={{ uri: food.image }} style={{ width: 50, height: 50, marginBottom: 5, borderRadius: 8 }} />
+                  <Text style={{fontWeight: 'bold'}}>{food.name}</Text>
+                  <Text style={{color: '#EA5A5A'}}>{food.price}đ</Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
         </View>
 
         <View style={{marginVertical: 20}}>
@@ -337,6 +398,7 @@ const ThongTinVe = ({route}) => {
         <View>
           <Text>Giá vé : {gheSelected.length * 80000}đ</Text>
           <Text>Giảm giá : - {giamGia}đ</Text>
+          <Text>Đồ ăn : + {foodTotal}đ</Text>
         </View>
         <View
           style={{borderWidth: 1, margin: 10, backgroundColor: 'black'}}></View>
