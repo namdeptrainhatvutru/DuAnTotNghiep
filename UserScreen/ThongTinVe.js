@@ -134,6 +134,46 @@ const ThongTinVe = ({route}) => {
     vietQRInfo.noiDung,
   )}&accountName=${encodeURIComponent(vietQRInfo.accountName)}`;
 
+  const handleDatVeAndThanhToan = async () => {
+    // 1. Đặt vé trước, lấy ve_id
+    const veRes = await dispatch(addVe(thongTinVe));
+    const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
+
+    // 2. Tạo object thanh toán
+    const thanhToanData = {
+      khach_hang_id: user.khach_hang_id,
+      phuong_thuc: payment,
+      so_tien: so_tien,
+      ngay_mua: ngay_mua,
+      ve_id: ve_id,
+    };
+
+    // 3. Gọi action thêm thanh toán
+    await dispatch(addThanhToan(thanhToanData));
+
+    // 4. Các thao tác khác
+    dispatch(
+      updateNhieuGhe({
+        listghe,
+        gheSelected,
+        suat_chieu_id: suatChieu.suat_chieu_id,
+      }),
+    );
+    await dispatch(tangDiemUser({ user: user, soluong: gheSelected.length }));
+    ToastAndroid.show(`Tích điểm: ${gheSelected.length * 10} điểm`, ToastAndroid.SHORT);
+    dispatch(deleteVoucher(voucherSelected?.voucher_id));
+
+    // 5. Tạo lại dữ liệu QR với ve_id
+    const thongTinVeWithId = { ...thongTinVe, ve_id };
+    const qrData = JSON.stringify(thongTinVeWithId);
+
+    // 6. Truyền sang màn hình VeCuaBan
+    navigation.navigate('VeCuaBan', {
+      thongTinVe: thongTinVeWithId,
+      qrData: qrData,
+    });
+  };
+
   return (
     <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={{padding: 20, paddingBottom: 120}}>
@@ -369,43 +409,7 @@ const ThongTinVe = ({route}) => {
             setShowVietQR(true);
             return;
           }
-          // 1. Đặt vé trước, lấy ve_id
-          const veRes = await dispatch(addVe(thongTinVe));
-          const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
-
-          // 2. Tạo object thanh toán
-          const thanhToanData = {
-            khach_hang_id: user.khach_hang_id,
-            phuong_thuc: payment,
-            so_tien: so_tien,
-            ngay_mua: ngay_mua,
-            ve_id: ve_id,
-          };
-
-          // 3. Gọi action thêm thanh toán
-          await dispatch(addThanhToan(thanhToanData));
-
-          // 4. Các thao tác khác
-          dispatch(
-            updateNhieuGhe({
-              listghe,
-              gheSelected,
-              suat_chieu_id: suatChieu.suat_chieu_id,
-            }),
-          );
-          await dispatch(tangDiemUser({user:user, soluong: gheSelected.length}));
-          ToastAndroid.show(`Tích điểm: ${gheSelected.length *10} điểm`, ToastAndroid.SHORT);
-          dispatch(deleteVoucher(voucherSelected?.voucher_id));
-
-          // 5. Tạo lại dữ liệu QR với ve_id
-          const thongTinVeWithId = { ...thongTinVe, ve_id };
-          const qrData = JSON.stringify(thongTinVeWithId);
-
-          // 6. Truyền sang màn hình VeCuaBan
-          navigation.navigate('VeCuaBan', {
-            thongTinVe: thongTinVeWithId,
-            qrData: qrData,
-          });
+          await handleDatVeAndThanhToan();
         }}>
         <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>
           Thanh toán: {so_tien}đ
@@ -427,36 +431,7 @@ const ThongTinVe = ({route}) => {
             style={{ backgroundColor: 'red', padding: 12, borderRadius: 8, marginTop: 10, width: 180, alignItems: 'center' }}
             onPress={async () => {
               setShowVietQR(false);
-              // 1. Đặt vé trước, lấy ve_id
-              const veRes = await dispatch(addVe(thongTinVe));
-              const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
-
-              // 2. Tạo object thanh toán
-              const thanhToanData = {
-                khach_hang_id: user.khach_hang_id,
-                phuong_thuc: payment,
-                so_tien: so_tien,
-                ngay_mua: ngay_mua,
-                ve_id: ve_id,
-              };
-
-              // 3. Gọi action thêm thanh toán
-              await dispatch(addThanhToan(thanhToanData));
-              // 4. Các thao tác khác
-              dispatch(updateNhieuGhe({ listghe, gheSelected, suat_chieu_id: suatChieu.suat_chieu_id }))
-              await dispatch(tangDiemUser({user:user, soluong: gheSelected.length}));
-          ToastAndroid.show(`Tích điểm: ${gheSelected.length *10} điểm`, ToastAndroid.SHORT);
-              dispatch(deleteVoucher(voucherSelected?.voucher_id));
-
-              // 5. Tạo lại dữ liệu QR với ve_id
-              const thongTinVeWithId = { ...thongTinVe, ve_id };
-              const qrData = JSON.stringify(thongTinVeWithId);
-
-              // 6. Truyền sang màn hình VeCuaBan
-              navigation.navigate('VeCuaBan', {
-                thongTinVe: thongTinVeWithId,
-                qrData: qrData,
-              });
+              await handleDatVeAndThanhToan();
             }}
           >
             <Text style={{ color: 'white', fontWeight: 'bold' }}>Tôi đã chuyển khoản</Text>

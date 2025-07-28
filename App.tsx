@@ -69,7 +69,7 @@ const MyTabs = () => {
             iconName = 'location-arrow';
           } else if (route.name === 'Voucher') {
             iconName = 'ticket';
-          } else if (route.name === 'Khuyến mãi') {
+          } else if (route.name === 'Tin tức') {
             iconName = 'gift';
           } else if (route.name === 'Khác') {
             iconName = 'info-circle';
@@ -96,9 +96,9 @@ const MyTabs = () => {
         headerShown: true
         , headerTitle: 'Voucher', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
       }} component={VoucherScreen} />
-      <Tab.Screen name="Khuyến mãi" options={{
+      <Tab.Screen name="Tin tức" options={{
         headerShown: true
-        , headerTitle: 'Khuyến mãi', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+        , headerTitle: 'Tin tức', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
       }} component={PromotionalScreen} />
       <Tab.Screen name="Khác" options={{
         headerShown: true
