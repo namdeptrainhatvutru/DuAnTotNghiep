@@ -60,6 +60,8 @@ const ThongTinVe = ({route}) => {
       await dispatch(fetchAllPhongChieu());
       await dispatch(fetchRapChieu());
       await dispatch(fetchGheByRoomId(suatChieu.room_id));
+      console.log('listghe', listghe);
+      
       setLoading(false);
     };
     fetchData();
@@ -208,6 +210,7 @@ const ThongTinVe = ({route}) => {
       });
     }
   };
+console.log('sortedGhe', sortedGhe);
 
   return (
     <View style={{flex: 1}}>
