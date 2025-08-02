@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     // marginTop: 150,
   },
   card: {
-    width: 150,
+    width: 130,
     alignItems: 'center',
     backgroundColor: 'white',
 
