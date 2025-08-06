@@ -1,7 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { setRapChieu} from '../reducers/RapChieuReducer';
+import BASE from '../../config/BaseUrl';
 
-const api_rapchieu = 'https://682410ae65ba05803398c2c7.mockapi.io/Rap_Chieu';
+const api_rapchieu = `http://${BASE}:3000/rapchieu`
 
 export const fetchRapChieu = () => {
   return async dispatch => {

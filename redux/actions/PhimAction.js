@@ -1,9 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { setPhim } from "../reducers/PhimReducer"
+import BASE from "../../config/BaseUrl"
 
 
 
-const api_phim = 'https://67b5f43207ba6e59083f3354.mockapi.io/Phim'
+const api_phim = `http://${BASE}:3000/phim`
 
 export const fetchPhim = () => {
     return async dispatch => {

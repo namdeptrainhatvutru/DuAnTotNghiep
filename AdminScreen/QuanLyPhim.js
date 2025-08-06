@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    width:220,
+    width:190,
     margin: 5,
     alignItems: 'center',
     backgroundColor: '#fff',

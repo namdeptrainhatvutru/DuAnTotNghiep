@@ -58,10 +58,9 @@ useEffect(() => {
 
 
 
-  // Hàm kiểm tra vé còn hạn/hết hạn
+  // Hàm kiểm tra vé còn hạn/hết hạn theo trang_thai
   const isVeConHan = ve => {
-    const ngay = ve.ngay_chieu.split('/').reverse().join('-');
-    return new Date(ngay) >= new Date();
+    return ve.trang_thai === 'chưa sử dụng';
   };
 
   const veConHan = (Array.isArray(listVe) ? listVe : []).filter(isVeConHan);
@@ -112,10 +111,7 @@ const handleDelete = ve_id => {
     <Swipeable
       renderRightActions={(progress, dragX) =>
         renderRightActions(progress, dragX, () => handleDelete(item.ve_id))
-      }
-      // onSwipeableRightOpen={() => handleDelete(item.ve_id)} 
-    >
-
+      }>
       <TouchableOpacity
         style={styles.itemContainer}
         onPress={() => {
@@ -131,9 +127,8 @@ const handleDelete = ve_id => {
             <Text style={styles.itemTitle}>{item.ten_phim}</Text>
         <Text>Ngày chiếu: {item.ngay_chieu}</Text>
         <Text>Giờ chiếu: {item.gio_chieu}</Text>
-        <Text>Trạng thái: {isVeConHan(item) ? 'Còn hạn' : 'Hết hạn'}</Text>
+        <Text>Trạng thái: {item.trang_thai === 'chưa sử dụng' ? 'Chưa sử dụng' : 'Đã sử dụng'}</Text>
           </ImageBackground>
-        
       </TouchableOpacity>
     </Swipeable>
   );

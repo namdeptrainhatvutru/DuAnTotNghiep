@@ -1,8 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { setPhongChieu } from "../reducers/PhongChieuReducer"
+import BASE from "../../config/BaseUrl"
 
 
-const api_phong_chieu = 'https://682410ae65ba05803398c2c7.mockapi.io/Phong_Chieu'
+const api_phong_chieu = `http://${BASE}:3000/phongchieu`
 
 export const fetchPhongChieu = (cinema_id) => {
     return async dispatch => {

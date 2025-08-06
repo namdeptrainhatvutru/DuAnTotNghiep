@@ -59,7 +59,8 @@ const ThongTinVe = ({route}) => {
     const fetchData = async () => {
       await dispatch(fetchAllPhongChieu());
       await dispatch(fetchRapChieu());
-      await dispatch(fetchGheByRoomId(suatChieu.room_id));
+      // Fetch ghế theo suat_chieu_id trực tiếp từ API
+      await dispatch(fetchGheByRoomId(suatChieu.suat_chieu_id));
       setLoading(false);
     };
     fetchData();
@@ -109,7 +110,7 @@ const ThongTinVe = ({route}) => {
   const sortedGhe = [];
   const seen = new Set();
   [...listghe]
-    .filter(ghe => ghe.suat_chieu_id === suatChieu.suat_chieu_id)
+    .filter(ghe => String(ghe.suat_chieu_id) === String(suatChieu.suat_chieu_id))
     .sort((a, b) => {
       const numA = parseInt(a.vi_tri.replace('G', ''), 10);
       const numB = parseInt(b.vi_tri.replace('G', ''), 10);
@@ -208,6 +209,9 @@ const ThongTinVe = ({route}) => {
       });
     }
   };
+
+  console.log('listghe:', listghe);
+  console.log('suatChieu:', suatChieu);
 
   return (
     <View style={{flex: 1}}>
@@ -320,52 +324,47 @@ const ThongTinVe = ({route}) => {
             </Svg>
 
             <View style={{alignItems: 'center', marginTop: 40}}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
-                }}>
-                {sortedGhe.map((gheItem, index) => {
-                  const isSelected = gheSelected.includes(gheItem.vi_tri);
-                  const isBooked = gheItem.trang_thai !== 'trống';
-                  return (
-                    <TouchableOpacity
-                      key={gheItem.room_id + '-' + gheItem.vi_tri}
-                      onPress={() =>
-                        !isBooked && handleSelectGhe(gheItem.vi_tri)
-                      }
-                      disabled={isBooked}
-                      activeOpacity={isBooked ? 1 : 0.7}>
-                      <View
-                        style={{
-                          borderWidth: 2,
-                          borderRadius: 10,
-                          padding: 2,
-                          width: 80,
-                          height: 40,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          margin: 4,
-                          backgroundColor: isBooked
-                            ? '#4C4F90'
-                            : isSelected
-                            ? 'red'
-                            : 'transparent',
-                          borderColor: isBooked ? '#4C4F90' : 'red',
-                        }}>
-                        <Text
-                          style={{
-                            color: 'white',
-                            fontWeight: isSelected ? 'bold' : 'normal',
-                          }}>
-                          {gheItem.vi_tri}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+              {/* Tạo lưới ghế theo hàng - mỗi hàng 5 ghế */}
+              {[...Array(Math.ceil(sortedGhe.length / 5))].map((_, rowIndex) => (
+                <View key={rowIndex} style={styles.seatRow}>
+                  {sortedGhe.slice(rowIndex * 5, (rowIndex + 1) * 5).map((gheItem, index) => {
+                    const isSelected = gheSelected.includes(gheItem.vi_tri);
+                    const isBooked = gheItem.trang_thai !== 'trống';
+                    return (
+                      <TouchableOpacity
+                        key={gheItem.room_id + '-' + gheItem.vi_tri}
+                        onPress={() =>
+                          !isBooked && handleSelectGhe(gheItem.vi_tri)
+                        }
+                        disabled={isBooked}
+                        activeOpacity={isBooked ? 1 : 0.7}>
+                        <View
+                          style={[
+                            styles.seat,
+                            {
+                              backgroundColor: isBooked
+                                ? '#4C4F90'
+                                : isSelected
+                                ? 'red'
+                                : 'transparent',
+                              borderColor: isBooked ? '#4C4F90' : 'red',
+                            }
+                          ]}>
+                          <Text
+                            style={[
+                              styles.seatText,
+                              {
+                                fontWeight: isSelected ? 'bold' : 'normal',
+                              }
+                            ]}>
+                            {gheItem.vi_tri}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              ))}
             </View>
           </View>
         </View>
@@ -640,5 +639,24 @@ const styles = StyleSheet.create({
   ticketValue: {
     color: '#444',
     flex: 1,
+  },
+  seatRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  seat: {
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 2,
+    width: 60,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 4,
+  },
+  seatText: {
+    color: 'white',
+    fontSize: 12,
   },
 });

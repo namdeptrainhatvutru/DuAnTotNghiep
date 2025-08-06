@@ -283,10 +283,9 @@ const styles = StyleSheet.create({
     // marginTop: 150,
   },
   card: {
-    width: 150,
+    width: 130,
     alignItems: 'center',
     backgroundColor: 'white',
-
     shadowRadius: 6,
     paddingBottom: 10,
     padding: 5,

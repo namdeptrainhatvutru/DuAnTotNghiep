@@ -1,7 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { setThanhToan } from "../reducers/ThanhToanReducer";
+import BASE from "../../config/BaseUrl";
 
-const link_thanhtoan = 'https://6824075665ba058033989f25.mockapi.io/Thanh_Toan';
+const link_thanhtoan = `http://${BASE}:3000/thanhtoan`
 
 // Lấy tất cả thanh toán
 export const fetchThanhToan = () => {

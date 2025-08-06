@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../redux/reducers/UserReducer';
 import BASE from '../config/BaseUrl';
-const api_khach_hang = 'https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang';
+const api_khach_hang = 'https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang'
 
 const Login = () => {
   const nav = useNavigation();

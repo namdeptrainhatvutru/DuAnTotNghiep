@@ -1,7 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { setVoucher } from '../reducers/VoucherReducer';
+import BASE from '../../config/BaseUrl';
 
-const api_voucher = 'https://68431f28e1347494c31f29ef.mockapi.io/voucher';
+const api_voucher = `http://${BASE}:3000/voucher`
 // ...giữ nguyên import...
 
 const convertVoucher = (v) => ({

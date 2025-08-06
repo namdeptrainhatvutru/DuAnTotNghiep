@@ -6,6 +6,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addUser } from '../redux/actions/UserAction';
+import BASE from '../config/BaseUrl';
 
 const AddStaff = () => {
   const dispatch = useDispatch();
@@ -30,7 +31,7 @@ const AddStaff = () => {
   });
 
   const getListStaff = async () => {
-    const res = await fetch('https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang?vai_tro=2');
+    const res = await fetch(`http://${BASE}:3000/khachhang?vai_tro=2`);
     const data = await res.json();
     setStaff(data);
   };
@@ -98,7 +99,7 @@ const AddStaff = () => {
       return;
     }
     try {
-      await fetch(`https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang/${editId}`, {
+      await fetch(`https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang${editId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -131,7 +132,7 @@ const AddStaff = () => {
           style: "destructive",
           onPress: async () => {
             try {
-              const res = await fetch(`https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang/${id}`, {
+              const res = await fetch(`https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang${id}`, {
                 method: 'DELETE'
               });
               if (res.ok) {

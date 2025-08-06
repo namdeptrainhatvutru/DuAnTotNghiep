@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { setUser } from "../reducers/UserReducer"
+import BASE from "../../config/BaseUrl"
 
 
 const api_khach_hang = 'https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang'

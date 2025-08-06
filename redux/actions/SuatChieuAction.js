@@ -1,7 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { setSuatChieu } from "../reducers/SuatChieuReducer"
+import BASE from "../../config/BaseUrl"
 
-const api_suat_chieu = 'https://6824075665ba058033989f25.mockapi.io/Suat_Chieu'
+const api_suat_chieu = `http://${BASE}:3000/suatchieu`
 
 
 

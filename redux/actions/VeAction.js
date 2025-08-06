@@ -1,7 +1,8 @@
-const link_ve = 'https://68431f28e1347494c31f29ef.mockapi.io/Ve';
+const link_ve = `http://${BASE}:3000/ve`
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { setVe } from "../reducers/VeReducer";
+import BASE from "../../config/BaseUrl";
 
 // Lấy tất cả vé
 export const fetchVe = () => {

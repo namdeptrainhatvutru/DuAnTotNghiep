@@ -1,9 +1,7 @@
-const link_ghe = `http://${BASE}:3000/ghe`;
-
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { setGhe } from "../reducers/GheReducer";
 import BASE from "../../config/BaseUrl";
-
+const link_ghe = `http://${BASE}:3000/ghe`;
 // Lấy tất cả ghế
 export const fetchGhe = () => {
     return async dispatch => {
@@ -18,15 +16,16 @@ export const fetchGhe = () => {
 }
 //lấy ghế theo room_id
 export const fetchGheByRoomId = (room_id) => {
-    return async dispatch => {
-        try {
-            const response = await fetch(`${link_ghe}?room_id=${room_id}`);
-            const data = await response.json();
-            dispatch(setGhe(data));
-        } catch (error) {
-            console.error('Error fetching ghe by room_id:', error);
-        }
+  return async dispatch => {
+    try {
+      const response = await fetch(`${link_ghe}?suat_chieu_id=${room_id}`);
+      const data = await response.json();
+      console.log('API ghe:', data); // Thêm dòng này
+      dispatch(setGhe(data));
+    } catch (error) {
+      console.error('Error fetching ghe by room_id:', error);
     }
+  }
 }
 
 // Thêm ghế
