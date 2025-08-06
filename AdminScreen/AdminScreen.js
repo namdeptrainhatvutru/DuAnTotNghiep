@@ -33,7 +33,7 @@ const AdminScreen = () => {
         <Image source={require('../img/phim.png')} style={{width:100,height:100}}/>
         <Text>Quản lý phim</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={{backgroundColor:'white', width:200, height:200, justifyContent:'center', alignItems:'center', borderRadius:10,alignContent:'center',padding:10}} onPress={()=>{Linking.openURL('https://namdeptrainhatvutru.github.io/movixweb/')}}>
+      <TouchableOpacity style={{backgroundColor:'white', width:200, height:200, justifyContent:'center', alignItems:'center', borderRadius:10,alignContent:'center',padding:10}} onPress={()=>{Linking.openURL('https://namdeptrainhatvutru.github.io/webmovixver2/')}}>
         <Image source={require('../img/static.png')} style={{width:100,height:100}}/>
         <Text>Thống kê</Text>
       </TouchableOpacity>
