@@ -6,16 +6,19 @@ import {
   FlatList,
   Image,
   ActivityIndicator,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
- import { useFocusEffect } from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
+import Geolocation from '@react-native-community/geolocation';
+import haversine from 'haversine-distance';
 import {useDispatch, useSelector} from 'react-redux';
 import {Picker} from '@react-native-picker/picker';
 import {fetchRapChieu} from '../redux/actions/RapChieuAction';
 import {fetchPhim} from '../redux/actions/PhimAction';
 import {fetchAllPhongChieu} from '../redux/actions/PhongChieuAction';
 import {fetchAllSuatChieu} from '../redux/actions/SuatChieuAction';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 
 const LocationScreen = () => {
   const dispatch = useDispatch();
@@ -25,33 +28,73 @@ const LocationScreen = () => {
   const listPhongChieu = useSelector(state => state.phongchieu.listphongchieu);
   const [selectedCinema, setSelectedCinema] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [myLocation, setMyLocation] = useState(null);
   const navigation = useNavigation();
 
+  // Lấy vị trí hiện tại
   useEffect(() => {
+    const getLocation = async () => {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          return;
+        }
+      }
+      Geolocation.getCurrentPosition(
+        pos => {
+          setMyLocation({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          });
+        },
+        error => {
+          console.log('Lỗi lấy vị trí:', error);
+        },
+        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000}
+      );
+    };
+    getLocation();
     dispatch(fetchRapChieu());
     dispatch(fetchPhim());
     dispatch(fetchAllPhongChieu());
     dispatch(fetchAllSuatChieu());
   }, []);
- 
 
-useFocusEffect(
-  React.useCallback(() => {
-    setSelectedCinema(null);
-    setLoading(false);
-    // reset các state khác nếu cần
-  }, [])
-);
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedCinema(null);
+      setLoading(false);
+    }, [])
+  );
+
+  // Hàm tính khoảng cách
+  const getDistance = (rap) => {
+    if (!myLocation || !rap.vi_do || !rap.kinh_do) return null;
+    return haversine(
+      {lat: myLocation.latitude, lon: myLocation.longitude},
+      {lat: rap.vi_do, lon: rap.kinh_do}
+    );
+  };
+
+  // Sắp xếp rạp theo khoảng cách (nếu đã lấy được vị trí)
+  const sortedRapChieu = myLocation
+    ? [...listRapChieu].sort((a, b) => {
+        const dA = getDistance(a) ?? Infinity;
+        const dB = getDistance(b) ?? Infinity;
+        return dA - dB;
+      })
+    : listRapChieu;
 
   // Khi chọn rạp thì loading
   const handlePickCinema = value => {
-  setSelectedCinema(value);
-  setLoading(true);
-  // Nếu API hỗ trợ filter theo rạp, bạn có thể fetch lại dữ liệu ở đây
-  dispatch(fetchAllPhongChieu());
-  dispatch(fetchAllSuatChieu());
-  setTimeout(() => setLoading(false), 400);
-};
+    setSelectedCinema(value);
+    setLoading(true);
+    dispatch(fetchAllPhongChieu());
+    dispatch(fetchAllSuatChieu());
+    setTimeout(() => setLoading(false), 400);
+  };
 
   // Lọc phim theo rạp đã chọn
   const filteredPhim = selectedCinema
@@ -73,6 +116,11 @@ useFocusEffect(
       <Text style={{fontWeight: 'bold', fontSize: 18, marginBottom: 10}}>
         Chọn địa chỉ rạp:
       </Text>
+      {myLocation && (
+        <Text style={{color: '#8B0000', marginBottom: 6, fontStyle: 'italic'}}>
+          * Các rạp gần bạn sẽ được ưu tiên hiển thị đầu danh sách
+        </Text>
+      )}
       <View
         style={{
           borderWidth: 1,
@@ -82,10 +130,14 @@ useFocusEffect(
         }}>
         <Picker selectedValue={selectedCinema} onValueChange={handlePickCinema}>
           <Picker.Item label="Chọn rạp..." value={null} />
-          {listRapChieu.map(item => (
+          {sortedRapChieu.map(item => (
             <Picker.Item
               key={item.cinema_id}
-              label={`${item.ten_rap} - ${item.dia_chi}`}
+              label={
+                myLocation && getDistance(item)
+                  ? `${item.ten_rap} - ${item.dia_chi} (${(getDistance(item)/1000).toFixed(1)} km)`
+                  : `${item.ten_rap} - ${item.dia_chi}`
+              }
               value={item.cinema_id}
             />
           ))}

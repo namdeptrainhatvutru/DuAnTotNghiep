@@ -294,14 +294,14 @@ const styles = StyleSheet.create({
   posterWrapper: {
     width: '100%',
     height: 220,
-    borderRadius: 8,
+    
     overflow: 'hidden',
     marginBottom: 8,
   },
   poster: {
     width: '100%',
     height: '100%',
-    borderRadius: 8,
+    
   },
   title: {
     fontSize: 15,
