@@ -118,7 +118,7 @@ const QuanLyVoucher = () => {
     } else {
       const n = parseInt(soLuong, 10);
       if (isNaN(n) || n <= 0) {
-        Alert.alert('Lỗi', 'Số lượng phải là số nguyên dương!');
+        Alert.alert('Lỗi', 'Số lượng phải là số nguyên dương hi!');
         setLoading(false);
         return;
       }
