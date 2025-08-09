@@ -264,6 +264,13 @@ const HomeScreen = () => {
             </View>
           </Animated.View>
         }
+        ListEmptyComponent={
+          <View style={{alignItems: 'center', marginTop: 40}}>
+            <Text style={{color: '#EA5A5A', fontWeight: 'bold', fontSize: 16}}>
+              Không có suất chiếu
+            </Text>
+          </View>
+        }
         onScroll={Animated.event(
           [{nativeEvent: {contentOffset: {y: scrollY}}}],
           {useNativeDriver: true},

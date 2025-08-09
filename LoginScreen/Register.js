@@ -18,16 +18,42 @@ const Register = ({ navigation }) => {
   const [checked, setChecked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  // Hàm định dạng ngày sinh tự động
+  const handleNgaySinhChange = (text) => {
+    // Chỉ cho nhập số và tối đa 8 ký tự
+    let cleaned = text.replace(/\D/g, '').slice(0, 8);
+    let formatted = cleaned;
+    if (cleaned.length > 4) {
+      formatted = `${cleaned.slice(0,2)}/${cleaned.slice(2,4)}/${cleaned.slice(4)}`;
+    } else if (cleaned.length > 2) {
+      formatted = `${cleaned.slice(0,2)}/${cleaned.slice(2)}`;
+    }
+    setNgay_sinh(formatted);
+  };
+
+  // Hàm validate
+  const validate = () => {
+    let newErrors = {};
+    if (!ho_ten.trim()) newErrors.ho_ten = 'Vui lòng nhập họ tên';
+    if (!email.trim()) newErrors.email = 'Vui lòng nhập email';
+    else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) newErrors.email = 'Email không hợp lệ';
+    if (!mat_khau) newErrors.mat_khau = 'Vui lòng nhập mật khẩu';
+    else if (mat_khau.length < 6) newErrors.mat_khau = 'Mật khẩu tối thiểu 6 ký tự';
+    if (!mat_khau2) newErrors.mat_khau2 = 'Vui lòng nhập lại mật khẩu';
+    else if (mat_khau !== mat_khau2) newErrors.mat_khau2 = 'Mật khẩu không khớp';
+    if (!so_dien_thoai.trim()) newErrors.so_dien_thoai = 'Vui lòng nhập số điện thoại';
+    else if (!/^\d{9,11}$/.test(so_dien_thoai)) newErrors.so_dien_thoai = 'Số điện thoại không hợp lệ';
+    if (ngay_sinh && !/^\d{2}\/\d{2}\/\d{4}$/.test(ngay_sinh)) newErrors.ngay_sinh = 'Ngày sinh chưa đúng định dạng dd/mm/yyyy';
+    return newErrors;
+  };
 
   const handleRegister = async () => {
-    if (!ho_ten || !email || !mat_khau || !so_dien_thoai) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin!')
-      return
-    }
-    if (mat_khau !== mat_khau2) {
-      Alert.alert('Lỗi', 'Mật khẩu không khớp!')
-      return
-    }
+    const newErrors = validate();
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
     if (!checked) {
       Alert.alert('Lỗi', 'Bạn phải đồng ý với chính sách bảo mật và điều khoản sử dụng!');
       return;
@@ -69,6 +95,8 @@ const Register = ({ navigation }) => {
           onChangeText={setHoTen}
         />
       </View>
+      {errors.ho_ten && <Text style={styles.error}>{errors.ho_ten}</Text>}
+
       <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
         <Icon name="envelope" size={24} color="#666" />
         <TextInput
@@ -79,6 +107,8 @@ const Register = ({ navigation }) => {
           keyboardType="email-address"
         />
       </View>
+      {errors.email && <Text style={styles.error}>{errors.email}</Text>}
+
       <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
         <Icon name="lock" size={24} color="#666" />
         <TextInput
@@ -97,6 +127,8 @@ const Register = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
+      {errors.mat_khau && <Text style={styles.error}>{errors.mat_khau}</Text>}
+
       <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
         <Icon name="lock" size={24} color="#666" />
         <TextInput
@@ -115,6 +147,8 @@ const Register = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
+      {errors.mat_khau2 && <Text style={styles.error}>{errors.mat_khau2}</Text>}
+
       <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
         <Icon name="phone" size={24} color="#666" />
         <TextInput
@@ -125,16 +159,22 @@ const Register = ({ navigation }) => {
           keyboardType="phone-pad"
         />
       </View>
+      {errors.so_dien_thoai && <Text style={styles.error}>{errors.so_dien_thoai}</Text>}
+
       <Text style={{ alignSelf: 'flex-start', marginLeft: 10, color: 'blue',fontSize:10 }}>Thông tin bổ sung</Text>
       <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
         <Icon name="calendar" size={24} color="#666" />
         <TextInput
           style={{ marginLeft: 10, flex: 1 }}
-          placeholder="Ngày sinh"
+          placeholder="Ngày sinh (dd/mm/yyyy)"
           value={ngay_sinh}
-          onChangeText={setNgay_sinh}
+          onChangeText={handleNgaySinhChange}
+          keyboardType="numeric"
+          maxLength={10}
         />
       </View>
+      {errors.ngay_sinh && <Text style={styles.error}>{errors.ngay_sinh}</Text>}
+
       <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
         <Icon name="venus-mars" size={24} color="#666" />
         <Picker
@@ -205,5 +245,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     margin: 10,
     paddingLeft: 10,
+  },
+  error: {
+    color: 'red',
+    fontSize: 13,
+    marginLeft: 18,
+    marginTop: -8,
+    marginBottom: 4,
   },
 })

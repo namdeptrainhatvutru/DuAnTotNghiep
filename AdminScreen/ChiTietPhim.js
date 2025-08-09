@@ -15,6 +15,7 @@ import {useDispatch} from 'react-redux';
 import {deletePhim, updatePhim} from '../redux/actions/PhimAction';
 import {useNavigation} from '@react-navigation/native';
 import {launchImageLibrary} from 'react-native-image-picker';
+import {Picker} from '@react-native-picker/picker';
 
 const getYouTubeEmbedUrl = url => {
   if (!url) return '';
@@ -35,6 +36,28 @@ const uploadToImgbb = async base64 => {
   const data = await res.json();
   return data.data?.url;
 };
+
+const THE_LOAI_OPTIONS = [
+  'Hành động',
+  'Phiêu lưu',
+  'Hài',
+  'Tình cảm / Lãng mạn',
+  'Tâm lý',
+  'Kinh dị',
+  'Giật gân',
+  'Bí ẩn',
+  'Khoa học viễn tưởng',
+  'Viễn tưởng - Giả tưởng',
+  'Hình sự',
+  'Chiến tranh',
+  'Chính kịch',
+  'Tài liệu',
+  'Phim tiểu sử',
+  'Âm nhạc',
+  'Gia đình',
+  'Thể thao',
+  'Phim thiếu nhi',
+];
 
 const ChiTietPhim = ({route}) => {
   const {phim} = route.params;
@@ -231,12 +254,28 @@ const ChiTietPhim = ({route}) => {
                 onChangeText={text => setEditPhim({...editPhim, trailer_url: text})}
                 style={styles.input}
               />
+              {/* Thay TextInput thể loại bằng Picker */}
+              <View style={[styles.input, {padding: 0, marginBottom: 8}]}>
+                <Picker
+                  selectedValue={editPhim.the_loai}
+                  onValueChange={value => setEditPhim({...editPhim, the_loai: value})}
+                  style={{height: 48}}
+                >
+                  <Picker.Item label="Chọn thể loại..." value="" />
+                  {THE_LOAI_OPTIONS.map(option => (
+                    <Picker.Item key={option} label={option} value={option} />
+                  ))}
+                </Picker>
+              </View>
+              {/* Xóa hoặc comment TextInput thể loại cũ */}
+              {/* 
               <TextInput
                 placeholder="Thể loại"
                 value={editPhim.the_loai}
                 onChangeText={text => setEditPhim({...editPhim, the_loai: text})}
                 style={styles.input}
               />
+              */}
               <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 24}}>
                 <Button title="Cập nhật" color="#EA5A5A" onPress={handleUpdate} />
                 <Button title="Đóng" color="#888" onPress={() => setModal(false)} />
