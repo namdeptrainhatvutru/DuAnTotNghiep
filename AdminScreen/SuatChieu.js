@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Alert,
   FlatList,
@@ -9,680 +11,936 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {
-  addSuatChieu,
-  deleteSuatChieu,
-  fetchSuatChieu,
-} from '../redux/actions/SuatChieuAction';
-import {fetchPhim} from '../redux/actions/PhimAction';
-import {Button} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {addGhe, deleteGheBySuatChieuId} from '../redux/actions/GheAction';
+  ActivityIndicator,
+  Dimensions,
+  StatusBar,
+} from "react-native"
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { addSuatChieu, deleteSuatChieu, fetchSuatChieu } from "../redux/actions/SuatChieuAction"
+import { fetchPhim } from "../redux/actions/PhimAction"
+import { useNavigation } from "@react-navigation/native"
+import { addGhe, deleteGheBySuatChieuId } from "../redux/actions/GheAction"
 
-const SuatChieu = ({route}) => {
-  const {room_id, ten_phong} = route.params;
-  const dispatch = useDispatch();
-  const [ngay_chieu, setngay_chieu] = useState('');
-  const [thoi_gian_bat_dau, setthoi_gian_bat_dau] = useState('');
-  const [thoi_gian_ket_thuc, setthoi_gian_ket_thuc] = useState('');
-  const [phim_id, setphim_id] = useState('');
-  const [modal, setModal] = useState(false);
-  const [phimModal, setPhimModal] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [searchPhim, setSearchPhim] = useState('');
-  const [activeTab, setActiveTab] = useState('chua'); // 'chua' | 'ketthuc'
-  const listsuatchieu = useSelector(state => state.suatchieu.listsuatchieu);
-  const listphim = useSelector(state => state.phim.listphim);
-  console.log('list phim : ', listphim);
-  const navigation = useNavigation();
+const { width } = Dimensions.get("window")
 
-  const handleDateChange = text => {
-    // Loại bỏ ký tự không phải số
-    const cleaned = text.replace(/[^\d]/g, '');
+const SuatChieu = ({ route }) => {
+  const { room_id, ten_phong } = route.params
+  const dispatch = useDispatch()
+  const [ngay_chieu, setngay_chieu] = useState("")
+  const [thoi_gian_bat_dau, setthoi_gian_bat_dau] = useState("")
+  const [thoi_gian_ket_thuc, setthoi_gian_ket_thuc] = useState("")
+  const [phim_id, setphim_id] = useState("")
+  const [modal, setModal] = useState(false)
+  const [phimModal, setPhimModal] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [searchPhim, setSearchPhim] = useState("")
+  const [activeTab, setActiveTab] = useState("chua")
 
-    let formatted = '';
+  const listsuatchieu = useSelector((state) => state.suatchieu.listsuatchieu)
+  const listphim = useSelector((state) => state.phim.listphim)
+  const navigation = useNavigation()
 
+  const handleDateChange = (text) => {
+    const cleaned = text.replace(/[^\d]/g, "")
+    let formatted = ""
     if (cleaned.length <= 2) {
-      formatted = cleaned;
+      formatted = cleaned
     } else if (cleaned.length <= 4) {
-      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
+      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`
     } else {
-      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(
-        2,
-        4,
-      )}/${cleaned.slice(4, 8)}`;
+      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`
     }
 
-    // Validate giới hạn ngày và tháng
-    const parts = formatted.split('/');
-    const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10);
+    const parts = formatted.split("/")
+    const day = Number.parseInt(parts[0], 10)
+    const month = Number.parseInt(parts[1], 10)
+    if (day > 31) parts[0] = "31"
+    if (month > 12) parts[1] = "12"
 
-    if (day > 31) parts[0] = '31';
-    if (month > 12) parts[1] = '12';
-
-    // Gộp lại nếu cần
     if (parts.length === 3) {
-      formatted = `${parts[0]}/${parts[1]}/${parts[2]}`;
+      formatted = `${parts[0]}/${parts[1]}/${parts[2]}`
     } else if (parts.length === 2) {
-      formatted = `${parts[0]}/${parts[1]}`;
+      formatted = `${parts[0]}/${parts[1]}`
     } else {
-      formatted = parts[0];
+      formatted = parts[0]
     }
-
-    setngay_chieu(formatted);
-  };
+    setngay_chieu(formatted)
+  }
 
   useEffect(() => {
-    setLoading(true); // Bắt đầu loading khi room_id đổi
-    dispatch(fetchPhim());
+    setLoading(true)
+    dispatch(fetchPhim())
     dispatch(fetchSuatChieu(room_id)).then(() => {
-      setLoading(false); // Kết thúc loading khi fetch xong
-    });
-  }, [dispatch, room_id]);
+      setLoading(false)
+    })
+  }, [dispatch, room_id])
 
-  const getTrangThai = item => {
-    if (!item.ngay_chieu) return '';
-    const [day, month, year] = item.ngay_chieu.split('/');
-    const ngayChieuDate = new Date(`${year}-${month}-${day}`);
-    const now = new Date();
-    ngayChieuDate.setHours(0, 0, 0, 0);
-    now.setHours(0, 0, 0, 0);
-    const diffTime = ngayChieuDate.getTime() - now.getTime();
-    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-    const nowHour = new Date().getHours();
-    const gioKetThuc = parseInt(item.thoi_gian_ket_thuc, 10);
+  const getTrangThai = (item) => {
+    if (!item.ngay_chieu) return ""
+    const [day, month, year] = item.ngay_chieu.split("/")
+    const ngayChieuDate = new Date(`${year}-${month}-${day}`)
+    const now = new Date()
+    ngayChieuDate.setHours(0, 0, 0, 0)
+    now.setHours(0, 0, 0, 0)
+    const diffTime = ngayChieuDate.getTime() - now.getTime()
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
+    const nowHour = new Date().getHours()
+    const gioKetThuc = Number.parseInt(item.thoi_gian_ket_thuc, 10)
 
     if (diffDays === 0) {
-      if (nowHour >= gioKetThuc) return 'Đã kết thúc';
-      return 'Chưa chiếu';
+      if (nowHour >= gioKetThuc) return "Đã kết thúc"
+      return "Chưa chiếu"
     } else if (diffDays < 0) {
-      return 'Đã kết thúc';
+      return "Đã kết thúc"
     } else {
-      return 'Chưa chiếu';
+      return "Chưa chiếu"
     }
-  };
+  }
 
-  // Lọc danh sách theo tab
-  const filteredList = Array.isArray(listsuatchieu)
-    ? listsuatchieu.filter(item =>
-        activeTab === 'chua'
-          ? getTrangThai(item) !== 'Đã kết thúc'
-          : getTrangThai(item) === 'Đã kết thúc',
-      )
-    : [];
+  const getDetailedStatus = (item) => {
+    if (!item.ngay_chieu) return { status: "", color: "#6b7280" }
+    const [day, month, year] = item.ngay_chieu.split("/")
+    const ngayChieuDate = new Date(`${year}-${month}-${day}`)
+    const now = new Date()
+    ngayChieuDate.setHours(0, 0, 0, 0)
+    now.setHours(0, 0, 0, 0)
+    const diffTime = ngayChieuDate.getTime() - now.getTime()
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
+    const nowHour = new Date().getHours()
+    const gioKetThuc = Number.parseInt(item.thoi_gian_ket_thuc, 10)
 
-  const renderItem = ({item}) => {
-    const phim = listphim.find(p => p.phim_id === item.phim_id);
-
-    // Xử lý ngày chiếu và trạng thái
-    let trangThai = '';
-    if (item.ngay_chieu) {
-      const [day, month, year] = item.ngay_chieu.split('/');
-      const ngayChieuDate = new Date(`${year}-${month}-${day}`);
-      const now = new Date();
-      ngayChieuDate.setHours(0, 0, 0, 0);
-      now.setHours(0, 0, 0, 0);
-      const diffTime = ngayChieuDate.getTime() - now.getTime();
-      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-      // Lấy giờ hiện tại
-      const nowHour = new Date().getHours();
-
-      // Lấy giờ kết thúc của suất chiếu (chuyển string sang số)
-      const gioKetThuc = parseInt(item.thoi_gian_ket_thuc, 10);
-
-      if (diffDays === 0) {
-        // Nếu là hôm nay, kiểm tra giờ
-        if (nowHour >= gioKetThuc) {
-          trangThai = 'Đã kết thúc';
-        } else {
-          trangThai = 'Đang chiếu';
-        }
-      } else if (diffDays < 0) {
-        trangThai = 'Đã kết thúc';
-      } else if (diffDays === 1) {
-        trangThai = 'Sắp chiếu';
-      } else if (diffDays > 1) {
-        trangThai = 'Chưa chiếu';
+    if (diffDays === 0) {
+      if (nowHour >= gioKetThuc) {
+        return { status: "Đã kết thúc", color: "#6b7280" }
+      } else {
+        return { status: "Đang chiếu", color: "#10b981" }
       }
+    } else if (diffDays < 0) {
+      return { status: "Đã kết thúc", color: "#6b7280" }
+    } else if (diffDays === 1) {
+      return { status: "Sắp chiếu", color: "#f59e0b" }
+    } else if (diffDays > 1) {
+      return { status: "Chưa chiếu", color: "#6366f1" }
     }
+    return { status: "", color: "#6b7280" }
+  }
+
+  const filteredList = Array.isArray(listsuatchieu)
+    ? listsuatchieu.filter((item) =>
+        activeTab === "chua" ? getTrangThai(item) !== "Đã kết thúc" : getTrangThai(item) === "Đã kết thúc",
+      )
+    : []
+
+  const handleAddSuatChieu = async () => {
+    if (!ngay_chieu || !thoi_gian_bat_dau || !thoi_gian_ket_thuc || !phim_id) {
+      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin")
+      return
+    }
+
+    setIsSubmitting(true)
+    const suatchieu = {
+      room_id: room_id,
+      ngay_chieu: ngay_chieu,
+      thoi_gian_bat_dau: thoi_gian_bat_dau,
+      thoi_gian_ket_thuc: thoi_gian_ket_thuc,
+      phim_id: phim_id,
+    }
+
+    try {
+      const res = await dispatch(addSuatChieu(suatchieu))
+      const createdSuatChieu = res.payload
+      const suatChieuId = createdSuatChieu?.suat_chieu_id
+
+      if (!suatChieuId) {
+        Alert.alert("Lỗi", "Không lấy được ID suất chiếu!")
+        return
+      }
+
+      // Tạo 30 ghế cho suất chiếu này
+      for (let i = 1; i <= 30; i++) {
+        const newGhe = {
+          vi_tri: `G${i}`,
+          suat_chieu_id: suatChieuId,
+          trang_thai: "trống",
+        }
+        await dispatch(addGhe(newGhe))
+      }
+
+      await dispatch(fetchSuatChieu(room_id))
+      Alert.alert("Thành công", "Đã thêm suất chiếu mới!")
+      setModal(false)
+      setngay_chieu("")
+      setthoi_gian_bat_dau("")
+      setthoi_gian_ket_thuc("")
+      setphim_id("")
+    } catch (err) {
+      Alert.alert("Lỗi", "Có lỗi xảy ra, vui lòng thử lại!")
+      console.log("Add suatchieu error:", err)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteShowtime = (item) => {
+    Alert.alert("Xác nhận", "Bạn có chắc chắn muốn xóa suất chiếu này?", [
+      { text: "Hủy", style: "cancel" },
+      {
+        text: "Xóa",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await dispatch(deleteSuatChieu(item.suat_chieu_id))
+            await dispatch(deleteGheBySuatChieuId(item.suat_chieu_id))
+            Alert.alert("Thành công", "Đã xóa suất chiếu!")
+          } catch (error) {
+            Alert.alert("Lỗi", "Không thể xóa suất chiếu. Vui lòng thử lại.")
+          }
+        },
+      },
+    ])
+  }
+
+  const renderItem = ({ item, index }) => {
+    const phim = listphim.find((p) => p.phim_id === item.phim_id)
+    const { status, color } = getDetailedStatus(item)
 
     return (
-      <View
-        style={{
-          flexDirection: 'row',
-          backgroundColor: '#fff',
-          borderRadius: 16,
-          marginVertical: 8,
-          padding: 14,
-          shadowColor: '#000',
-          shadowOffset: {width: 0, height: 2},
-          shadowOpacity: 0.12,
-          shadowRadius: 6,
-          elevation: 3,
-          alignItems: 'center',
-        }}>
-        <Image
-          source={{uri: phim?.poster_url}}
-          style={{
-            width: 70,
-            height: 100,
-            borderRadius: 8,
-            backgroundColor: '#eee',
-            marginRight: 16,
-          }}
-        />
-        <View style={{flex: 1}}>
-          <Text
-            style={{fontWeight: 'bold', fontSize: 16, color: '#EA5A5A'}}
-            numberOfLines={2}>
-            {phim ? phim.ten_phim : 'Không tìm thấy phim'}
-          </Text>
-          <Text style={{color: '#444', marginTop: 2}}>
-            Ngày chiếu:{' '}
-            <Text style={{fontWeight: 'bold'}}>{item.ngay_chieu}</Text>
-          </Text>
-          <Text style={{color: '#444', marginTop: 2}}>
-            Thời gian:{' '}
-            <Text style={{fontWeight: 'bold'}}>
-              {item.thoi_gian_bat_dau}h - {item.thoi_gian_ket_thuc}h
+      <View style={[styles.showtimeCard, { marginTop: index === 0 ? 0 : 16 }]}>
+        <View style={styles.cardHeader}>
+          <View style={styles.posterContainer}>
+            <Image source={{ uri: phim?.poster_url }} style={styles.poster} />
+            <View style={[styles.statusBadge, { backgroundColor: color }]}>
+              <Text style={styles.statusText}>{status}</Text>
+            </View>
+          </View>
+
+          <View style={styles.movieInfo}>
+            <Text style={styles.movieTitle} numberOfLines={2}>
+              {phim ? phim.ten_phim : "Không tìm thấy phim"}
             </Text>
-          </Text>
-          {trangThai !== '' && (
-            <Text
-              style={{
-                marginTop: 4,
-                color:
-                  trangThai === 'Sắp chiếu'
-                    ? '#FFA500'
-                    : trangThai === 'Đã kết thúc'
-                    ? '#888'
-                    : '#8889D6',
-                fontWeight: 'bold',
-                fontSize: 13,
-              }}>
-              {trangThai}
-            </Text>
-          )}
-          <View style={{flexDirection: 'row', marginTop: 10}}>
-            <TouchableOpacity
-              style={{
-                backgroundColor: '#1976D2',
-                paddingVertical: 6,
-                paddingHorizontal: 18,
-                borderRadius: 6,
-                marginRight: 10,
-              }}
-              onPress={() => {
-                navigation.navigate('CapNhatSuatChieu', {
-                  phim: phim,
-                  suat_chieu: item,
-                });
-              }}>
-              <Text style={{color: '#fff', fontWeight: 'bold'}}>Chỉnh sửa</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                backgroundColor: '#f55',
-                paddingVertical: 6,
-                paddingHorizontal: 18,
-                borderRadius: 6,
-              }}
-              onPress={() => {
-                dispatch(deleteSuatChieu(item.suat_chieu_id));
-                dispatch(deleteGheBySuatChieuId(item.suat_chieu_id));
-              }}>
-              <Text style={{color: '#fff', fontWeight: 'bold'}}>Xóa</Text>
-            </TouchableOpacity>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoIcon}>📅</Text>
+              <Text style={styles.infoText}>Ngày chiếu: {item.ngay_chieu}</Text>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoIcon}>⏰</Text>
+              <Text style={styles.infoText}>
+                Thời gian: {item.thoi_gian_bat_dau}h - {item.thoi_gian_ket_thuc}h
+              </Text>
+            </View>
           </View>
         </View>
+
+        <View style={styles.cardActions}>
+          <TouchableOpacity
+            style={styles.editBtn}
+            onPress={() => {
+              navigation.navigate("CapNhatSuatChieu", {
+                phim: phim,
+                suat_chieu: item,
+              })
+            }}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.editIcon}>✏️</Text>
+            <Text style={styles.editBtnText}>Chỉnh sửa</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteShowtime(item)} activeOpacity={0.8}>
+            <Text style={styles.deleteIcon}>🗑️</Text>
+            <Text style={styles.deleteBtnText}>Xóa</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    );
-  };
+    )
+  }
+
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <View style={styles.headerContent}>
+        <Text style={styles.headerIcon}>🎬</Text>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerTitle}>Suất Chiếu</Text>
+          <Text style={styles.headerSubtitle}>Phòng: {ten_phong}</Text>
+        </View>
+      </View>
+    </View>
+  )
+
+  const renderTabs = () => (
+    <View style={styles.tabContainer}>
+      <TouchableOpacity
+        style={[styles.tabBtn, activeTab === "chua" && styles.tabBtnActive]}
+        onPress={() => setActiveTab("chua")}
+        activeOpacity={0.8}
+      >
+        <Text style={[styles.tabText, activeTab === "chua" && styles.tabTextActive]}>
+           Chưa chiếu 
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.tabBtn, activeTab === "ketthuc" && styles.tabBtnActive]}
+        onPress={() => setActiveTab("ketthuc")}
+        activeOpacity={0.8}
+      >
+        <Text style={[styles.tabText, activeTab === "ketthuc" && styles.tabTextActive]}>
+           Đã kết thúc 
+        </Text>
+      </TouchableOpacity>
+    </View>
+  )
+
+  const renderEmpty = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyIcon}>🎬</Text>
+      <Text style={styles.emptyTitle}>Chưa có suất chiếu nào</Text>
+      <Text style={styles.emptySubtitle}>Nhấn nút + để thêm suất chiếu mới</Text>
+    </View>
+  )
+
+  const InputField = ({ label, value, onChangeText, placeholder, icon, ...props }) => (
+    <View style={styles.inputContainer}>
+      <View style={styles.inputLabelContainer}>
+        <Text style={styles.inputIcon}>{icon}</Text>
+        <Text style={styles.inputLabel}>{label}</Text>
+      </View>
+      <TextInput
+        style={styles.input}
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        placeholderTextColor="#999"
+        {...props}
+      />
+    </View>
+  )
+
   if (loading) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text>Đang tải dữ liệu...</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6366f1" />
+        <Text style={styles.loadingText}>Đang tải dữ liệu...</Text>
       </View>
-    );
+    )
   }
 
- const handleAddSuatCHieu = async () => {
-  const suatchieu = {
-    room_id: room_id,
-    ngay_chieu: ngay_chieu,
-    thoi_gian_bat_dau: thoi_gian_bat_dau,
-    thoi_gian_ket_thuc: thoi_gian_ket_thuc,
-    phim_id: phim_id,
-  };
-  try {
-    const res = await dispatch(addSuatChieu(suatchieu));
-    const createdSuatChieu = res.payload;
-    const suatChieuId = createdSuatChieu?.suat_chieu_id;
-
-    if (!suatChieuId) {
-      Alert.alert('Không lấy được ID suất chiếu!');
-      return;
-    }
-
-    // Tạo 30 ghế cho suất chiếu này
-    for (let i = 1; i <= 30; i++) {
-      const newGhe = {
-        vi_tri: `G${i}`,
-        suat_chieu_id: suatChieuId,
-        trang_thai: 'trống',
-      };
-      const gheRes = await dispatch(addGhe(newGhe));
-      console.log('addGhe', i, gheRes);
-    }
-
-    await dispatch(fetchSuatChieu(room_id));
-    Alert.alert('Thêm thành công');
-    setModal(false);
-    setngay_chieu('');
-    setthoi_gian_bat_dau('');
-    setthoi_gian_ket_thuc('');
-    setphim_id('');
-  } catch (err) {
-    Alert.alert('Có lỗi xảy ra, vui lòng thử lại!');
-    console.log('Add suatchieu error:', err);
-  }
-};
-  if (loading) {
-    return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text>Đang tải dữ liệu...</Text>
-      </View>
-    );
-  }
   return (
-    <View style={{flex: 1, padding: 10}}>
-      {/* Tab */}
-      <View
-        style={{
-          flexDirection: 'row',
-          marginBottom: 10,
-          marginTop: 10,
-          alignSelf: 'center',
-        }}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: activeTab === 'chua' ? '#EA5A5A' : '#fff',
-            paddingVertical: 10,
-            paddingHorizontal: 30,
-            borderTopLeftRadius: 16,
-            borderBottomLeftRadius: 16,
-            borderWidth: 1,
-            borderColor: '#EA5A5A',
-          }}
-          onPress={() => setActiveTab('chua')}>
-          <Text
-            style={{
-              color: activeTab === 'chua' ? '#fff' : '#EA5A5A',
-              fontWeight: 'bold',
-            }}>
-            Chưa chiếu
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            backgroundColor: activeTab === 'ketthuc' ? '#EA5A5A' : '#fff',
-            paddingVertical: 10,
-            paddingHorizontal: 30,
-            borderTopRightRadius: 16,
-            borderBottomRightRadius: 16,
-            borderWidth: 1,
-            borderColor: '#EA5A5A',
-          }}
-          onPress={() => setActiveTab('ketthuc')}>
-          <Text
-            style={{
-              color: activeTab === 'ketthuc' ? '#fff' : '#EA5A5A',
-              fontWeight: 'bold',
-            }}>
-            Đã kết thúc
-          </Text>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#6366f1" />
+
+      {renderHeader()}
+
+      <View style={styles.contentContainer}>
+        {renderTabs()}
+
+        {filteredList.length === 0 ? (
+          renderEmpty()
+        ) : (
+          <FlatList
+            data={filteredList}
+            keyExtractor={(item) => item.suat_chieu_id?.toString() || Math.random().toString()}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
 
-      <View
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
-          padding: 20,
-          backgroundColor: '#f9f9f9',
-        }}>
-        <Text
-          style={{
-            fontSize: 24,
-            fontWeight: 'bold',
-            color: '#333',
-            marginBottom: 10,
-          }}>
-          Phòng: {ten_phong}
-        </Text>
-        <Text style={{fontSize: 18, color: '#555'}}>Danh sách suất chiếu</Text>
-      </View>
-      {filteredList.length === 0 ? (
-        <Text style={{textAlign: 'center', marginTop: 20}}>
-          Không có suất chiếu nào
-        </Text>
-      ) : (
-        <FlatList
-          data={filteredList}
-          keyExtractor={item => item.suat_chieu_id}
-          renderItem={renderItem}
-        />
-      )}
+      {/* Floating Action Button */}
+      <TouchableOpacity style={styles.fab} onPress={() => setModal(true)} activeOpacity={0.8}>
+        <View style={styles.fabContent}>
+          <Text style={styles.fabIcon}>+</Text>
+        </View>
+      </TouchableOpacity>
+
+      {/* Add Showtime Modal */}
       <Modal visible={modal} animationType="slide" transparent>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.35)',
-            justifyContent: 'flex-end',
-          }}>
-          <View
-            style={{
-              backgroundColor: '#fff',
-              borderTopLeftRadius: 18,
-              borderTopRightRadius: 18,
-              padding: 20,
-              minHeight: '70%',
-              maxHeight: '90%',
-            }}>
-            <Text
-              style={{
-                fontWeight: 'bold',
-                fontSize: 22,
-                color: '#EA5A5A',
-                marginBottom: 18,
-                textAlign: 'center',
-              }}>
-              Thêm suất chiếu
-            </Text>
-            <View style={{marginBottom: 14}}>
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  marginBottom: 6,
-                  color: '#222',
-                  fontSize: 15,
-                }}>
-                Ngày chiếu
-              </Text>
-              <TextInput
-                placeholder="dd/mm/yyyy"
+        <View style={styles.modalBg}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalIcon}>🎬</Text>
+              <Text style={styles.modalTitle}>Thêm Suất Chiếu</Text>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <InputField
+                label="Ngày chiếu"
+                icon="📅"
                 value={ngay_chieu}
                 onChangeText={handleDateChange}
+                placeholder="DD/MM/YYYY"
                 keyboardType="numeric"
                 maxLength={10}
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  borderRadius: 8,
-                  padding: 10,
-                  fontSize: 16,
-                  backgroundColor: '#fafafa',
-                }}
               />
-            </View>
-            <View style={{marginBottom: 14}}>
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  marginBottom: 6,
-                  color: '#222',
-                  fontSize: 15,
-                }}>
-                Thời gian bắt đầu
-              </Text>
-              <TextInput
-                placeholder="Thời gian bắt đầu"
+
+              <InputField
+                label="Thời gian bắt đầu"
+                icon="⏰"
                 value={thoi_gian_bat_dau}
-                keyboardType="numeric"
                 onChangeText={setthoi_gian_bat_dau}
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  borderRadius: 8,
-                  padding: 10,
-                  fontSize: 16,
-                  backgroundColor: '#fafafa',
-                }}
-              />
-            </View>
-            <View style={{marginBottom: 14}}>
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  marginBottom: 6,
-                  color: '#222',
-                  fontSize: 15,
-                }}>
-                Thời gian kết thúc
-              </Text>
-              <TextInput
-                placeholder="Thời gian kết thúc"
-                value={thoi_gian_ket_thuc}
+                placeholder="VD: 14 (14h)"
                 keyboardType="numeric"
-                onChangeText={setthoi_gian_ket_thuc}
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  borderRadius: 8,
-                  padding: 10,
-                  fontSize: 16,
-                  backgroundColor: '#fafafa',
-                }}
               />
-            </View>
-            <View style={{marginBottom: 14}}>
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  marginBottom: 6,
-                  color: '#222',
-                  fontSize: 15,
-                }}>
-                Phim
-              </Text>
+
+              <InputField
+                label="Thời gian kết thúc"
+                icon="⏱️"
+                value={thoi_gian_ket_thuc}
+                onChangeText={setthoi_gian_ket_thuc}
+                placeholder="VD: 16 (16h)"
+                keyboardType="numeric"
+              />
+
+              <View style={styles.inputContainer}>
+                <View style={styles.inputLabelContainer}>
+                  <Text style={styles.inputIcon}>🎭</Text>
+                  <Text style={styles.inputLabel}>Phim</Text>
+                </View>
+                <TouchableOpacity style={styles.movieSelector} onPress={() => setPhimModal(true)}>
+                  <Text style={[styles.movieSelectorText, phim_id && styles.movieSelectorTextSelected]}>
+                    {phim_id ? listphim.find((p) => p.phim_id === phim_id)?.ten_phim || "Chọn phim" : "Chọn phim"}
+                  </Text>
+                  <Text style={styles.arrowIcon}>→</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalActions}>
               <TouchableOpacity
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  borderRadius: 8,
-                  padding: 12,
-                  backgroundColor: '#fafafa',
-                  alignItems: 'center',
-                }}
-                onPress={() => setPhimModal(true)}>
-                <Text style={{color: phim_id ? '#222' : '#888'}}>
-                  {phim_id
-                    ? listphim.find(p => p.phim_id === phim_id)?.ten_phim ||
-                      'Chọn phim'
-                    : 'Chọn phim'}
-                </Text>
+                style={[styles.modalBtn, styles.primaryBtn]}
+                onPress={handleAddSuatChieu}
+                disabled={isSubmitting}
+                activeOpacity={0.8}
+              >
+                {isSubmitting ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <>
+                    <Text style={styles.modalBtnIcon}>✨</Text>
+                    <Text style={styles.modalBtnText}>Thêm</Text>
+                  </>
+                )}
               </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginTop: 24,
-              }}>
+
               <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: '#EA5A5A',
-                  paddingVertical: 12,
-                  borderRadius: 8,
-                  alignItems: 'center',
-                  marginRight: 8,
-                }}
-                onPress={handleAddSuatCHieu}>
-                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>
-                  Thêm
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: '#888',
-                  paddingVertical: 12,
-                  borderRadius: 8,
-                  alignItems: 'center',
-                  marginLeft: 8,
-                }}
-                onPress={() => setModal(false)}>
-                <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>
-                  Quay lại
-                </Text>
+                style={[styles.modalBtn, styles.secondaryBtn]}
+                onPress={() => setModal(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.modalBtnIcon}>✕</Text>
+                <Text style={[styles.modalBtnText, styles.secondaryBtnText]}>Hủy</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
 
-      {/* Modal chọn phim */}
+      {/* Movie Selection Modal */}
       <Modal visible={phimModal} animationType="slide" transparent>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.35)',
-            justifyContent: 'flex-end',
-          }}>
-          <View
-            style={{
-              backgroundColor: '#fff',
-              borderTopLeftRadius: 18,
-              borderTopRightRadius: 18,
-              padding: 20,
-              minHeight: '70%',
-              maxHeight: '90%',
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 12,
-              }}>
-              <Text style={{fontWeight: 'bold', fontSize: 20, flex: 1}}>
-                Chọn phim
-              </Text>
-              <TouchableOpacity onPress={() => setPhimModal(false)}>
-                <Text
-                  style={{fontSize: 18, color: '#EA5A5A', fontWeight: 'bold'}}>
-                  Đóng
-                </Text>
+        <View style={styles.modalBg}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalIcon}>🎭</Text>
+              <Text style={styles.modalTitle}>Chọn Phim</Text>
+              <TouchableOpacity onPress={() => setPhimModal(false)} style={styles.closeBtn}>
+                <Text style={styles.closeBtnText}>✕</Text>
               </TouchableOpacity>
             </View>
+
             <TextInput
               placeholder="Tìm kiếm phim..."
               value={searchPhim}
               onChangeText={setSearchPhim}
-              style={{
-                borderWidth: 1,
-                borderColor: '#ccc',
-                borderRadius: 8,
-                padding: 8,
-                marginBottom: 16,
-                fontSize: 16,
-              }}
+              style={styles.searchInput}
+              placeholderTextColor="#999"
             />
-            <ScrollView>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={styles.movieList}>
               {listphim
-                .filter(item =>
-                  item.ten_phim
-                    .toLowerCase()
-                    .includes(searchPhim.toLowerCase()),
-                )
-                .map(item => (
+                .filter((item) => item.ten_phim.toLowerCase().includes(searchPhim.toLowerCase()))
+                .map((item) => (
                   <TouchableOpacity
                     key={item.phim_id}
                     onPress={() => {
-                      setphim_id(item.phim_id);
-                      setPhimModal(false);
+                      setphim_id(item.phim_id)
+                      setPhimModal(false)
                     }}
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      marginBottom: 12,
-                      borderWidth: 1,
-                      borderColor:
-                        phim_id === item.phim_id ? '#EA5A5A' : '#eee',
-                      borderRadius: 10,
-                      padding: 10,
-                      backgroundColor:
-                        phim_id === item.phim_id ? '#FFF0F0' : '#fff',
-                      shadowColor: '#000',
-                      shadowOffset: {width: 0, height: 2},
-                      shadowOpacity: 0.08,
-                      shadowRadius: 4,
-                      elevation: 2,
-                    }}>
-                    <Image
-                      source={{uri: item.poster_url}}
-                      style={{
-                        width: 60,
-                        height: 90,
-                        borderRadius: 6,
-                        marginRight: 14,
-                        backgroundColor: '#eee',
-                      }}
-                    />
+                    style={[styles.movieItem, phim_id === item.phim_id && styles.movieItemSelected]}
+                    activeOpacity={0.8}
+                  >
+                    <Image source={{ uri: item.poster_url }} style={styles.moviePoster} />
                     <Text
-                      style={{
-                        fontSize: 16,
-                        fontWeight:
-                          phim_id === item.phim_id ? 'bold' : 'normal',
-                        color: phim_id === item.phim_id ? '#EA5A5A' : '#222',
-                      }}>
+                      style={[styles.movieName, phim_id === item.phim_id && styles.movieNameSelected]}
+                      numberOfLines={2}
+                    >
                       {item.ten_phim}
                     </Text>
+                    {phim_id === item.phim_id && <Text style={styles.selectedIcon}>✓</Text>}
                   </TouchableOpacity>
                 ))}
             </ScrollView>
           </View>
         </View>
       </Modal>
-      <TouchableOpacity
-        style={{
-          position: 'absolute',
-          bottom: 28,
-          right: 28,
-          backgroundColor: '#EA5A5A',
-          width: 60,
-          height: 60,
-          borderRadius: 30,
-          justifyContent: 'center',
-          alignItems: 'center',
-          shadowColor: '#000',
-          shadowOffset: {width: 0, height: 2},
-          shadowOpacity: 0.18,
-          shadowRadius: 6,
-          elevation: 6,
-          zIndex: 10,
-        }}
-        onPress={() => setModal(true)}>
-        <Text
-          style={{
-            color: '#fff',
-            fontSize: 36,
-            fontWeight: 'bold',
-            marginTop: -2,
-          }}>
-          +
-        </Text>
-      </TouchableOpacity>
     </View>
-  );
-};
+  )
+}
 
-export default SuatChieu;
+export default SuatChieu
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
+  header: {
+    backgroundColor: "#6366f1",
+    paddingTop: 50,
+    paddingBottom: 25,
+    paddingHorizontal: 20,
+    shadowColor: "#6366f1",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerIcon: {
+    fontSize: 32,
+    marginRight: 15,
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: "rgba(255,255,255,0.8)",
+  },
+  contentContainer: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+    marginBottom: 20,
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  tabBtnActive: {
+    backgroundColor: "#6366f1",
+    shadowColor: "#6366f1",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#6b7280",
+  },
+  tabTextActive: {
+    color: "#fff",
+  },
+  listContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 100,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#6b7280",
+  },
+  showtimeCard: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    marginBottom: 16,
+  },
+  posterContainer: {
+    position: "relative",
+    marginRight: 16,
+  },
+  poster: {
+    width: 70,
+    height: 100,
+    borderRadius: 12,
+    backgroundColor: "#f3f4f6",
+  },
+  statusBadge: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statusText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+  movieInfo: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  movieTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1f2937",
+    marginBottom: 12,
+    lineHeight: 24,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  infoIcon: {
+    fontSize: 14,
+    marginRight: 8,
+  },
+  infoText: {
+    fontSize: 14,
+    color: "#6b7280",
+    flex: 1,
+  },
+  cardActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+  },
+  editBtn: {
+    backgroundColor: "#6366f1",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#6366f1",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  editIcon: {
+    fontSize: 14,
+    marginRight: 6,
+  },
+  editBtnText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  deleteBtn: {
+    backgroundColor: "#ef4444",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#ef4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  deleteIcon: {
+    fontSize: 14,
+    marginRight: 6,
+  },
+  deleteBtnText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  fab: {
+    position: "absolute",
+    bottom: 30,
+    right: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#6366f1",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#6366f1",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  fabContent: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 32,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fabIcon: {
+    fontSize: 28,
+    color: "#fff",
+    fontWeight: "300",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 60,
+  },
+  emptyIcon: {
+    fontSize: 64,
+    marginBottom: 20,
+    opacity: 0.5,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#374151",
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    color: "#6b7280",
+    textAlign: "center",
+  },
+  modalBg: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: width * 0.9,
+    maxHeight: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    padding: 25,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 15,
+  },
+  modalHeader: {
+    alignItems: "center",
+    marginBottom: 25,
+    position: "relative",
+  },
+  modalIcon: {
+    fontSize: 40,
+    marginBottom: 10,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#1f2937",
+  },
+  closeBtn: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#f3f4f6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  closeBtnText: {
+    fontSize: 16,
+    color: "#6b7280",
+    fontWeight: "bold",
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  inputLabelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  inputIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
+  },
+  input: {
+    borderWidth: 2,
+    borderColor: "#e5e7eb",
+    borderRadius: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    backgroundColor: "#fff",
+    color: "#374151",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  movieSelector: {
+    borderWidth: 2,
+    borderColor: "#e5e7eb",
+    borderRadius: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  movieSelectorText: {
+    fontSize: 16,
+    color: "#999",
+    flex: 1,
+  },
+  movieSelectorTextSelected: {
+    color: "#374151",
+  },
+  arrowIcon: {
+    fontSize: 16,
+    color: "#6b7280",
+  },
+  searchInput: {
+    borderWidth: 2,
+    borderColor: "#e5e7eb",
+    borderRadius: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    marginBottom: 20,
+    backgroundColor: "#fff",
+    color: "#374151",
+  },
+  movieList: {
+    maxHeight: 300,
+  },
+  movieItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 15,
+    marginBottom: 12,
+    backgroundColor: "#f8fafc",
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  movieItemSelected: {
+    backgroundColor: "#eff6ff",
+    borderColor: "#6366f1",
+  },
+  moviePoster: {
+    width: 50,
+    height: 70,
+    borderRadius: 8,
+    backgroundColor: "#f3f4f6",
+    marginRight: 12,
+  },
+  movieName: {
+    fontSize: 16,
+    color: "#374151",
+    flex: 1,
+  },
+  movieNameSelected: {
+    color: "#6366f1",
+    fontWeight: "600",
+  },
+  selectedIcon: {
+    fontSize: 18,
+    color: "#6366f1",
+    fontWeight: "bold",
+  },
+  modalActions: {
+    marginTop: 20,
+  },
+  modalBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 15,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  primaryBtn: {
+    backgroundColor: "#6366f1",
+  },
+  secondaryBtn: {
+    backgroundColor: "#f3f4f6",
+    marginBottom: 0,
+  },
+  modalBtnIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  modalBtnText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  secondaryBtnText: {
+    color: "#6b7280",
+  },
+})

@@ -315,7 +315,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#222',
     marginTop: 2,
-    marginBottom: 2,
     textAlign: 'center',
     minHeight: 36,
   },

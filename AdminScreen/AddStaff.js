@@ -1,59 +1,97 @@
+"use client"
+
 import {
-  StyleSheet, Text, View, TextInput, TouchableOpacity,
-  Alert, FlatList, ScrollView, Image, Modal,
-  ActivityIndicator
-} from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { addUser } from '../redux/actions/UserAction';
-import BASE from '../config/BaseUrl';
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  FlatList,
+  ScrollView,
+  Image,
+  Modal,
+  ActivityIndicator,
+} from "react-native"
+import { useEffect, useState } from "react"
+import { useDispatch } from "react-redux"
+import { addUser } from "../redux/actions/UserAction"
+import BASE from "../config/BaseUrl"
 
 const AddStaff = () => {
-  const dispatch = useDispatch();
-  const [ho_ten, setHoTen] = useState('');
-  const [email, setEmail] = useState('');
-  const [mat_khau, setMatKhau] = useState('');
-  const [so_dien_thoai, setSoDienThoai] = useState('');
-  const [gioi_tinh, setGioi_tinh] = useState('');
-  const [ngay_sinh, setNgay_sinh] = useState('');
-  const [staff, setStaff] = useState([]);
-  const [searchText, setSearchText] = useState('');
-  const [addModalVisible, setAddModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [editId, setEditId] = useState(null);
+  const dispatch = useDispatch()
+  const [ho_ten, setHoTen] = useState("")
+  const [email, setEmail] = useState("")
+  const [mat_khau, setMatKhau] = useState("")
+  const [so_dien_thoai, setSoDienThoai] = useState("")
+  const [gioi_tinh, setGioi_tinh] = useState("")
+  const [ngay_sinh, setNgay_sinh] = useState("")
+  const [staff, setStaff] = useState([])
+  const [searchText, setSearchText] = useState("")
+  const [addModalVisible, setAddModalVisible] = useState(false)
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [editId, setEditId] = useState(null)
   const [editData, setEditData] = useState({
-    ho_ten: '',
-    email: '',
-    mat_khau: '',
-    so_dien_thoai: '',
-    gioi_tinh: '',
-    ngay_sinh: ''
-  });
+    ho_ten: "",
+    email: "",
+    mat_khau: "",
+    so_dien_thoai: "",
+    gioi_tinh: "",
+    ngay_sinh: "",
+  })
+  const [errors, setErrors] = useState({});
+  const [editErrors, setEditErrors] = useState({});
 
   const getListStaff = async () => {
-    const res = await fetch(`http://${BASE}:3000/khachhang?vai_tro=2`);
-    const data = await res.json();
-    setStaff(data);
-  };
+    const res = await fetch(`https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang?vai_tro=2`)
+    const data = await res.json()
+    setStaff(data)
+  }
 
   useEffect(() => {
-    getListStaff();
-  }, []);
+    getListStaff()
+  }, [])
 
   const resetForm = () => {
-    setHoTen('');
-    setEmail('');
-    setMatKhau('');
-    setSoDienThoai('');
-    setNgay_sinh('');
-    setGioi_tinh('');
+    setHoTen("")
+    setEmail("")
+    setMatKhau("")
+    setSoDienThoai("")
+    setNgay_sinh("")
+    setGioi_tinh("")
+  }
+
+  const validate = () => {
+    let newErrors = {};
+    if (!ho_ten.trim()) newErrors.ho_ten = "Vui lòng nhập họ tên";
+    if (!email.trim()) newErrors.email = "Vui lòng nhập email";
+    else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) newErrors.email = "Email không hợp lệ";
+    if (!mat_khau) newErrors.mat_khau = "Vui lòng nhập mật khẩu";
+    else if (mat_khau.length < 6) newErrors.mat_khau = "Mật khẩu tối thiểu 6 ký tự";
+    if (!so_dien_thoai.trim()) newErrors.so_dien_thoai = "Vui lòng nhập số điện thoại";
+    else if (!/^\d{9,11}$/.test(so_dien_thoai)) newErrors.so_dien_thoai = "Số điện thoại không hợp lệ";
+    if (ngay_sinh && !/^\d{2}\/\d{2}\/\d{4}$/.test(ngay_sinh)) newErrors.ngay_sinh = "Ngày sinh chưa đúng định dạng dd/mm/yyyy";
+    return newErrors;
+  };
+
+  const validateEdit = () => {
+    let newErrors = {};
+    if (!editData.ho_ten.trim()) newErrors.ho_ten = "Vui lòng nhập họ tên";
+    if (!editData.email.trim()) newErrors.email = "Vui lòng nhập email";
+    else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(editData.email)) newErrors.email = "Email không hợp lệ";
+    if (!editData.mat_khau) newErrors.mat_khau = "Vui lòng nhập mật khẩu";
+    else if (editData.mat_khau.length < 6) newErrors.mat_khau = "Mật khẩu tối thiểu 6 ký tự";
+    if (!editData.so_dien_thoai.trim()) newErrors.so_dien_thoai = "Vui lòng nhập số điện thoại";
+    else if (!/^\d{9,11}$/.test(editData.so_dien_thoai)) newErrors.so_dien_thoai = "Số điện thoại không hợp lệ";
+    if (editData.ngay_sinh && !/^\d{2}\/\d{2}\/\d{4}$/.test(editData.ngay_sinh)) newErrors.ngay_sinh = "Ngày sinh chưa đúng định dạng dd/mm/yyyy";
+    return newErrors;
   };
 
   const handleAddStaff = async () => {
-    if (!ho_ten || !email || !mat_khau || !so_dien_thoai) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin!');
-      return;
-    }
+    const newErrors = validate();
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
     const user = {
       ho_ten,
       email,
@@ -63,24 +101,25 @@ const AddStaff = () => {
       gioi_tinh,
       vai_tro: 2,
       diem: 0,
-    };
+    }
+
     try {
-      const resultAction = await dispatch(addUser(user));
+      const resultAction = await dispatch(addUser(user))
       if (addUser.fulfilled.match(resultAction)) {
-        Alert.alert('Thành công', 'Thêm nhân viên thành công!');
-        resetForm();
-        setAddModalVisible(false);
-        getListStaff();
+        Alert.alert("Thành công", "Thêm nhân viên thành công!")
+        resetForm()
+        setAddModalVisible(false)
+        getListStaff()
       } else {
-        Alert.alert('Lỗi', 'Thêm nhân viên thất bại!');
+        Alert.alert("Lỗi", "Thêm nhân viên thất bại!")
       }
     } catch (error) {
-      Alert.alert('Lỗi', 'Có lỗi xảy ra!');
+      Alert.alert("Lỗi", "Có lỗi xảy ra!")
     }
-  };
+  }
 
   const handleEdit = (item) => {
-    setEditId(item.khach_hang_id);
+    setEditId(item.khach_hang_id)
     setEditData({
       ho_ten: item.ho_ten,
       email: item.email,
@@ -88,20 +127,25 @@ const AddStaff = () => {
       so_dien_thoai: item.so_dien_thoai,
       ngay_sinh: item.ngay_sinh,
       gioi_tinh: item.gioi_tinh,
-    });
-    setEditModalVisible(true);
-  };
+    })
+    setEditModalVisible(true)
+  }
 
   const handleUpdateStaff = async () => {
-    const { ho_ten, email, mat_khau, so_dien_thoai, ngay_sinh, gioi_tinh } = editData;
+    const newErrors = validateEdit();
+    setEditErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
+    const { ho_ten, email, mat_khau, so_dien_thoai, ngay_sinh, gioi_tinh } = editData
     if (!ho_ten || !email || !mat_khau || !so_dien_thoai) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin!');
-      return;
+      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin!")
+      return
     }
+
     try {
-      await fetch(`https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang${editId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch(`https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang/${editId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ho_ten,
           email,
@@ -112,205 +156,210 @@ const AddStaff = () => {
           vai_tro: 2,
           diem: 0,
         }),
-      });
-      Alert.alert('Cập nhật thành công!');
-      setEditModalVisible(false);
-      getListStaff();
+      })
+      Alert.alert("Cập nhật thành công!")
+      setEditModalVisible(false)
+      getListStaff()
     } catch (error) {
-      Alert.alert('Lỗi', 'Không cập nhật được!');
+      Alert.alert("Lỗi", "Không cập nhật được!")
     }
-  };
+  }
 
   const handleDelete = async (id) => {
-    Alert.alert(
-      "Xác nhận",
-      "Bạn có chắc muốn xóa nhân viên này?",
-      [
-        { text: "Hủy", style: "cancel" },
-        {
-          text: "Xóa",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const res = await fetch(`https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang${id}`, {
-                method: 'DELETE'
-              });
-              if (res.ok) {
-                getListStaff();
-                Alert.alert('Đã xóa nhân viên!');
-              }
-            } catch (error) {
-              Alert.alert('Lỗi', 'Không xóa được!');
+    Alert.alert("Xác nhận", "Bạn có chắc muốn xóa nhân viên này?", [
+      { text: "Hủy", style: "cancel" },
+      {
+        text: "Xóa",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const res = await fetch(`https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang/${id}`, {
+              method: "DELETE",
+            })
+            if (res.ok) {
+              getListStaff()
+              Alert.alert("Đã xóa nhân viên!")
             }
+          } catch (error) {
+            Alert.alert("Lỗi", "Không xóa được!")
           }
-        }
-      ]
-    );
-  };
-const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchText.toLowerCase()) )
+        },
+      },
+    ])
+  }
+
+  const search = staff.filter((item) => item.ho_ten?.toLowerCase().includes(searchText.toLowerCase()))
 
   const renderItem = ({ item }) => (
-  <View style={styles.card}>
-    <Image style={styles.avatar} source={require('../img/staff.png')} />
-    <View style={{ flex: 1, marginLeft: 16 }}>
-      <Text style={styles.cardTitle}>{item.ho_ten}</Text>
-      <Text style={styles.cardText}>Email: {item.email}</Text>
-      <Text style={styles.cardText}>SĐT: {item.so_dien_thoai}</Text>
-      <Text style={styles.cardText}>Ngày sinh: {item.ngay_sinh}</Text>
-      <Text style={styles.cardText}>Giới tính: {item.gioi_tinh}</Text>
-      <View style={{ flexDirection: 'row', marginTop: 12 }}>
-        <TouchableOpacity
-          style={[styles.cardBtn, { backgroundColor: '#2a9d8f', marginRight: 10 }]}
-          onPress={() => handleEdit(item)}
-        >
-          <Text style={{ color: 'white' }}>Cập nhật</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.cardBtn, { backgroundColor: '#f55' }]}
-          onPress={() => handleDelete(item.khach_hang_id)}
-        >
-          <Text style={{ color: 'white' }}>Xóa</Text>
-        </TouchableOpacity>
+    <View style={styles.card}>
+      <View style={styles.avatarContainer}>
+        <Image style={styles.avatar} source={require("../img/staff.png")} />
+        <View style={styles.statusBadge}>
+          <Text style={styles.statusText}>👤</Text>
+        </View>
+      </View>
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle}>{item.ho_ten}</Text>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoIcon}>📧</Text>
+          <Text style={styles.cardText}>{item.email}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoIcon}>📱</Text>
+          <Text style={styles.cardText}>{item.so_dien_thoai}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoIcon}>🎂</Text>
+          <Text style={styles.cardText}>{item.ngay_sinh}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoIcon}>👥</Text>
+          <Text style={styles.cardText}>{item.gioi_tinh}</Text>
+        </View>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity style={styles.editBtn} onPress={() => handleEdit(item)}>
+            <Text style={styles.editBtnText}>✏️ Sửa</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.khach_hang_id)}>
+            <Text style={styles.deleteBtnText}>🗑️ Xóa</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
-  </View>
-);
+  )
+
   if (staff.length === 0) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <ActivityIndicator size='large' color="#BB0000"/>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#BB0000" />
+        <Text style={styles.loadingText}>Đang tải danh sách nhân viên...</Text>
       </View>
-    );
+    )
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
-      <View style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingTop: 24,
-        paddingBottom: 10,
-        backgroundColor: '#fff',
-        borderBottomLeftRadius: 18,
-        borderBottomRightRadius: 18,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 2,
-      }}>
-        <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#BB0000' }}>
-          Danh sách nhân viên
-        </Text>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>👥 Quản lý nhân viên</Text>
+        <Text style={styles.headerSubtitle}>Danh sách {staff.length} nhân viên</Text>
       </View>
 
-      <View style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        marginHorizontal: 20,
-        marginTop: 18,
-        marginBottom: 8,
-        borderRadius: 12,
-        paddingHorizontal: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 3,
-        elevation: 1,
-      }}>
-        <Image  style={{ width: 22, height: 22, marginRight: 8, tintColor: '#888' }} />
-        <TextInput
-          style={{ flex: 1, fontSize: 16 }}
-          value={searchText}
-          onChangeText={setSearchText}
-          placeholder='Tìm kiếm theo tên nhân viên...'
-          placeholderTextColor="#aaa"
-        />
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholder="Tìm kiếm theo tên nhân viên..."
+            placeholderTextColor="#aaa"
+          />
+          {searchText.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchText("")} style={styles.clearButton}>
+              <Text style={styles.clearIcon}>❌</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
+      {/* Staff List */}
       {staff.length === 0 ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size='large' color="#BB0000" />
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>👨‍💼</Text>
+          <Text style={styles.emptyText}>Chưa có nhân viên nào</Text>
+          <Text style={styles.emptySubtext}>Nhấn nút + để thêm nhân viên mới</Text>
         </View>
       ) : (
         <FlatList
           data={search}
-          keyExtractor={item => item.khach_hang_id}
+          keyExtractor={(item) => item.khach_hang_id}
           renderItem={renderItem}
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
         />
       )}
 
-      {/* Nút dấu + mở modal thêm */}
-      <TouchableOpacity
-        onPress={() => setAddModalVisible(true)}
-        style={styles.fab}
-        activeOpacity={0.8}
-      >
-        <Image style={{width:50,height:50,elevation:3}} source={require('../img/add.png')}/>
+      {/* FAB */}
+      <TouchableOpacity onPress={() => setAddModalVisible(true)} style={styles.fab} activeOpacity={0.8}>
+        <Text style={styles.fabIcon}>➕</Text>
       </TouchableOpacity>
 
-      {/* Modal thêm nhân viên */}
+      {/* Add Modal */}
       <Modal visible={addModalVisible} animationType="slide" transparent>
-        <View style={{
-          flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.35)',
-          justifyContent: 'flex-end',
-        }}>
-          <View style={{
-            backgroundColor: '#fff',
-            borderTopLeftRadius: 18,
-            borderTopRightRadius: 18,
-            padding: 20,
-            minHeight: '70%',
-            maxHeight: '90%',
-          }}>
-            <Text style={{
-              fontWeight: 'bold',
-              fontSize: 22,
-              color: '#BB0000',
-              marginBottom: 18,
-              textAlign: 'center',
-            }}>
-              Thêm nhân viên
-            </Text>
-            <ScrollView>
-              <TextInput style={styles.input} placeholder="Họ tên" value={ho_ten} onChangeText={setHoTen} />
-              <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
-              <TextInput style={styles.input} placeholder="Mật khẩu" value={mat_khau} onChangeText={setMatKhau} secureTextEntry />
-              <TextInput style={styles.input} placeholder="Số điện thoại" value={so_dien_thoai} onChangeText={setSoDienThoai} keyboardType="phone-pad" />
-              <TextInput style={styles.input} placeholder="Ngày sinh" value={ngay_sinh} onChangeText={setNgay_sinh} />
-              <TextInput style={styles.input} placeholder="Giới tính" value={gioi_tinh} onChangeText={setGioi_tinh} />
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 24}}>
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#BB0000',
-                    paddingVertical: 12,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                    marginRight: 8,
-                  }}
-                  onPress={handleAddStaff}
-                >
-                  <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Thêm</Text>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>➕ Thêm nhân viên mới</Text>
+              <TouchableOpacity onPress={() => setAddModalVisible(false)} style={styles.closeButton}>
+                <Text style={styles.closeIcon}>❌</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>👤 Họ và tên</Text>
+                <TextInput style={styles.input} placeholder="Nhập họ tên" value={ho_ten} onChangeText={setHoTen} />
+                {errors.ho_ten && <Text style={{color:'red', marginLeft:4}}>{errors.ho_ten}</Text>}
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>📧 Email</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nhập email"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                />
+                {errors.email && <Text style={{color:'red', marginLeft:4}}>{errors.email}</Text>}
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>🔒 Mật khẩu</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nhập mật khẩu"
+                  value={mat_khau}
+                  onChangeText={setMatKhau}
+                  secureTextEntry
+                />
+                {errors.mat_khau && <Text style={{color:'red', marginLeft:4}}>{errors.mat_khau}</Text>}
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>📱 Số điện thoại</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nhập số điện thoại"
+                  value={so_dien_thoai}
+                  onChangeText={setSoDienThoai}
+                  keyboardType="phone-pad"
+                />
+                {errors.so_dien_thoai && <Text style={{color:'red', marginLeft:4}}>{errors.so_dien_thoai}</Text>}
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>🎂 Ngày sinh</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="DD/MM/YYYY"
+                  value={ngay_sinh}
+                  onChangeText={setNgay_sinh}
+                />
+                {errors.ngay_sinh && <Text style={{color:'red', marginLeft:4}}>{errors.ngay_sinh}</Text>}
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>👥 Giới tính</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nam/Nữ/Khác"
+                  value={gioi_tinh}
+                  onChangeText={setGioi_tinh}
+                />
+              </View>
+              <View style={styles.modalActions}>
+                <TouchableOpacity style={styles.primaryButton} onPress={handleAddStaff}>
+                  <Text style={styles.primaryButtonText}>✅ Thêm nhân viên</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#888',
-                    paddingVertical: 12,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                    marginLeft: 8,
-                  }}
-                  onPress={() => setAddModalVisible(false)}
-                >
-                  <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Quay lại</Text>
+                <TouchableOpacity style={styles.secondaryButton} onPress={() => setAddModalVisible(false)}>
+                  <Text style={styles.secondaryButtonText}>↩️ Quay lại</Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -318,63 +367,85 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
         </View>
       </Modal>
 
-      {/* Modal sửa nhân viên */}
+      {/* Edit Modal */}
       <Modal visible={editModalVisible} animationType="slide" transparent>
-        <View style={{
-          flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.35)',
-          justifyContent: 'flex-end',
-        }}>
-          <View style={{
-            backgroundColor: '#fff',
-            borderTopLeftRadius: 18,
-            borderTopRightRadius: 18,
-            padding: 20,
-            minHeight: '70%',
-            maxHeight: '90%',
-          }}>
-            <Text style={{
-              fontWeight: 'bold',
-              fontSize: 22,
-              color: '#BB0000',
-              marginBottom: 18,
-              textAlign: 'center',
-            }}>
-              Sửa nhân viên
-            </Text>
-            <ScrollView>
-              <TextInput style={styles.input} placeholder="Họ tên" value={editData.ho_ten} onChangeText={text => setEditData({ ...editData, ho_ten: text })} />
-              <TextInput style={styles.input} placeholder="Email" value={editData.email} onChangeText={text => setEditData({ ...editData, email: text })} keyboardType="email-address" />
-              <TextInput style={styles.input} placeholder="Mật khẩu" value={editData.mat_khau} onChangeText={text => setEditData({ ...editData, mat_khau: text })} secureTextEntry />
-              <TextInput style={styles.input} placeholder="Số điện thoại" value={editData.so_dien_thoai} onChangeText={text => setEditData({ ...editData, so_dien_thoai: text })} keyboardType="phone-pad" />
-              <TextInput style={styles.input} placeholder="Ngày sinh" value={editData.ngay_sinh} onChangeText={text => setEditData({ ...editData, ngay_sinh: text })} />
-              <TextInput style={styles.input} placeholder="Giới tính" value={editData.gioi_tinh} onChangeText={text => setEditData({ ...editData, gioi_tinh: text })} />
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 24}}>
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#BB0000',
-                    paddingVertical: 12,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                    marginRight: 8,
-                  }}
-                  onPress={handleUpdateStaff}
-                >
-                  <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Cập nhật</Text>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>✏️ Cập nhật nhân viên</Text>
+              <TouchableOpacity onPress={() => setEditModalVisible(false)} style={styles.closeButton}>
+                <Text style={styles.closeIcon}>❌</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>👤 Họ và tên</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nhập họ tên"
+                  value={editData.ho_ten}
+                  onChangeText={(text) => setEditData({ ...editData, ho_ten: text })}
+                />
+                {editErrors.ho_ten && <Text style={{color:'red', marginLeft:4}}>{editErrors.ho_ten}</Text>}
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>📧 Email</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nhập email"
+                  value={editData.email}
+                  onChangeText={(text) => setEditData({ ...editData, email: text })}
+                  keyboardType="email-address"
+                />
+                {editErrors.email && <Text style={{color:'red', marginLeft:4}}>{editErrors.email}</Text>}
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>🔒 Mật khẩu</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nhập mật khẩu"
+                  value={editData.mat_khau}
+                  onChangeText={(text) => setEditData({ ...editData, mat_khau: text })}
+                  secureTextEntry
+                />
+                {editErrors.mat_khau && <Text style={{color:'red', marginLeft:4}}>{editErrors.mat_khau}</Text>}
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>📱 Số điện thoại</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nhập số điện thoại"
+                  value={editData.so_dien_thoai}
+                  onChangeText={(text) => setEditData({ ...editData, so_dien_thoai: text })}
+                  keyboardType="phone-pad"
+                />
+                {editErrors.so_dien_thoai && <Text style={{color:'red', marginLeft:4}}>{editErrors.so_dien_thoai}</Text>}
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>🎂 Ngày sinh</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="DD/MM/YYYY"
+                  value={editData.ngay_sinh}
+                  onChangeText={(text) => setEditData({ ...editData, ngay_sinh: text })}
+                />
+                {editErrors.ngay_sinh && <Text style={{color:'red', marginLeft:4}}>{editErrors.ngay_sinh}</Text>}
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>👥 Giới tính</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nam/Nữ/Khác"
+                  value={editData.gioi_tinh}
+                  onChangeText={(text) => setEditData({ ...editData, gioi_tinh: text })}
+                />
+              </View>
+              <View style={styles.modalActions}>
+                <TouchableOpacity style={styles.primaryButton} onPress={handleUpdateStaff}>
+                  <Text style={styles.primaryButtonText}>💾 Cập nhật</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#888',
-                    paddingVertical: 12,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                    marginLeft: 8,
-                  }}
-                  onPress={() => setEditModalVisible(false)}
-                >
-                  <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Quay lại</Text>
+                <TouchableOpacity style={styles.secondaryButton} onPress={() => setEditModalVisible(false)}>
+                  <Text style={styles.secondaryButtonText}>↩️ Quay lại</Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -382,73 +453,302 @@ const search = staff.filter((item)=>item.ho_ten?.toLowerCase().includes(searchTe
         </View>
       </Modal>
     </View>
-  );
-};
+  )
+}
 
-export default AddStaff;
+export default AddStaff
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 24, fontWeight: 'bold',margin:20
+  container: {
+    flex: 1,
+    backgroundColor: "#F8F9FA",
   },
-  input: {
-    width: '100%',  borderWidth: 1, borderColor: '#ccc', borderRadius: 8,
-    marginBottom: 16, paddingHorizontal: 12, fontSize: 16,
+  header: {
+    backgroundColor: "#FFFFFF",
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  button: {
-    backgroundColor: '#BB0000', width: '100%', height: 50,
-    justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginTop: 10,
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#BB0000",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+  },
+  searchContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    height: 50,
+  },
+  searchIcon: {
+    fontSize: 18,
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+  },
+  clearButton: {
+    padding: 4,
+  },
+  clearIcon: {
+    fontSize: 14,
+  },
+  listContainer: {
+    paddingBottom: 100,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F8F9FA",
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#666",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 60,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "#666",
+  },
+  card: {
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 16,
+    marginHorizontal: 20,
+    marginVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  avatarContainer: {
+    position: "relative",
+    marginRight: 16,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#F0F0F0",
+  },
+  statusBadge: {
+    position: "absolute",
+    bottom: -2,
+    right: -2,
+    backgroundColor: "#BB0000",
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  statusText: {
+    fontSize: 10,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 8,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  infoIcon: {
+    fontSize: 14,
+    marginRight: 8,
+    width: 20,
+  },
+  cardText: {
+    fontSize: 14,
+    color: "#666",
+    flex: 1,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    marginTop: 12,
+    gap: 8,
+  },
+  editBtn: {
+    backgroundColor: "#2A9D8F",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    flex: 1,
+    alignItems: "center",
+  },
+  editBtnText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  deleteBtn: {
+    backgroundColor: "#E76F51",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    flex: 1,
+    alignItems: "center",
+  },
+  deleteBtnText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 14,
   },
   fab: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     right: 20,
-
- 
-    
-    alignItems: 'center',
-  
-    
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#BB0000",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   fabIcon: {
-    fontSize: 30,
-    color: 'white',
-    position: 'absolute',
-    bottom: -7,
+    fontSize: 24,
+    color: "#FFFFFF",
   },
-card: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: '#fff',
-  borderRadius: 14,
-  padding: 16,
-  marginHorizontal: 16,
-  marginVertical: 8,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 6,
-  elevation: 3,
-},
-avatar: {
-  width: 70,
-  height: 70,
-  borderRadius: 35,
-  backgroundColor: '#eee',
-},
-cardTitle: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  marginBottom: 4,
-},
-cardText: {
-  fontSize: 15,
-  color: '#333',
-  marginBottom: 2,
-},
-cardBtn: {
-  paddingVertical: 6,
-  paddingHorizontal: 18,
-  borderRadius: 8,
-},
-});
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContainer: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: "90%",
+    minHeight: "70%",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#BB0000",
+  },
+  closeButton: {
+    padding: 4,
+  },
+  closeIcon: {
+    fontSize: 18,
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#E5E5E5",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: "#FAFAFA",
+  },
+  modalActions: {
+    gap: 12,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  primaryButton: {
+    backgroundColor: "#BB0000",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    shadowColor: "#BB0000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  primaryButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  secondaryButton: {
+    backgroundColor: "#6C757D",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  secondaryButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+})

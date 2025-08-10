@@ -73,6 +73,14 @@ const VoucherScreen = () => {
    
   };
 
+  // Hàm kiểm tra còn hạn
+  const isVoucherValid = (voucher) => {
+    if (!voucher.thoi_gian_het_han) return true; // Nếu không có hạn thì luôn hợp lệ
+    const [day, month, year] = voucher.thoi_gian_het_han.split('/').map(Number);
+    const expireDate = new Date(year, month - 1, day, 23, 59, 59);
+    return expireDate >= new Date();
+  };
+
   const renderItem = ({item}) => (
     <View style={styles.voucherBox}>
       <View style={{alignItems: 'center', marginBottom: 8}}>
@@ -141,7 +149,10 @@ const VoucherScreen = () => {
         <ActivityIndicator size="large" color="#EA5A5A" />
       ) : (
         <FlatList
-          data={listvoucher.filter(item => item.khach_hang_id !== user.khach_hang_id)}
+          data={listvoucher
+            .filter(item => item.khach_hang_id !== user.khach_hang_id)
+            .filter(isVoucherValid)
+          }
           keyExtractor={item => item.voucher_id || item.id}
           renderItem={renderItem}
           numColumns={2}
@@ -149,7 +160,7 @@ const VoucherScreen = () => {
           contentContainerStyle={{paddingBottom: 20}}
           ListEmptyComponent={
             <Text style={{textAlign: 'center', marginTop: 30, color: '#888'}}>
-              Chưa có voucher nào
+              Chưa có voucher nào còn hạn
             </Text>
           }
         />

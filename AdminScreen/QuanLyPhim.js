@@ -1,204 +1,356 @@
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Modal,
-  ScrollView,
-} from 'react-native';
-import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {fetchPhim} from '../redux/actions/PhimAction';
+"use client"
 
-import { useNavigation } from '@react-navigation/native';
+import { FlatList, Image, StyleSheet, Text, View, TouchableOpacity, Dimensions, StatusBar } from "react-native"
+import { useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { fetchPhim } from "../redux/actions/PhimAction"
+import { useNavigation } from "@react-navigation/native"
+
+const { width } = Dimensions.get("window")
+const cardWidth = (width - 48) / 2
 
 const QuanLyPhim = () => {
-  const navigation = useNavigation();
-  const listphim = useSelector(state => state.phim.listphim);
-  const dispatch = useDispatch();
-  
+  const navigation = useNavigation()
+  const listphim = useSelector((state) => state.phim.listphim)
+  const dispatch = useDispatch()
+
   useEffect(() => {
-    dispatch(fetchPhim());
-  }, []);
-  const renderItem = ({item}) => (
-    <TouchableOpacity style={{margin:5}}
-      activeOpacity={0.8}
+    dispatch(fetchPhim())
+  }, [])
+
+  const renderItem = ({ item, index }) => (
+    <TouchableOpacity
+      style={[styles.cardContainer, { marginLeft: index % 2 === 0 ? 0 : 8 }]}
+      activeOpacity={0.85}
       onPress={() => {
-        navigation.navigate('ChiTietPhim', { phim: item });
-      }}>
+        navigation.navigate("ChiTietPhim", { phim: item })
+      }}
+    >
       <View style={styles.card}>
+        {/* Poster Section */}
         <View style={styles.posterWrapper}>
-          <Image style={styles.poster} source={{uri: item.poster_url}} />
+          <Image style={styles.poster} source={{ uri: item.poster_url }} />
+          <View style={styles.gradientOverlay} />
+
+          {/* Genre Badge */}
+          {item.the_loai && (
+            <View style={styles.genreBadge}>
+              <Text style={styles.genreText}>{item.the_loai}</Text>
+            </View>
+          )}
+
+          {/* Rating Badge */}
+          {item.do_tuoi && (
+            <View style={styles.ratingBadge}>
+              <Text style={styles.ratingText}>{item.do_tuoi}+</Text>
+            </View>
+          )}
         </View>
-        <Text style={styles.title} numberOfLines={2}>
-          {item.ten_phim}
-        </Text>
-        <Text style={styles.duration}>{item.thoi_luong} phút</Text>
+
+        {/* Content Section */}
+        <View style={styles.contentSection}>
+          <Text style={styles.title} numberOfLines={2}>
+            {item.ten_phim}
+          </Text>
+
+          <View style={styles.infoRow}>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoIcon}>⏱️</Text>
+              <Text style={styles.infoText}>{item.thoi_luong} phút</Text>
+            </View>
+          </View>
+
+          {item.dao_dien && (
+            <View style={styles.directorRow}>
+              <Text style={styles.directorIcon}>🎭</Text>
+              <Text style={styles.directorText} numberOfLines={1}>
+                {item.dao_dien}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Hover Effect Overlay */}
+        <View style={styles.hoverOverlay} />
       </View>
     </TouchableOpacity>
-  );
-  const handleAddPhim = ()=>{
-      navigation.navigate('AddPhim')
+  )
+
+  const handleAddPhim = () => {
+    navigation.navigate("AddPhim")
   }
+
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <View style={styles.headerContent}>
+        <Text style={styles.headerIcon}>🎬</Text>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerTitle}>Quản Lý Phim</Text>
+          <Text style={styles.headerSubtitle}>{listphim?.length || 0} bộ phim</Text>
+        </View>
+      </View>
+    </View>
+  )
+
+  const renderEmpty = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyIcon}>🎭</Text>
+      <Text style={styles.emptyTitle}>Chưa có phim nào</Text>
+      <Text style={styles.emptySubtitle}>Nhấn nút + để thêm phim mới</Text>
+    </View>
+  )
+
   return (
-    <View style={{flex: 1, backgroundColor: '#fff'}}>
-      <FlatList
-        numColumns={2}
-        data={listphim}
-        keyExtractor={item => item.phim_id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContainer}
-      />
-      <TouchableOpacity style={{position:'absolute',bottom:20,right:20}} onPress={handleAddPhim}>
-        <Image style={{width:70,height:70}} source={require('../img/add.png')}/>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#6366f1" />
+
+      {renderHeader()}
+
+      <View style={styles.listWrapper}>
+        <FlatList
+          data={listphim}
+          keyExtractor={(item) => item.phim_id?.toString() || Math.random().toString()}
+          renderItem={renderItem}
+          numColumns={2}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={renderEmpty}
+          ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+        />
+      </View>
+
+      {/* Floating Action Button */}
+      <TouchableOpacity style={styles.fab} onPress={handleAddPhim} activeOpacity={0.8}>
+        <View style={styles.fabContent}>
+          <Text style={styles.fabIcon}>+</Text>
+        </View>
+        <View style={styles.fabShadow} />
       </TouchableOpacity>
     </View>
-  );
-};
+  )
+}
 
-export default QuanLyPhim;
+export default QuanLyPhim
 
 const styles = StyleSheet.create({
-  listContainer: {
-    padding: 8,
-    paddingBottom: 40,
+  container: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
   },
-  webview: {
-    width: 500,
-    height: 180,
-    alignSelf: 'center',
-    borderRadius: 10,
-    marginBottom: 14,
-    backgroundColor: '#000',
+  header: {
+    backgroundColor: "#6366f1",
+    paddingTop: 50,
+    paddingBottom: 25,
+    paddingHorizontal: 20,
+    shadowColor: "#6366f1",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerIcon: {
+    fontSize: 32,
+    marginRight: 15,
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: "rgba(255,255,255,0.8)",
+  },
+  listWrapper: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  listContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 100,
+  },
+  cardContainer: {
+    width: cardWidth,
+    marginBottom: 16,
   },
   card: {
-    flex: 1,
-    width:190,
-    margin: 5,
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    paddingBottom: 10,
-    padding: 5,
-    position: 'relative',
-    height: 350,
-  
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
+    overflow: "hidden",
+    position: "relative",
   },
   posterWrapper: {
-    width: '100%',
-    height: 220,
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 8,
-    position: 'relative',
+    width: "100%",
+    height: 240,
+    position: "relative",
+    overflow: "hidden",
   },
   poster: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 8,
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
-  ageTag: {
-    position: 'absolute',
-    top: 6,
-    left: 6,
-    backgroundColor: 'red',
-    borderRadius: 20,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    zIndex: 2,
-    width: 40,
-  },
-  ageText: {
-    fontWeight: 'bold',
-    fontSize: 12,
-    color: '#222',
-  },
-  title: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#222',
-    marginTop: 2,
-    marginBottom: 2,
-    textAlign: 'center',
-    minHeight: 36,
-  },
-  duration: {
-    fontSize: 13,
-    color: '#888',
-    textAlign: 'center',
-    position: 'absolute',
+  gradientOverlay: {
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
+    height: 60,
+    backgroundColor: "rgba(0,0,0,0.3)",
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+  genreBadge: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+    backgroundColor: "rgba(99, 102, 241, 0.9)",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
-  modalContent: {
-    width: '90%',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 18,
-    alignItems: 'center',
-    maxHeight: '90%',
+  genreText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "600",
   },
-  modalPoster: {
-    width: 180,
-    height: 260,
+  ratingBadge: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    backgroundColor: "rgba(239, 68, 68, 0.9)",
     borderRadius: 10,
-    marginBottom: 14,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    minWidth: 28,
+    alignItems: "center",
   },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#EA5A5A',
-    marginBottom: 8,
-    textAlign: 'center',
+  ratingText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "bold",
   },
-  modalLabel: {
-    fontWeight: 'bold',
-    fontSize: 15,
-    marginTop: 4,
-    color: '#222',
+  contentSection: {
+    padding: 16,
   },
-  modalValue: {
-    fontWeight: 'normal',
-    color: '#444',
-  },
-  modalDesc: {
-    fontSize: 14,
-    color: '#444',
-    marginTop: 4,
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  closeBtn: {
-    marginTop: 18,
-    backgroundColor: '#EA5A5A',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 32,
-  },
-  closeBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  title: {
     fontSize: 16,
+    fontWeight: "bold",
+    color: "#1f2937",
+    marginBottom: 8,
+    lineHeight: 22,
+    minHeight: 44,
   },
-  trailer: {
-    width: 320,
-    height: 180,
-    borderRadius: 10,
-    marginBottom: 14,
-    backgroundColor: '#000',
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
   },
-});
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  infoIcon: {
+    fontSize: 14,
+    marginRight: 6,
+  },
+  infoText: {
+    fontSize: 13,
+    color: "#6b7280",
+    fontWeight: "500",
+  },
+  directorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  directorIcon: {
+    fontSize: 14,
+    marginRight: 6,
+  },
+  directorText: {
+    fontSize: 12,
+    color: "#9ca3af",
+    flex: 1,
+  },
+  hoverOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "transparent",
+  },
+  fab: {
+    position: "absolute",
+    bottom: 30,
+    right: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#6366f1",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#6366f1",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  fabContent: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 32,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#6366f1",
+  },
+  fabIcon: {
+    fontSize: 28,
+    color: "#fff",
+    fontWeight: "300",
+    lineHeight: 28,
+  },
+  fabShadow: {
+    position: "absolute",
+    top: 4,
+    left: 4,
+    right: 4,
+    bottom: 4,
+    borderRadius: 28,
+    backgroundColor: "rgba(99, 102, 241, 0.2)",
+    zIndex: -1,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 60,
+  },
+  emptyIcon: {
+    fontSize: 64,
+    marginBottom: 20,
+    opacity: 0.5,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#374151",
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    color: "#6b7280",
+    textAlign: "center",
+  },
+})
