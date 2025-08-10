@@ -93,8 +93,7 @@ const MyTabs = () => {
         , headerTitle: 'Location', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
       }} component={LocationScreen} />
       <Tab.Screen name="Voucher" options={{
-        headerShown: true
-        , headerTitle: 'Voucher', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+        headerShown: false
       }} component={VoucherScreen} />
       <Tab.Screen name="Tin tức" options={{
         headerShown: true
@@ -205,9 +204,13 @@ const App = () => {
             options={{ headerShown: false }}
           />
           <Stack.Screen name="ThongTinVe"
-            component={ThongTinVe} />
+            component={ThongTinVe}
+            options={{ headerShown: false }}
+             />
           <Stack.Screen name="VeCuaBan"
-            component={VeCuaBan} />
+            component={VeCuaBan}
+            options={{ headerShown: false }}
+            />
         
             <Stack.Screen name="KhoVe"
               component={KhoVe}

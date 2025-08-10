@@ -1,4 +1,6 @@
-import React, {useEffect, useState} from 'react';
+"use client"
+
+import { useEffect, useState } from "react"
 import {
   View,
   Text,
@@ -7,122 +9,111 @@ import {
   ToastAndroid,
   ScrollView,
   Image,
-} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {fetchAllPhongChieu} from '../redux/actions/PhongChieuAction';
-import {fetchRapChieu} from '../redux/actions/RapChieuAction';
-import QRCode from 'react-native-qrcode-svg';
-import {fetchGheByRoomId, updateNhieuGhe} from '../redux/actions/GheAction';
-import {useNavigation} from '@react-navigation/native';
-import {addVe} from '../redux/actions/VeAction';
-import {tangDiemUser} from '../redux/actions/UserAction';
-import {StyleSheet} from 'react-native';
-import Svg, {Path} from 'react-native-svg';
-import {deleteVoucher, fetchVoucher} from '../redux/actions/VoucherAction';
-import {addThanhToan} from '../redux/actions/ThanhToanAction';
-import Modal from 'react-native-modal';
+  StyleSheet,
+  Dimensions,
+  StatusBar,
+} from "react-native"
+import { useDispatch, useSelector } from "react-redux"
+import { fetchAllPhongChieu } from "../redux/actions/PhongChieuAction"
+import { fetchRapChieu } from "../redux/actions/RapChieuAction"
+import { fetchGheByRoomId, updateNhieuGhe } from "../redux/actions/GheAction"
+import { useNavigation } from "@react-navigation/native"
+import { addVe } from "../redux/actions/VeAction"
+import { tangDiemUser } from "../redux/actions/UserAction"
+import Svg, { Path } from "react-native-svg"
+import { deleteVoucher, fetchVoucher } from "../redux/actions/VoucherAction"
+import { addThanhToan } from "../redux/actions/ThanhToanAction"
+import Modal from "react-native-modal"
 
-const ThongTinVe = ({route}) => {
-  const {suatChieu, phim} = route.params;
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
-  const user_id = useSelector(state => state.user.user.khach_hang_id);
-  const listvoucher = useSelector(state => state.voucher.listvoucher);
-  const listRapChieu = useSelector(state => state.rapchieu.listrapchieu);
-  const listPhongChieu = useSelector(state => state.phongchieu.listphongchieu);
-  const listghe = useSelector(state => state.ghe.listghe);
-  const user = useSelector(state => state.user.user);
-  const [loading, setLoading] = useState(true);
-  const [gheSelected, setGheSelected] = useState([]);
-  const [payment, setPayment] = useState('');
-  const [voucherSelected, setVoucherSelected] = useState(null);
-  const [showVietQR, setShowVietQR] = useState(false);
-  const [foodList, setFoodList] = useState([]);
-  const [foodSelected, setFoodSelected] = useState([]); // lưu id đồ ăn đã chọn
-  const listvoucherbyid = listvoucher.filter(
-    item => item.khach_hang_id === user_id.toString(),
-  );
-  const giamGia = voucherSelected?.giam_gia || 0;
+const { width } = Dimensions.get("window")
 
-  const foodTotal = foodSelected.reduce((sum, item) => sum + Number(item.price), 0);
-  const so_tien =
-    gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * giamGia + foodTotal;
-  const now = new Date();
+const ThongTinVe = ({ route }) => {
+  const { suatChieu, phim } = route.params
+  const dispatch = useDispatch()
+  const navigation = useNavigation()
+  const user_id = useSelector((state) => state.user.user.khach_hang_id)
+  const listvoucher = useSelector((state) => state.voucher.listvoucher)
+  const listRapChieu = useSelector((state) => state.rapchieu.listrapchieu)
+  const listPhongChieu = useSelector((state) => state.phongchieu.listphongchieu)
+  const listghe = useSelector((state) => state.ghe.listghe)
+  const user = useSelector((state) => state.user.user)
+
+  const [loading, setLoading] = useState(true)
+  const [gheSelected, setGheSelected] = useState([])
+  const [payment, setPayment] = useState("")
+  const [voucherSelected, setVoucherSelected] = useState(null)
+  const [showVietQR, setShowVietQR] = useState(false)
+  const [foodList, setFoodList] = useState([])
+  const [foodSelected, setFoodSelected] = useState([])
+
+  const listvoucherbyid = listvoucher.filter((item) => item.khach_hang_id === user_id.toString())
+  const giamGia = voucherSelected?.giam_gia || 0
+  const foodTotal = foodSelected.reduce((sum, item) => sum + Number(item.price), 0)
+  const so_tien = gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * giamGia + foodTotal
+
+  const now = new Date()
   const ngay_mua =
-    String(now.getDate()).padStart(2, '0') +
-    '/' +
-    String(now.getMonth() + 1).padStart(2, '0') +
-    '/' +
-    now.getFullYear();
+    String(now.getDate()).padStart(2, "0") + "/" + String(now.getMonth() + 1).padStart(2, "0") + "/" + now.getFullYear()
 
   useEffect(() => {
     const fetchData = async () => {
-      await dispatch(fetchAllPhongChieu());
-      await dispatch(fetchRapChieu());
-      // Fetch ghế theo suat_chieu_id trực tiếp từ API
-      await dispatch(fetchGheByRoomId(suatChieu.suat_chieu_id));
-      setLoading(false);
-    };
-    fetchData();
+      await dispatch(fetchAllPhongChieu())
+      await dispatch(fetchRapChieu())
+      await dispatch(fetchGheByRoomId(suatChieu.suat_chieu_id))
+      setLoading(false)
+    }
+    fetchData()
+
     if (user_id) {
-      dispatch(fetchVoucher());
+      dispatch(fetchVoucher())
     }
 
-    // Fetch danh sách đồ ăn
-    fetch('https://688253a466a7eb81224e3f86.mockapi.io/doan/food')
-      .then(res => res.json())
-      .then(data => setFoodList(data));
-  }, []);
+    fetch("https://688253a466a7eb81224e3f86.mockapi.io/doan/food")
+      .then((res) => res.json())
+      .then((data) => setFoodList(data))
+  }, [])
 
-  const handleSelectGhe = vi_tri => {
-    setGheSelected(prev =>
-      prev.includes(vi_tri)
-        ? prev.filter(g => g !== vi_tri)
-        : [...prev, vi_tri],
-    );
-  };
+  const handleSelectGhe = (vi_tri) => {
+    setGheSelected((prev) => (prev.includes(vi_tri) ? prev.filter((g) => g !== vi_tri) : [...prev, vi_tri]))
+  }
 
   const handleSelectFood = (food) => {
-    setFoodSelected(prev => {
-      if (prev.find(f => f.id === food.id)) {
-        return prev.filter(f => f.id !== food.id);
+    setFoodSelected((prev) => {
+      if (prev.find((f) => f.id === food.id)) {
+        return prev.filter((f) => f.id !== food.id)
       }
-      return [...prev, food];
-    });
-  };
+      return [...prev, food]
+    })
+  }
 
-  const phongchieu = listPhongChieu.find(
-    phong => phong.room_id == suatChieu.room_id,
-  );
-  const rapchieu = phongchieu
-    ? listRapChieu.find(rap => rap.cinema_id == phongchieu.cinema_id)
-    : null;
+  const phongchieu = listPhongChieu.find((phong) => phong.room_id == suatChieu.room_id)
+  const rapchieu = phongchieu ? listRapChieu.find((rap) => rap.cinema_id == phongchieu.cinema_id) : null
 
   if (loading || !phongchieu || !rapchieu) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Đang tải thông tin vé...</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6366f1" />
+        <Text style={styles.loadingText}>Đang tải thông tin vé...</Text>
       </View>
-    );
+    )
   }
 
-  const sortedGhe = [];
-  const seen = new Set();
-  [...listghe]
-    .filter(ghe => String(ghe.suat_chieu_id) === String(suatChieu.suat_chieu_id))
+  const sortedGhe = []
+  const seen = new Set()
+  ;[...listghe]
+    .filter((ghe) => String(ghe.suat_chieu_id) === String(suatChieu.suat_chieu_id))
     .sort((a, b) => {
-      const numA = parseInt(a.vi_tri.replace('G', ''), 10);
-      const numB = parseInt(b.vi_tri.replace('G', ''), 10);
-      return numA - numB;
+      const numA = Number.parseInt(a.vi_tri.replace("G", ""), 10)
+      const numB = Number.parseInt(b.vi_tri.replace("G", ""), 10)
+      return numA - numB
     })
-    .forEach(ghe => {
-      const key = ghe.room_id + '-' + ghe.vi_tri;
+    .forEach((ghe) => {
+      const key = ghe.room_id + "-" + ghe.vi_tri
       if (!seen.has(key)) {
-        sortedGhe.push(ghe);
-        seen.add(key);
+        sortedGhe.push(ghe)
+        seen.add(key)
       }
-    });
+    })
 
   const thongTinVe = {
     khach_hang_id: user.khach_hang_id,
@@ -131,532 +122,926 @@ const ThongTinVe = ({route}) => {
     gio_chieu: `${suatChieu.thoi_gian_bat_dau}h - ${suatChieu.thoi_gian_ket_thuc}h`,
     ten_phong: phongchieu?.ten_phong,
     dia_chi_rap: rapchieu?.dia_chi,
-    vi_tri_ghe: gheSelected.join(','),
-    trang_thai: 'chưa sử dụng',
-  };
-  thongTinVe.ma_qr = JSON.stringify(thongTinVe);
+    vi_tri_ghe: gheSelected.join(","),
+    trang_thai: "chưa sử dụng",
+  }
 
-  // Thông tin chuyển khoản VietQR
+  thongTinVe.ma_qr = JSON.stringify(thongTinVe)
+
   const vietQRInfo = {
-    accountName: 'VU HOANG NAM',
-    accountNumber: '9961062156',
-    bankCode: 'VCB', 
+    accountName: "VU HOANG NAM",
+    accountNumber: "9961062156",
+    bankCode: "VCB",
     so_tien: so_tien,
     noiDung: `MOVIX_${user.khach_hang_id}_${Date.now()}`,
-  };
+  }
 
-  // Link ảnh QR từ vietqr.io (không cần tự tạo QR code)
-  const vietQRUrl = `https://img.vietqr.io/image/${vietQRInfo.bankCode}-${
-    vietQRInfo.accountNumber
-  }-compact2.png?amount=${vietQRInfo.so_tien}&addInfo=${encodeURIComponent(
-    vietQRInfo.noiDung,
-  )}&accountName=${encodeURIComponent(vietQRInfo.accountName)}`;
+  const vietQRUrl = `https://img.vietqr.io/image/${vietQRInfo.bankCode}-${vietQRInfo.accountNumber}-compact2.png?amount=${vietQRInfo.so_tien}&addInfo=${encodeURIComponent(vietQRInfo.noiDung)}&accountName=${encodeURIComponent(vietQRInfo.accountName)}`
 
   const handleDatVeAndThanhToan = async () => {
-    // 1. Đặt vé trước, lấy ve_id
-    const veRes = await dispatch(addVe(thongTinVe));
-    const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
+    const veRes = await dispatch(addVe(thongTinVe))
+    const ve_id = veRes.payload?.ve_id || veRes.payload?.id
 
-    // 2. Tạo object thanh toán
     const thanhToanData = {
       khach_hang_id: user.khach_hang_id,
       phuong_thuc: payment,
       so_tien: so_tien,
       ngay_mua: ngay_mua,
       ve_id: ve_id,
-    };
+    }
 
-    // 3. Gọi action thêm thanh toán
-    await dispatch(addThanhToan(thanhToanData));
+    await dispatch(addThanhToan(thanhToanData))
 
-    // 4. Các thao tác khác
     dispatch(
       updateNhieuGhe({
         listghe,
         gheSelected,
         suat_chieu_id: suatChieu.suat_chieu_id,
       }),
-    );
-    await dispatch(tangDiemUser({ user: user, soluong: gheSelected.length }));
-    ToastAndroid.show(`Tích điểm: ${gheSelected.length * 10} điểm`, ToastAndroid.SHORT);
-    dispatch(deleteVoucher(voucherSelected?.voucher_id));
+    )
 
-    // 5. Tạo lại dữ liệu QR với ve_id
-    const thongTinVeWithId = { ...thongTinVe, ve_id };
-    const qrData = JSON.stringify(thongTinVeWithId);
+    await dispatch(tangDiemUser({ user: user, soluong: gheSelected.length }))
+    ToastAndroid.show(`Tích điểm: ${gheSelected.length * 10} điểm`, ToastAndroid.SHORT)
+    dispatch(deleteVoucher(voucherSelected?.voucher_id))
 
-    // 6. Truyền sang màn hình VeCuaBan
-    navigation.navigate('VeCuaBan', {
+    const thongTinVeWithId = { ...thongTinVe, ve_id }
+    const qrData = JSON.stringify(thongTinVeWithId)
+
+    navigation.navigate("VeCuaBan", {
       thongTinVe: thongTinVeWithId,
       qrData: qrData,
-    });
+    })
 
-    // Cập nhật khach_hang_id cho từng đồ ăn đã chọn
     for (const food of foodSelected) {
       await fetch(`https://688253a466a7eb81224e3f86.mockapi.io/doan/food/${food.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           khach_hang_id: [
             ...(Array.isArray(food.khach_hang_id) ? food.khach_hang_id : []),
-            { 
-              id: user.khach_hang_id, 
+            {
+              id: user.khach_hang_id,
               ngay_dat: ngay_mua,
-              gio_chieu: suatChieu.thoi_gian_bat_dau // truyền thêm giờ chiếu
-            }
+              gio_chieu: suatChieu.thoi_gian_bat_dau,
+            },
           ],
         }),
-      });
+      })
     }
-  };
+  }
 
-  console.log('listghe:', listghe);
-  console.log('suatChieu:', suatChieu);
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <Text style={styles.backIcon}>←</Text>
+      </TouchableOpacity>
+      <Text style={styles.headerTitle}>Thông Tin Vé</Text>
+      <View style={styles.headerSpacer} />
+    </View>
+  )
 
-  return (
-    <View style={{flex: 1}}>
-      <ScrollView contentContainerStyle={{padding: 20, paddingBottom: 120}}>
-        <View style={styles.ticketCard}>
-          <Text style={styles.ticketTitle}>Thông tin vé</Text>
+  const renderTicketInfo = () => (
+    <View style={styles.ticketCard}>
+      <View style={styles.ticketHeader}>
+        <Text style={styles.ticketIcon}>🎫</Text>
+        <Text style={styles.ticketTitle}>Thông Tin Vé</Text>
+      </View>
+
+      <View style={styles.ticketContent}>
+        <View style={styles.ticketRow}>
+          <Text style={styles.ticketLabel}>🎬 Tên phim:</Text>
+          <Text style={styles.ticketValue} numberOfLines={2}>
+            {thongTinVe.ten_phim}
+          </Text>
+        </View>
+        <View style={styles.ticketRow}>
+          <Text style={styles.ticketLabel}>📅 Ngày chiếu:</Text>
+          <Text style={styles.ticketValue}>{thongTinVe.ngay_chieu}</Text>
+        </View>
+        <View style={styles.ticketRow}>
+          <Text style={styles.ticketLabel}>⏰ Suất chiếu:</Text>
+          <Text style={styles.ticketValue}>{thongTinVe.gio_chieu}</Text>
+        </View>
+        <View style={styles.ticketRow}>
+          <Text style={styles.ticketLabel}>🏠 Phòng chiếu:</Text>
+          <Text style={styles.ticketValue}>{thongTinVe.ten_phong}</Text>
+        </View>
+        <View style={styles.ticketRow}>
+          <Text style={styles.ticketLabel}>📍 Rạp:</Text>
+          <Text style={styles.ticketValue} numberOfLines={2}>
+            {thongTinVe.dia_chi_rap}
+          </Text>
+        </View>
+        {gheSelected.length > 0 && (
           <View style={styles.ticketRow}>
-            <Text style={styles.ticketLabel}>Tên phim:</Text>
-            <Text style={styles.ticketValue}>{thongTinVe.ten_phim}</Text>
-          </View>
-          <View style={styles.ticketRow}>
-            <Text style={styles.ticketLabel}>Ngày chiếu:</Text>
-            <Text style={styles.ticketValue}>{thongTinVe.ngay_chieu}</Text>
-          </View>
-          <View style={styles.ticketRow}>
-            <Text style={styles.ticketLabel}>Suất chiếu:</Text>
-            <Text style={styles.ticketValue}>{thongTinVe.gio_chieu}</Text>
-          </View>
-          <View style={styles.ticketRow}>
-            <Text style={styles.ticketLabel}>Phòng chiếu:</Text>
-            <Text style={styles.ticketValue}>{thongTinVe.ten_phong}</Text>
-          </View>
-          <View style={styles.ticketRow}>
-            <Text style={styles.ticketLabel}>Rạp:</Text>
-            <Text style={styles.ticketValue}>{thongTinVe.dia_chi_rap}</Text>
-          </View>
-          <View style={styles.ticketRow}>
-            <Text style={styles.ticketLabel}>Số ghế:</Text>
+            <Text style={styles.ticketLabel}>💺 Ghế đã chọn:</Text>
             <Text style={styles.ticketValue}>{thongTinVe.vi_tri_ghe}</Text>
           </View>
-        </View>
-
-        <View style={{flexDirection: 'row', marginRight: 20, marginTop: 10}}>
-          <Text style={{fontSize: 10}}>Đang chọn :</Text>
-          <View style={styles.boxRed} />
-          <Text style={{fontSize: 10}}> Trống :</Text>
-          <View style={styles.boxWhite} />
-          <Text style={{fontSize: 10}}>Đã hết :</Text>
-          <View style={styles.boxPurple} />
-        </View>
-
-        <View style={{marginVertical: 20}}>
-          <Text style={{fontWeight: 'bold', marginBottom: 8}}>Chọn đồ ăn:</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {foodList
-              .filter(food => food.status === true) // chỉ hiện đồ ăn còn hàng
-              .map(food => (
-                <TouchableOpacity
-                  key={food.id}
-                  onPress={() => handleSelectFood(food)}
-                  style={{
-                    borderWidth: 2,
-                    borderColor: foodSelected.find(f => f.id === food.id) ? 'red' : 'black',
-                    borderRadius: 10,
-                    padding: 10,
-                    marginRight: 10,
-                    alignItems: 'center',
-                    backgroundColor: foodSelected.find(f => f.id === food.id) ? '#ffeaea' : '#fff',
-                  }}>
-                  <Image source={{ uri: food.image }} style={{ width: 50, height: 50, marginBottom: 5, borderRadius: 8 }} />
-                  <Text style={{fontWeight: 'bold'}}>{food.name}</Text>
-                  <Text style={{color: '#EA5A5A'}}>{food.price}đ</Text>
-                </TouchableOpacity>
-              ))}
-          </ScrollView>
-        </View>
-
-        <View style={{marginVertical: 20}}>
-          <Text style={{fontWeight: 'bold'}}>Danh sách ghế:</Text>
-          <View style={styles.phongchieu}>
-            <Text style={{color: 'white', fontSize: 15, fontStyle: 'italic'}}>
-              Màn hình chiếu
-            </Text>
-            <Svg height="60" width="100%" viewBox="0 0 300 60">
-              {/* Lớp glow mờ ngoài cùng */}
-              <Path
-                d="M10 50 Q 150 0 290 50"
-                stroke="#A6A7E0"
-                strokeWidth="20"
-                strokeOpacity="0.2"
-                fill="none"
-                strokeLinecap="round"
-              />
-              {/* Lớp glow mờ bên trong */}
-              <Path
-                d="M10 50 Q 150 0 290 50"
-                stroke="#8889D6"
-                strokeWidth="14"
-                strokeOpacity="0.4"
-                fill="none"
-                strokeLinecap="round"
-              />
-              {/* Lớp glow đậm gần trong */}
-              <Path
-                d="M10 50 Q 150 0 290 50"
-                stroke="#6E70CC"
-                strokeWidth="10"
-                strokeOpacity="0.6"
-                fill="none"
-                strokeLinecap="round"
-              />
-              {/* Lớp chính sáng nhất */}
-              <Path
-                d="M10 50 Q 150 0 290 50"
-                stroke="#696ACD"
-                strokeWidth="6"
-                fill="none"
-                strokeLinecap="round"
-              />
-            </Svg>
-
-            <View style={{alignItems: 'center', marginTop: 40}}>
-              {/* Tạo lưới ghế theo hàng - mỗi hàng 5 ghế */}
-              {[...Array(Math.ceil(sortedGhe.length / 5))].map((_, rowIndex) => (
-                <View key={rowIndex} style={styles.seatRow}>
-                  {sortedGhe.slice(rowIndex * 5, (rowIndex + 1) * 5).map((gheItem, index) => {
-                    const isSelected = gheSelected.includes(gheItem.vi_tri);
-                    const isBooked = gheItem.trang_thai !== 'trống';
-                    return (
-                      <TouchableOpacity
-                        key={gheItem.room_id + '-' + gheItem.vi_tri}
-                        onPress={() =>
-                          !isBooked && handleSelectGhe(gheItem.vi_tri)
-                        }
-                        disabled={isBooked}
-                        activeOpacity={isBooked ? 1 : 0.7}>
-                        <View
-                          style={[
-                            styles.seat,
-                            {
-                              backgroundColor: isBooked
-                                ? '#4C4F90'
-                                : isSelected
-                                ? 'red'
-                                : 'transparent',
-                              borderColor: isBooked ? '#4C4F90' : 'red',
-                            }
-                          ]}>
-                          <Text
-                            style={[
-                              styles.seatText,
-                              {
-                                fontWeight: isSelected ? 'bold' : 'normal',
-                              }
-                            ]}>
-                            {gheItem.vi_tri}
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
-        {Array.isArray(listvoucherbyid) && listvoucherbyid.length > 0 && (
-          <View>
-            <Text>Giảm giá :</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {listvoucherbyid.map((voucher, index) => (
-                <TouchableOpacity
-                  onPress={() => setVoucherSelected(voucher)}
-                  key={index}
-                  style={{
-                    borderWidth: 2,
-                    padding: 10,
-                    marginRight: 10,
-                    borderColor:
-                      voucherSelected?.voucher_id?.toString() ===
-                      voucher?.voucher_id?.toString()
-                        ? 'red'
-                        : 'black',
-                  }}>
-                  <Text>{voucher.giam_gia}%</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
         )}
-        <View
-          style={{borderWidth: 1, margin: 10, backgroundColor: 'black'}}></View>
-        <View>
-          <Text>Giá vé : {gheSelected.length * 80000}đ</Text>
-          <Text>Giảm giá : - {giamGia}đ</Text>
-          <Text>Đồ ăn : + {foodTotal}đ</Text>
-        </View>
-        <View
-          style={{borderWidth: 1, margin: 10, backgroundColor: 'black'}}></View>
-        <View style={{height: 300}}>
-          <TouchableOpacity
-            onPress={() => {
-              setPayment('Momo');
-            }}
-            style={[
-              styles.payment,
-              {
-                borderColor: payment === 'Momo' ? 'red' : 'black',
-                borderWidth: payment === 'Momo' ? 2 : 1,
-              },
-            ]}>
-            <Image
-              style={styles.imgpayment}
-              source={require('../img/momo.png')}
-            />
-            <Text>Momo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setPayment('Thẻ tín dụng');
-            }}
-            style={[
-              styles.payment,
-              {
-                borderColor: payment === 'Thẻ tín dụng' ? 'red' : 'black',
-                borderWidth: payment === 'Thẻ tín dụng' ? 2 : 1,
-              },
-            ]}>
-            <Image
-              style={styles.imgpayment}
-              source={require('../img/card.png')}
-            />
-            <Text>Thẻ tín dụng</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setPayment('VietQR')}
-            style={[
-              styles.payment,
-              {
-                borderColor: payment === 'VietQR' ? 'red' : 'black',
-                borderWidth: payment === 'VietQR' ? 2 : 1,
-              },
-            ]}>
-            <Image
-              style={styles.imgpayment}
-              source={require('../img/vietqr.png')}
-            />
-            <Text>VietQR</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      </View>
+    </View>
+  )
 
+  const renderSeatSelection = () => (
+    <View style={styles.sectionCard}>
+      <Text style={styles.sectionTitle}>💺 Chọn Ghế</Text>
+
+      {/* Legend */}
+      <View style={styles.legendContainer}>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendBox, styles.selectedLegend]} />
+          <Text style={styles.legendText}>Đang chọn</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendBox, styles.availableLegend]} />
+          <Text style={styles.legendText}>Trống</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendBox, styles.bookedLegend]} />
+          <Text style={styles.legendText}>Đã đặt</Text>
+        </View>
+      </View>
+
+      {/* Cinema Screen */}
+      <View style={styles.cinemaContainer}>
+        <Text style={styles.screenText}>Màn hình chiếu</Text>
+        <Svg height="60" width="100%" viewBox="0 0 300 60">
+          <Path
+            d="M10 50 Q 150 0 290 50"
+            stroke="#A6A7E0"
+            strokeWidth="20"
+            strokeOpacity="0.2"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <Path
+            d="M10 50 Q 150 0 290 50"
+            stroke="#8889D6"
+            strokeWidth="14"
+            strokeOpacity="0.4"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <Path
+            d="M10 50 Q 150 0 290 50"
+            stroke="#6E70CC"
+            strokeWidth="10"
+            strokeOpacity="0.6"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <Path d="M10 50 Q 150 0 290 50" stroke="#696ACD" strokeWidth="6" fill="none" strokeLinecap="round" />
+        </Svg>
+
+        {/* Seats Grid */}
+        <View style={styles.seatsContainer}>
+          {[...Array(Math.ceil(sortedGhe.length / 5))].map((_, rowIndex) => (
+            <View key={rowIndex} style={styles.seatRow}>
+              {sortedGhe.slice(rowIndex * 5, (rowIndex + 1) * 5).map((gheItem) => {
+                const isSelected = gheSelected.includes(gheItem.vi_tri)
+                const isBooked = gheItem.trang_thai !== "trống"
+
+                return (
+                  <TouchableOpacity
+                    key={gheItem.room_id + "-" + gheItem.vi_tri}
+                    onPress={() => !isBooked && handleSelectGhe(gheItem.vi_tri)}
+                    disabled={isBooked}
+                    activeOpacity={isBooked ? 1 : 0.7}
+                    style={styles.seatButton}
+                  >
+                    <View
+                      style={[
+                        styles.seat,
+                        isBooked ? styles.bookedSeat : isSelected ? styles.selectedSeat : styles.availableSeat,
+                      ]}
+                    >
+                      <Text style={[styles.seatText, isSelected && styles.selectedSeatText]}>{gheItem.vi_tri}</Text>
+                    </View>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+          ))}
+        </View>
+      </View>
+    </View>
+  )
+
+  const renderFoodSelection = () => (
+    <View style={styles.sectionCard}>
+      <Text style={styles.sectionTitle}>🍿 Chọn Đồ Ăn</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.foodScroll}>
+        {foodList
+          .filter((food) => food.status === true)
+          .map((food) => {
+            const isSelected = foodSelected.find((f) => f.id === food.id)
+            return (
+              <TouchableOpacity
+                key={food.id}
+                onPress={() => handleSelectFood(food)}
+                style={[styles.foodItem, isSelected && styles.selectedFoodItem]}
+                activeOpacity={0.8}
+              >
+                <Image source={{ uri: food.image }} style={styles.foodImage} />
+                <Text style={styles.foodName} numberOfLines={2}>
+                  {food.name}
+                </Text>
+                <Text style={styles.foodPrice}>{food.price}đ</Text>
+                {isSelected && (
+                  <View style={styles.selectedFoodBadge}>
+                    <Text style={styles.selectedFoodIcon}>✓</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            )
+          })}
+      </ScrollView>
+    </View>
+  )
+
+  const renderVoucherSelection = () => {
+    if (!Array.isArray(listvoucherbyid) || listvoucherbyid.length === 0) return null
+
+    return (
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionTitle}>🎟️ Voucher Giảm Giá</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.voucherScroll}>
+          {listvoucherbyid.map((voucher, index) => {
+            const isSelected = voucherSelected?.voucher_id?.toString() === voucher?.voucher_id?.toString()
+            return (
+              <TouchableOpacity
+                onPress={() => setVoucherSelected(voucher)}
+                key={index}
+                style={[styles.voucherItem, isSelected && styles.selectedVoucherItem]}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.voucherIcon}>🎟️</Text>
+                <Text style={styles.voucherDiscount}>{voucher.giam_gia}%</Text>
+                <Text style={styles.voucherText}>Giảm giá</Text>
+                {isSelected && (
+                  <View style={styles.selectedVoucherBadge}>
+                    <Text style={styles.selectedVoucherIcon}>✓</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            )
+          })}
+        </ScrollView>
+      </View>
+    )
+  }
+
+  const renderPriceBreakdown = () => (
+    <View style={styles.priceCard}>
+      <Text style={styles.priceTitle}>💰 Chi Tiết Thanh Toán</Text>
+      <View style={styles.priceRow}>
+        <Text style={styles.priceLabel}>Giá vé ({gheSelected.length} ghế):</Text>
+        <Text style={styles.priceValue}>{(gheSelected.length * 80000).toLocaleString()}đ</Text>
+      </View>
+      {giamGia > 0 && (
+        <View style={styles.priceRow}>
+          <Text style={styles.priceLabel}>Giảm giá ({giamGia}%):</Text>
+          <Text style={[styles.priceValue, styles.discountValue]}>
+            -{(((gheSelected.length * 80000) / 100) * giamGia).toLocaleString()}đ
+          </Text>
+        </View>
+      )}
+      {foodTotal > 0 && (
+        <View style={styles.priceRow}>
+          <Text style={styles.priceLabel}>Đồ ăn:</Text>
+          <Text style={styles.priceValue}>+{foodTotal.toLocaleString()}đ</Text>
+        </View>
+      )}
+      <View style={styles.priceDivider} />
+      <View style={styles.totalRow}>
+        <Text style={styles.totalLabel}>Tổng cộng:</Text>
+        <Text style={styles.totalValue}>{so_tien.toLocaleString()}đ</Text>
+      </View>
+    </View>
+  )
+
+  const renderPaymentMethods = () => (
+    <View style={styles.sectionCard}>
+      <Text style={styles.sectionTitle}>💳 Phương Thức Thanh Toán</Text>
+      <View style={styles.paymentContainer}>
+        <TouchableOpacity
+          onPress={() => setPayment("Momo")}
+          style={[styles.paymentMethod, payment === "Momo" && styles.selectedPayment]}
+          activeOpacity={0.8}
+        >
+          <Image style={styles.paymentIcon} source={require("../img/momo.png")} />
+          <Text style={styles.paymentText}>Momo</Text>
+          {payment === "Momo" && (
+            <View style={styles.selectedPaymentBadge}>
+              <Text style={styles.selectedPaymentIcon}>✓</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setPayment("Thẻ tín dụng")}
+          style={[styles.paymentMethod, payment === "Thẻ tín dụng" && styles.selectedPayment]}
+          activeOpacity={0.8}
+        >
+          <Image style={styles.paymentIcon} source={require("../img/card.png")} />
+          <Text style={styles.paymentText}>Thẻ tín dụng</Text>
+          {payment === "Thẻ tín dụng" && (
+            <View style={styles.selectedPaymentBadge}>
+              <Text style={styles.selectedPaymentIcon}>✓</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setPayment("VietQR")}
+          style={[styles.paymentMethod, payment === "VietQR" && styles.selectedPayment]}
+          activeOpacity={0.8}
+        >
+          <Image style={styles.paymentIcon} source={require("../img/vietqr.png")} />
+          <Text style={styles.paymentText}>VietQR</Text>
+          {payment === "VietQR" && (
+            <View style={styles.selectedPaymentBadge}>
+              <Text style={styles.selectedPaymentIcon}>✓</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+    </View>
+  )
+
+  const renderBookingButton = () => (
+    <View style={styles.bookingContainer}>
       <TouchableOpacity
-        style={{
-          backgroundColor:
-            gheSelected.length === 0 || !payment ? 'gray' : '#8B0000',
-          padding: 20,
-          borderRadius: 15,
-          position: 'absolute',
-          bottom: 10,
-          alignSelf: 'center',
-        }}
+        style={[styles.bookingBtn, (gheSelected.length === 0 || !payment) && styles.bookingBtnDisabled]}
         disabled={gheSelected.length === 0 || !payment}
         onPress={async () => {
-          if (payment === 'VietQR') {
-            setShowVietQR(true);
-            return;
+          if (payment === "VietQR") {
+            setShowVietQR(true)
+            return
           }
-          await handleDatVeAndThanhToan();
-        }}>
-        <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>
-          Thanh toán: {so_tien}đ
-        </Text>
+          await handleDatVeAndThanhToan()
+        }}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.bookingBtnIcon}>🎫</Text>
+        <Text style={styles.bookingBtnText}>Thanh toán: {so_tien.toLocaleString()}đ</Text>
       </TouchableOpacity>
+    </View>
+  )
 
-      {/* Modal hiển thị QR VietQR */}
-      <Modal isVisible={showVietQR}>
-        <View style={{ backgroundColor: 'white', borderRadius: 12, padding: 20, alignItems: 'center' }}>
-          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 10 }}>Quét mã VietQR để thanh toán</Text>
-          <Image
-            source={{ uri: vietQRUrl }}
-            style={{ width: 220, height: 220, marginBottom: 10 }}
-            resizeMode="contain"
-          />
-          <Text style={{ fontSize: 16, marginBottom: 6 }}>Số tiền: <Text style={{ fontWeight: 'bold' }}>{so_tien}đ</Text></Text>
-          <Text style={{ fontSize: 14, marginBottom: 6 }}>Nội dung: <Text style={{ fontWeight: 'bold' }}>{vietQRInfo.noiDung}</Text></Text>
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#6366f1" />
+      {renderHeader()}
+
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {renderTicketInfo()}
+        {renderSeatSelection()}
+        {renderFoodSelection()}
+        {renderVoucherSelection()}
+        {renderPriceBreakdown()}
+        {renderPaymentMethods()}
+        <View style={{ height: 120 }} />
+      </ScrollView>
+
+      {renderBookingButton()}
+
+      {/* VietQR Modal */}
+      <Modal isVisible={showVietQR} style={styles.modal}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>🏦 Quét mã VietQR để thanh toán</Text>
+          <Image source={{ uri: vietQRUrl }} style={styles.qrImage} resizeMode="contain" />
+          <View style={styles.qrInfo}>
+            <Text style={styles.qrInfoText}>
+              Số tiền: <Text style={styles.qrInfoValue}>{so_tien.toLocaleString()}đ</Text>
+            </Text>
+            <Text style={styles.qrInfoText}>
+              Nội dung: <Text style={styles.qrInfoValue}>{vietQRInfo.noiDung}</Text>
+            </Text>
+          </View>
           <TouchableOpacity
-            style={{ backgroundColor: 'red', padding: 12, borderRadius: 8, marginTop: 10, width: 180, alignItems: 'center' }}
+            style={styles.confirmPaymentBtn}
             onPress={async () => {
-              setShowVietQR(false);
-              await handleDatVeAndThanhToan();
+              setShowVietQR(false)
+              await handleDatVeAndThanhToan()
             }}
+            activeOpacity={0.8}
           >
-            <Text style={{ color: 'white', fontWeight: 'bold' }}>Tôi đã chuyển khoản</Text>
+            <Text style={styles.confirmPaymentText}>✅ Tôi đã chuyển khoản</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={{ marginTop: 10 }}
-            onPress={() => setShowVietQR(false)}
-          >
-            <Text style={{ color: 'gray' }}>Hủy</Text>
+          <TouchableOpacity style={styles.cancelPaymentBtn} onPress={() => setShowVietQR(false)}>
+            <Text style={styles.cancelPaymentText}>Hủy</Text>
           </TouchableOpacity>
         </View>
       </Modal>
     </View>
-  );
-};
+  )
+}
 
-export default ThongTinVe;
+export default ThongTinVe
 
 const styles = StyleSheet.create({
-  phongchieu: {
-    backgroundColor: '#2A2A38',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    borderRadius: 10,
+  container: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
   },
-  boxRed: {
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 2,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 4,
-    backgroundColor: 'red',
-    borderColor: 'red',
+  header: {
+    backgroundColor: "#6366f1",
+    paddingTop: 50,
+    paddingBottom: 15,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#6366f1",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  boxWhite: {
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 2,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 4,
-    borderColor: 'red',
-    backgroundColor: '#4C4F90',
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  boxPurple: {
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 2,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 4,
-    backgroundColor: '#4C4F90',
-    borderColor: '#4C4F90',
-  },
-  payment: {
-    width: '100%',
-    borderRadius: 10,
-    backgroundColor: 'white',
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 5,
-    marginBottom: 20,
-    borderWidth: 1,
-    backgroundColor: '#fff',
-  borderRadius: 16,
-  padding: 18,
-  marginBottom: 18,
-  // Đổ bóng cho cả iOS và Android
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.15,
-  shadowRadius: 8,
-  elevation: 6, // Android
-  },
-  imgpayment: {width: 50, height: 50, marginRight: 10},
-  modal: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    width: '90%',
-    elevation: 5,
-  },
-  modalTitle: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  qrImage: {
-    width: '100%',
-    height: 200,
-    marginVertical: 10,
-  },
-  closeButton: {
-    backgroundColor: 'red',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  ticketCard: {
-  backgroundColor: '#fff',
-  borderRadius: 16,
-  padding: 18,
-  marginBottom: 18,
-  // Đổ bóng cho cả iOS và Android
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.15,
-  shadowRadius: 8,
-  elevation: 6, // Android
-},
-  ticketTitle: {
+  backIcon: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#EA5A5A',
-    marginBottom: 12,
-    textAlign: 'center',
+    color: "#fff",
+    fontWeight: "bold",
   },
-  ticketRow: {
-    flexDirection: 'row',
-    marginBottom: 8,
+  headerTitle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
   },
-  ticketLabel: {
-    fontWeight: 'bold',
-    color: '#333',
-    width: 110,
+  headerSpacer: {
+    width: 40,
   },
-  ticketValue: {
-    color: '#444',
+  scrollView: {
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#6b7280",
+  },
+  ticketCard: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    margin: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  ticketHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f3f4f6",
+  },
+  ticketIcon: {
+    fontSize: 24,
+    marginRight: 10,
+  },
+  ticketTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1f2937",
+  },
+  ticketContent: {
+    padding: 20,
+  },
+  ticketRow: {
+    flexDirection: "row",
+    marginBottom: 12,
+    alignItems: "flex-start",
+  },
+  ticketLabel: {
+    fontWeight: "600",
+    color: "#6b7280",
+    width: 120,
+    fontSize: 14,
+  },
+  ticketValue: {
+    color: "#374151",
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  sectionCard: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1f2937",
+    marginBottom: 15,
+  },
+  legendContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 20,
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  legendBox: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    marginRight: 6,
+    borderWidth: 2,
+  },
+  selectedLegend: {
+    backgroundColor: "#ef4444",
+    borderColor: "#ef4444",
+  },
+  availableLegend: {
+    backgroundColor: "transparent",
+    borderColor: "#ef4444",
+  },
+  bookedLegend: {
+    backgroundColor: "#6b7280",
+    borderColor: "#6b7280",
+  },
+  legendText: {
+    fontSize: 12,
+    color: "#6b7280",
+  },
+  cinemaContainer: {
+    backgroundColor: "#2A2A38",
+    borderRadius: 16,
+    padding: 20,
+    alignItems: "center",
+  },
+  screenText: {
+    color: "#fff",
+    fontSize: 16,
+    fontStyle: "italic",
+    marginBottom: 10,
+  },
+  seatsContainer: {
+    marginTop: 30,
+  },
   seatRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 12,
   },
-  seat: {
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 2,
-    width: 60,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+  seatButton: {
     margin: 4,
   },
-  seatText: {
-    color: 'white',
-    fontSize: 12,
+  seat: {
+    width: 50,
+    height: 35,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
   },
-});
+  availableSeat: {
+    backgroundColor: "transparent",
+    borderColor: "#ef4444",
+  },
+  selectedSeat: {
+    backgroundColor: "#ef4444",
+    borderColor: "#ef4444",
+  },
+  bookedSeat: {
+    backgroundColor: "#6b7280",
+    borderColor: "#6b7280",
+  },
+  seatText: {
+    color: "#fff",
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  selectedSeatText: {
+    fontWeight: "bold",
+  },
+  foodScroll: {
+    paddingVertical: 5,
+  },
+  foodItem: {
+    backgroundColor: "#f8fafc",
+    borderRadius: 16,
+    padding: 12,
+    marginRight: 12,
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#e5e7eb",
+    width: 100,
+    position: "relative",
+  },
+  selectedFoodItem: {
+    backgroundColor: "#fef2f2",
+    borderColor: "#ef4444",
+  },
+  foodImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  foodName: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#374151",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  foodPrice: {
+    fontSize: 12,
+    color: "#ef4444",
+    fontWeight: "bold",
+  },
+  selectedFoodBadge: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    backgroundColor: "#10b981",
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  selectedFoodIcon: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  voucherScroll: {
+    paddingVertical: 5,
+  },
+  voucherItem: {
+    backgroundColor: "#f8fafc",
+    borderRadius: 16,
+    padding: 16,
+    marginRight: 12,
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#e5e7eb",
+    minWidth: 80,
+    position: "relative",
+  },
+  selectedVoucherItem: {
+    backgroundColor: "#fef2f2",
+    borderColor: "#ef4444",
+  },
+  voucherIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  voucherDiscount: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#ef4444",
+  },
+  voucherText: {
+    fontSize: 10,
+    color: "#6b7280",
+  },
+  selectedVoucherBadge: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    backgroundColor: "#10b981",
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  selectedVoucherIcon: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  priceCard: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  priceTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1f2937",
+    marginBottom: 15,
+  },
+  priceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  priceLabel: {
+    fontSize: 14,
+    color: "#6b7280",
+  },
+  priceValue: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#374151",
+  },
+  discountValue: {
+    color: "#10b981",
+  },
+  priceDivider: {
+    height: 1,
+    backgroundColor: "#e5e7eb",
+    marginVertical: 12,
+  },
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#1f2937",
+  },
+  totalValue: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#ef4444",
+  },
+  paymentContainer: {
+    gap: 12,
+  },
+  paymentMethod: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: "#e5e7eb",
+    position: "relative",
+  },
+  selectedPayment: {
+    backgroundColor: "#fef2f2",
+    borderColor: "#ef4444",
+  },
+  paymentIcon: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
+  },
+  paymentText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
+    flex: 1,
+  },
+  selectedPaymentBadge: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    backgroundColor: "#10b981",
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  selectedPaymentIcon: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  bookingContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#fff",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderTopWidth: 1,
+    borderTopColor: "#f3f4f6",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  bookingBtn: {
+    backgroundColor: "#6366f1",
+    borderRadius: 16,
+    paddingVertical: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#6366f1",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  bookingBtnDisabled: {
+    backgroundColor: "#d1d5db",
+    shadowOpacity: 0.1,
+  },
+  bookingBtnIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  bookingBtnText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  modal: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 25,
+    width: width * 0.9,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 15,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1f2937",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  qrImage: {
+    width: 220,
+    height: 220,
+    marginBottom: 15,
+  },
+  qrInfo: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  qrInfoText: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginBottom: 4,
+  },
+  qrInfoValue: {
+    fontWeight: "bold",
+    color: "#374151",
+  },
+  confirmPaymentBtn: {
+    backgroundColor: "#10b981",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  confirmPaymentText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  cancelPaymentBtn: {
+    paddingVertical: 8,
+  },
+  cancelPaymentText: {
+    color: "#6b7280",
+    fontSize: 14,
+  },
+})
