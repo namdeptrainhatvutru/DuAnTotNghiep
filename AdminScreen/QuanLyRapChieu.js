@@ -168,6 +168,14 @@ const QuanLyRapChieu = () => {
           <Text style={styles.editIcon}>✏️</Text>
           <Text style={styles.editBtnText}>Chỉnh sửa</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.editBtn, { backgroundColor: "#ef4444", marginLeft: 10 }]}
+          onPress={() => handleDeleteRapChieu(item.cinema_id)}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.editIcon}>🗑️</Text>
+          <Text style={styles.editBtnText}>Xóa</Text>
+        </TouchableOpacity>
       </View>
     </View>
   )

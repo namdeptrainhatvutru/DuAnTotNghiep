@@ -90,18 +90,18 @@ const MyTabs = () => {
       }} component={HomeScreen} />
       <Tab.Screen name="Location" options={{
         headerShown: true
-        , headerTitle: 'Location', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+        , headerTitle: 'Location', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#6366f1' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
       }} component={LocationScreen} />
       <Tab.Screen name="Voucher" options={{
         headerShown: false
       }} component={VoucherScreen} />
       <Tab.Screen name="Tin tức" options={{
         headerShown: true
-        , headerTitle: 'Tin tức', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+        , headerTitle: 'Tin tức', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#6366f1' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
       }} component={PromotionalScreen} />
       <Tab.Screen name="Khác" options={{
         headerShown: true
-        , headerTitle: 'Khác', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#8B0000' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
+        , headerTitle: 'Khác', headerTitleAlign: 'center', headerStyle: { backgroundColor: '#6366f1' }, headerTintColor: 'white', headerTitleStyle: { fontSize: 20, fontWeight: 'bold' },
       }} component={DifferentScreen} />
     </Tab.Navigator>
   );
@@ -221,7 +221,9 @@ const App = () => {
             component={KhoVoucher} 
             options={{ headerShown: false }} />
           <Stack.Screen name="Profile"
-            component={Profile} />
+            component={Profile}
+              options={{headerShown:false}}
+            />
           <Stack.Screen name="ChangePass"
             component={ChangePass} />
 

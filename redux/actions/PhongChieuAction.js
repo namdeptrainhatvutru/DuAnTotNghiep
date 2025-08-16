@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { setPhongChieu } from "../reducers/PhongChieuReducer"
 import BASE from "../../config/BaseUrl"
-
+import { fetchAllSuatChieu } from "./SuatChieuAction"
 
 const api_phong_chieu = `http://${BASE}:3000/phongchieu`
 
@@ -45,14 +45,39 @@ export const addPhongChieu = createAsyncThunk(
         }
     },
 )
+// Cập nhật hàm deletePhongChieu để xóa cascade
 export const deletePhongChieu = createAsyncThunk(
     'phongchieu/deletePhongChieu',
-    async (room_id) => {
-        const response = await fetch(`${api_phong_chieu}/${room_id}`, {
-            method: 'DELETE',
-        })
-        if (response.ok) {
-            return room_id
+    async (room_id, { dispatch, getState }) => {
+        try {
+            // 1. Đảm bảo có dữ liệu suất chiếu mới nhất
+            await dispatch(fetchAllSuatChieu());
+            
+            // 2. Lấy tất cả suất chiếu của phòng này
+            const allSuatChieu = getState().suatchieu.listsuatchieu || [];
+            const suatChieuOfRoom = allSuatChieu.filter(
+                (suat) => suat.room_id === room_id
+            );
+            
+            // 3. Xóa từng suất chiếu
+            for (const suat of suatChieuOfRoom) {
+                await fetch(`http://${BASE}:3000/suatchieu/${suat.suat_chieu_id}`, {
+                    method: 'DELETE',
+                });
+            }
+            
+            // 4. Xóa phòng chiếu
+            const response = await fetch(`${api_phong_chieu}/${room_id}`, {
+                method: 'DELETE',
+            });
+            
+            if (response.ok) {
+                return room_id;
+            }
+            throw new Error("Không thể xóa phòng chiếu");
+        } catch (error) {
+            console.error("Error deleting phong chieu:", error);
+            throw error;
         }
     },
 )
