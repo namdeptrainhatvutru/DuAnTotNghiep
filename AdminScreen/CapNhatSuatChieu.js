@@ -36,9 +36,13 @@ const CapNhatSuatChieu = ({ route, navigation }) => {
   const [searchPhim, setSearchPhim] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Cập nhật hàm handleDateChange để validate tốt hơn
   const handleDateChange = (text) => {
+    // Chỉ cho phép nhập số
     const cleaned = text.replace(/[^\d]/g, "")
     let formatted = ""
+
+    // Format theo dd/mm/yyyy
     if (cleaned.length <= 2) {
       formatted = cleaned
     } else if (cleaned.length <= 4) {
@@ -47,12 +51,38 @@ const CapNhatSuatChieu = ({ route, navigation }) => {
       formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`
     }
 
+    // Validate ngày/tháng hợp lệ
     const parts = formatted.split("/")
-    const day = Number.parseInt(parts[0], 10)
-    const month = Number.parseInt(parts[1], 10)
-    if (day > 31) parts[0] = "31"
-    if (month > 12) parts[1] = "12"
 
+    // Validate ngày
+    let day = Number.parseInt(parts[0], 10)
+    if (isNaN(day)) day = 0
+    if (day > 31) parts[0] = "31"
+    else if (day < 1 && parts[0].length === 2) parts[0] = "01"
+
+    // Validate tháng
+    if (parts.length > 1) {
+      let month = Number.parseInt(parts[1], 10)
+      if (isNaN(month)) month = 0
+      if (month > 12) parts[1] = "12"
+      else if (month < 1 && parts[1].length === 2) parts[1] = "01"
+
+      // Validate số ngày trong tháng
+      if (parts[1] === "02") {
+        // Tháng 2
+        if (parts.length > 2) {
+          const year = Number.parseInt(parts[2], 10)
+          const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0)
+          if (day > (isLeapYear ? 29 : 28)) parts[0] = isLeapYear ? "29" : "28"
+        } else if (day > 29) {
+          parts[0] = "29" // Tối đa 29 cho tháng 2
+        }
+      } else if (["04", "06", "09", "11"].includes(parts[1])) {
+        if (day > 30) parts[0] = "30"
+      }
+    }
+
+    // Ghép lại thành chuỗi định dạng
     if (parts.length === 3) {
       formatted = `${parts[0]}/${parts[1]}/${parts[2]}`
     } else if (parts.length === 2) {
@@ -60,12 +90,47 @@ const CapNhatSuatChieu = ({ route, navigation }) => {
     } else {
       formatted = parts[0]
     }
+
     setngay_chieu(formatted)
   }
 
+  // Cập nhật hàm handleUpdate để validate trước khi lưu
   const handleUpdate = async () => {
-    if (!ngay_chieu || !thoi_gian_bat_dau || !thoi_gian_ket_thuc || !phim_id) {
-      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin")
+    // Validate ngày chiếu đúng định dạng dd/mm/yyyy
+    const dateRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/
+
+    if (!ngay_chieu || !dateRegex.test(ngay_chieu)) {
+      Alert.alert("Lỗi", "Vui lòng nhập đúng định dạng ngày chiếu DD/MM/YYYY")
+      return
+    }
+
+    // Kiểm tra thời gian bắt đầu và kết thúc
+    if (!thoi_gian_bat_dau || !thoi_gian_ket_thuc) {
+      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thời gian")
+      return
+    }
+
+    const startTime = parseInt(thoi_gian_bat_dau)
+    const endTime = parseInt(thoi_gian_ket_thuc)
+
+    if (isNaN(startTime) || isNaN(endTime)) {
+      Alert.alert("Lỗi", "Thời gian phải là số")
+      return
+    }
+
+    if (startTime < 0 || startTime > 23 || endTime < 0 || endTime > 23) {
+      Alert.alert("Lỗi", "Thời gian phải từ 0 đến 23")
+      return
+    }
+
+    if (startTime >= endTime) {
+      Alert.alert("Lỗi", "Thời gian kết thúc phải sau thời gian bắt đầu")
+      return
+    }
+
+    // Kiểm tra phim đã chọn chưa
+    if (!phim_id) {
+      Alert.alert("Lỗi", "Vui lòng chọn phim")
       return
     }
 
