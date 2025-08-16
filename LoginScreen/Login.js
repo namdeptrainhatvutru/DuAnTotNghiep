@@ -25,10 +25,25 @@ const Login = () => {
   };
 
   const handleLogin = async () => {
+    // Kiểm tra trống
     if (!email || !mat_khau) {
       Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin!');
       return;
     }
+
+    // Validate định dạng email (phải là @gmail.com)
+    const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Lỗi', 'Vui lòng nhập email đúng định dạng');
+      return;
+    }
+
+    // Validate độ dài mật khẩu (tối thiểu 6 ký tự)
+    if (mat_khau.length < 6) {
+      Alert.alert('Lỗi', 'Mật khẩu phải có ít nhất 6 ký tự');
+      return;
+    }
+
     try {
       const res = await fetch(api_khach_hang);
       const users = await res.json();
