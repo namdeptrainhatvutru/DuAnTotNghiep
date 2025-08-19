@@ -1,74 +1,89 @@
-import { createAsyncThunk } from "@reduxjs/toolkit"
-import { setUser } from "../reducers/UserReducer"
+const link_ve = 'https://68431f28e1347494c31f29ef.mockapi.io/Ve';
 
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { setVe } from "../reducers/VeReducer";
 
-const api_khach_hang = 'https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang'
-
-export const fectchUser = () => {
-    return async (dispatch) => {
+// Lấy tất cả vé
+export const fetchVe = () => {
+    return async dispatch => {
         try {
-            const response = await fetch(api_khach_hang)
-            const data = await response.json()
-            dispatch(setUser(data))
+            const response = await fetch(link_ve);
+            const data = await response.json();
+            dispatch(setVe(data));
         } catch (error) {
-            console.error(error)
+            console.error('Error fetching ve:', error);
+        }
+    }
+}
+// lấy vé theo khach_hang_id
+export const fetchVeByKhachHangId = (khach_hang_id) => {
+    return async dispatch => {
+        try {
+            const response = await fetch(`${link_ve}?khach_hang_id=${khach_hang_id}`);
+            const data = await response.json();
+            dispatch(setVe(data));
+        } catch (error) {
+            console.error('Error fetching ve by khach_hang_id:', error);
         }
     }
 }
 
-
-export const addUser = createAsyncThunk(
-    'user/addUser',
-    async (user)=>{
-        const response = await fetch(api_khach_hang, {
+// Thêm vé
+export const addVe = createAsyncThunk(
+    've/addVe',
+    async (ve) => {
+        const response = await fetch(link_ve, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(user)
-        })
-        const data = await response.json()
-        if(response.ok){
-            return data
-        }
-    }
-)
-
-
-export const updateUser = createAsyncThunk(
-    'user/updateUser',
-    async (user) => {
-        const id = user.khach_hang_id || user.id;
-        const response = await fetch(`${api_khach_hang}/${id}`, {
-            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(user)
+            body: JSON.stringify(ve)
         });
         const data = await response.json();
         if (response.ok) return data;
     }
 );
 
-export const deleteUser = createAsyncThunk(
-    'user/deleteUser',
+// Xóa vé
+export const deleteVe = createAsyncThunk(
+    've/deleteVe',
     async (id) => {
-        const response = await fetch(`${api_khach_hang}/${id}`, {
+        const response = await fetch(`${link_ve}/${id}`, {
             method: 'DELETE',
         });
         if (response.ok) return id;
     }
 );
 
-export const tangDiemUser = createAsyncThunk(
-  'user/tangDiemUser',
-  async ({user,soluong}) => {
-    const id = user.khach_hang_id || user.id;
-    const newUser = { ...user, diem: (user.diem || 0) + soluong*10 };
-    const response = await fetch(`${api_khach_hang}/${id}`, {
+// Cập nhật vé
+export const updateVe = createAsyncThunk(
+    've/updateVe',
+    async (ve) => {
+        const response = await fetch(`${link_ve}/${ve.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(ve)
+        });
+        const data = await response.json();
+        if (response.ok) return data;
+    }
+);
+
+export const updateTrangThaiVe = createAsyncThunk(
+  've/updateTrangThaiVe',
+  async ({ ve_id, trang_thai }) => {
+    const response = await fetch(`${link_ve}/${ve_id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newUser)
+      body: JSON.stringify({ trang_thai }),
     });
+    const data = await response.json();
+    if (response.ok) return data;
+  }
+);
+
+export const fetchVeById = createAsyncThunk(
+  've/fetchVeById',
+  async (ve_id) => {
+    const response = await fetch(`${link_ve}/${ve_id}`);
     const data = await response.json();
     if (response.ok) return data;
   }
