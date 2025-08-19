@@ -1,6 +1,6 @@
 "use client"
 
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, Image, ActivityIndicator } from "react-native"
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, Image, ActivityIndicator, TextInput } from "react-native"
 import { useFocusEffect } from "@react-navigation/native"
 import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
@@ -19,6 +19,7 @@ const LocationScreen = () => {
   const listPhongChieu = useSelector((state) => state.phongchieu.listphongchieu)
   const [selectedCinema, setSelectedCinema] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const navigation = useNavigation()
 
   useEffect(() => {
@@ -45,13 +46,20 @@ const LocationScreen = () => {
 
   const filteredPhim = selectedCinema
     ? listPhim.filter((phim) => {
-        return listSuatChieu.some((suatchieu) => {
+        // Điều kiện tìm kiếm
+        const matchesSearch = searchQuery 
+          ? phim.ten_phim.toLowerCase().includes(searchQuery.toLowerCase().trim())
+          : true
+
+        const matchesCinema = listSuatChieu.some((suatchieu) => {
           if (suatchieu.phim_id !== phim.phim_id) return false
           const phong = listPhongChieu.find(
             (phongchieu) => phongchieu.room_id === suatchieu.room_id && phongchieu.cinema_id === selectedCinema,
           )
           return !!phong
         })
+
+        return matchesSearch && matchesCinema
       })
     : []
 
@@ -86,6 +94,17 @@ const LocationScreen = () => {
           <View style={styles.moviesSectionHeader}>
             <Text style={styles.moviesTitle}>🍿 Phim đang chiếu</Text>
             <Text style={styles.cinemaName}>{selectedCinemaName}</Text>
+          </View>
+
+          {/* Thêm thanh tìm kiếm */}
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Tìm kiếm phim..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor="#999"
+            />
           </View>
 
           {loading ? (
@@ -217,6 +236,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#EA5A5A",
     fontWeight: "500",
+  },
+  searchContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 16,
+    padding: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  searchInput: {
+    height: 44,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#333',
+    backgroundColor: '#FAFAFA',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
   },
   loadingContainer: {
     flex: 1,

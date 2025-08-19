@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  TextInput
 } from 'react-native';
 import React, {useEffect, useRef, useState, useMemo} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
@@ -29,6 +30,7 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const [selectedGenre, setSelectedGenre] = useState('Tất cả');
   const [selectedNgay, setSelectedNgay] = useState('Tất cả');
+  const [searchQuery, setSearchQuery] = useState('');
 
   //phần animation
   // Dùng để điều chỉnh chiều cao (hoặc transform)
@@ -75,15 +77,30 @@ const HomeScreen = () => {
   ], [listsuatchieu]);
 
   // Lọc phim theo ngày chiếu (nếu chọn "Tất cả" thì không lọc)
-  const filteredPhimByNgay = useMemo(() =>
-    selectedNgay === 'Tất cả'
-      ? filteredPhim
-      : filteredPhim.filter(phim =>
-          listsuatchieu.some(
-            sc => sc.phim_id === phim.phim_id && sc.ngay_chieu === selectedNgay,
-          ),
-        )
-  , [filteredPhim, listsuatchieu, selectedNgay]);
+  const filteredPhimByNgay = useMemo(() => {
+    let result = selectedGenre === 'Tất cả'
+      ? listphim
+      : listphim.filter(item => item.the_loai === selectedGenre);
+
+    // Lọc theo ngày chiếu
+    if (selectedNgay !== 'Tất cả') {
+      result = result.filter(phim =>
+        listsuatchieu.some(
+          sc => sc.phim_id === phim.phim_id && sc.ngay_chieu === selectedNgay,
+        ),
+      );
+    }
+
+    // Lọc theo từ khóa tìm kiếm
+    if (searchQuery.trim()) {
+      const searchLower = searchQuery.toLowerCase().trim();
+      result = result.filter(phim =>
+        phim.ten_phim.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return result;
+  }, [listphim, selectedGenre, selectedNgay, listsuatchieu, searchQuery]);
 
   const renderItem = ({item}) => {
     return (
@@ -206,6 +223,15 @@ const HomeScreen = () => {
             <View>
               <BannerSlider />
             </View>
+            <View style={styles.searchContainer}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Tìm kiếm phim..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholderTextColor="#999"
+              />
+            </View>
             <View style={{flexDirection: 'row', marginVertical: 10}}>
               <FlatList
                 data={genres}
@@ -326,5 +352,24 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+  },
+  searchContainer: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 25,
+    marginVertical: 10,
+    paddingHorizontal: 15,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  searchInput: {
+    height: 44,
+    fontSize: 16,
+    color: '#333',
   },
 });
