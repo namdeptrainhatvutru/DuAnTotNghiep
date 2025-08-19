@@ -23,7 +23,7 @@ export const fetchVeByKhachHangId = (khach_hang_id) => {
             const data = await response.json();
             dispatch(setVe(data));
         } catch (error) {
-            console.error('Error fetching ve by khach_hang_id:', error);
+            console.error('Error fetching ve by khach_hang_id1:', error);
         }
     }
 }
