@@ -1,413 +1,644 @@
-import React, {useState, useRef, useEffect} from 'react';
-import {Alert, Image, Linking} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {
-  StyleSheet,
-  Text,
   View,
-  TextInput,
+  Text,
+  ActivityIndicator,
   TouchableOpacity,
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
+  ToastAndroid,
+  ScrollView,
+  Image,
 } from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchAllPhongChieu} from '../redux/actions/PhongChieuAction';
+import {fetchRapChieu} from '../redux/actions/RapChieuAction';
+import QRCode from 'react-native-qrcode-svg';
+import {fetchGheByRoomId, updateNhieuGhe} from '../redux/actions/GheAction';
+import {useNavigation} from '@react-navigation/native';
+import {addVe} from '../redux/actions/VeAction';
+import {tangDiemUser} from '../redux/actions/UserAction';
+import {StyleSheet} from 'react-native';
+import Svg, {Path} from 'react-native-svg';
+import {deleteVoucher, fetchVoucher} from '../redux/actions/VoucherAction';
+import {addThanhToan} from '../redux/actions/ThanhToanAction';
+import Modal from 'react-native-modal';
 
-const Chatbot = () => {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([
-    {from: 'bot', text: 'Xin chào quý khách! Tôi là Movix Bot. Bạn cần hỗ trợ gì?'},
-  ]);
-  const flatListRef = useRef();
-const suggestions = [
-  'mua vé',
-  'voucher',
-  'đăng ký',
-  'đăng nhập',
-  'xem phim',
-  'thanh toán',
-  'thống kê',
-  'hỗ trợ'
-];
-
-const handleSuggestionPress = (text) => {
-  setInput(text);
-  const userMessage = {from: 'user', text};
-  const botMessage = {from: 'bot', text: getBotResponse(text)};
-  setMessages(prev => [...prev, userMessage, botMessage]);
-  Keyboard.dismiss();
-};
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-    const userMessage = {from: 'user', text: input};
-    const botMessage = {from: 'bot', text: getBotResponse(input)};
-    setMessages(prev => [...prev, userMessage, botMessage]);
-    setInput('');
-    Keyboard.dismiss();
-  };
-
-  const includesAny = (text, keywords) => {
-    return keywords.some(keyword => text.includes(keyword));
-  };
-
-  const getBotResponse = question => {
-    const q = question.toLowerCase();
-
-    if (includesAny(q, ['đăng nhập', 'login'])) {
-      return (
-        '🔐 **Đăng nhập tài khoản Movix**\n\n' +
-        'Chức năng đăng nhập cho phép bạn truy cập vào hệ thống Movix để sử dụng đầy đủ các tính năng như:\n' +
-        '- Đặt vé xem phim\n' +
-        '- Lưu lịch sử giao dịch\n' +
-        '- Nhận thông báo về phim mới hoặc ưu đãi\n\n' +
-        '👉 Cách đăng nhập:\n' +
-        '1. Nhấn vào nút "Đăng nhập" ở góc trên cùng\n' +
-        '2. Nhập email và mật khẩu của bạn\n' +
-        '3. Nhấn "Xác nhận" để hoàn tất\n\n' +
-        'Nếu bạn quên mật khẩu, hãy chọn "Quên mật khẩu?" để đặt lại.'
-      );
-    }
-
-    if (includesAny(q, ['đăng ký', 'tạo tài khoản', 'sign up'])) {
-      return (
-        '📝 **Đăng ký tài khoản mới**\n\n' +
-        'Việc đăng ký tài khoản Movix giúp bạn trải nghiệm tốt hơn, lưu thông tin người dùng và nhận ưu đãi dành riêng cho thành viên.\n\n' +
-        '📌 Thao tác:\n' +
-        '1. Chọn "Đăng ký" trên giao diện chính\n' +
-        '2. Nhập tên, email, mật khẩu\n' +
-        '3. Xác nhận lại mật khẩu\n' +
-        '4. Nhấn "Tạo tài khoản"\n\n' +
-        '🎁 Khi đăng ký mới, bạn sẽ nhận được 1 voucher giảm 10% cho lần đặt vé đầu tiên!'
-      );
-    }
-
-    if (
-      includesAny(q, [
-        'xem phim',
-        'xem sản phẩm',
-        'phim',
-        'phim gì',
-        'phim nào',
-      ])
-    ) {
-      return (
-        '🎬 **Xem phim tại Movix**\n\n' +
-        'Bạn có thể duyệt danh sách các bộ phim đang chiếu, sắp chiếu hoặc theo thể loại tại mục "Phim".\n\n' +
-        '🔎 Có thể lọc theo:\n' +
-        '- Thể loại (Hành động, Tình cảm, Hài, Kinh dị,...)\n' +
-        '- Độ tuổi phù hợp\n' +
-        '- Rạp chiếu\n\n' +
-        '📺 Mỗi phim đều có mô tả chi tiết, trailer, thời lượng và đánh giá từ người xem. Nhấn vào phim để xem chi tiết!'
-      );
-    }
-
-   if (includesAny(q, ['mua vé', 'vé', 'đặt vé', 'đặt chỗ'])) {
-  return (
-    <View style={{ padding: 12, alignItems: 'center' }}>
-      <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 10 }}>🎟️ Mua vé xem phim tại Movix</Text>
-
-      <Text style={{ marginBottom: 6 }}>Việc đặt vé online giúp bạn:</Text>
-      <Text style={{ marginBottom: 2 }}>• Giữ chỗ trước, không sợ hết vé</Text>
-      <Text style={{ marginBottom: 2 }}>• Tự chọn ghế theo sở thích</Text>
-      <Text style={{ marginBottom: 10 }}>• Thanh toán nhanh chóng và an toàn</Text>
-
-      <Text style={{ fontWeight: 'bold', marginBottom: 6 }}>🛒 Các bước mua vé:</Text>
-      <Text style={{ marginBottom: 2 }}>1. Chọn phim muốn xem</Text>
-      <Text style={{ marginBottom: 2 }}>2. Chọn suất chiếu, ngày và giờ phù hợp</Text>
-      <Text style={{ marginBottom: 2 }}>3. Chọn ghế trong sơ đồ rạp</Text>
-      <Text style={{ marginBottom: 10 }}>4. Tiến hành thanh toán và nhận mã vé</Text>
-      <Image
-        source={require('../img/thanhtoan.png')}
-        style={{ width: 500, height: 200, borderRadius: 12 }}
-        resizeMode="contain"
-      />
-    </View>
+const ThongTinVe = ({route}) => {
+  const {suatChieu, phim} = route.params;
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const user_id = useSelector(state => state.user.user.khach_hang_id);
+  const listvoucher = useSelector(state => state.voucher.listvoucher);
+  const listRapChieu = useSelector(state => state.rapchieu.listrapchieu);
+  const listPhongChieu = useSelector(state => state.phongchieu.listphongchieu);
+  const listghe = useSelector(state => state.ghe.listghe);
+  const user = useSelector(state => state.user.user);
+  const [loading, setLoading] = useState(true);
+  const [gheSelected, setGheSelected] = useState([]);
+  const [payment, setPayment] = useState('');
+  const [voucherSelected, setVoucherSelected] = useState(null);
+  const [showVietQR, setShowVietQR] = useState(false);
+  const [foodList, setFoodList] = useState([]);
+  const [foodSelected, setFoodSelected] = useState([]); // lưu id đồ ăn đã chọn
+  const listvoucherbyid = listvoucher.filter(
+    item => item.khach_hang_id === user_id.toString(),
   );
-}
+  const giamGia = voucherSelected?.giam_gia || 0;
 
+  const foodTotal = foodSelected.reduce((sum, item) => sum + Number(item.price), 0);
+  const so_tien =
+    gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * giamGia + foodTotal;
+  const now = new Date();
+  const ngay_mua =
+    String(now.getDate()).padStart(2, '0') +
+    '/' +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    '/' +
+    now.getFullYear();
 
-    if (
-      includesAny(q, ['thanh toán', 'thẻ', 'chuyển khoản', 'momo', 'zalopay'])
-    ) {
-      return (
-        '💳 **Thanh toán vé online**\n\n' +
-        'Chúng tôi hỗ trợ nhiều hình thức thanh toán để bạn dễ dàng lựa chọn:\n\n' +
-        '✅ Thẻ ngân hàng nội địa (ATM)\n' +
-        '✅ Thẻ Visa/MasterCard\n' +
-        '✅ Ví điện tử: Momo, ZaloPay, VNPay\n\n' +
-        '📌 Khi thanh toán thành công, bạn sẽ nhận được mã QR để quét tại rạp hoặc mã vé gửi về email.'
-      );
+  useEffect(() => {
+    const fetchData = async () => {
+      await dispatch(fetchAllPhongChieu());
+      await dispatch(fetchRapChieu());
+      await dispatch(fetchGheByRoomId(suatChieu.room_id));
+      setLoading(false);
+    };
+    fetchData();
+    if (user_id) {
+      dispatch(fetchVoucher());
     }
 
-    if (includesAny(q, ['thống kê', 'doanh thu', 'báo cáo', 'số liệu'])) {
-      return (
-        '📊 **Thống kê hệ thống** (dành cho quản trị viên)\n\n' +
-        'Bạn có thể theo dõi:\n' +
-        '- Tổng doanh thu theo ngày/tháng/năm\n' +
-        '- Số lượng vé đã bán\n' +
-        '- Phim có lượng vé cao nhất\n' +
-        '- Tần suất sử dụng voucher\n\n' +
-        '📈 Dữ liệu hiển thị dưới dạng biểu đồ trực quan, có thể lọc theo thời gian hoặc rạp chiếu.'
-      );
-    }
+    // Fetch danh sách đồ ăn
+    fetch('https://688253a466a7eb81224e3f86.mockapi.io/doan/food')
+      .then(res => res.json())
+      .then(data => setFoodList(data));
+  }, []);
 
-    if (includesAny(q, ['voucher', 'mã giảm giá', 'ưu đãi'])) {
-      return (
-        '🎁 **Sử dụng và nhận voucher**\n\n' +
-        'Movix tặng bạn các mã giảm giá khi:\n' +
-        '- Đăng ký tài khoản mới\n' +
-        '- Mua vé nhiều lần\n' +
-        '- Tham gia sự kiện hoặc chương trình ưu đãi\n\n' +
-        '🎟️ Bạn có thể nhập mã voucher khi thanh toán để được giảm giá. Vào mục "Tài khoản > Voucher" để quản lý mã bạn đang có.'
-      );
-    }
-
-    if (includesAny(q, ['hỗ trợ', 'giúp đỡ', 'help', 'trợ giúp'])) {
-      return (
-        <View style={{padding: 12}}>
-          <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 8}}>
-            🤝 Tôi có thể hỗ trợ bạn về các chủ đề sau:
-          </Text>
-
-          <Text style={{marginBottom: 4}}>• Đăng nhập / Đăng ký</Text>
-          <Text style={{marginBottom: 4}}>• Xem phim</Text>
-          <Text style={{marginBottom: 4}}>• Mua vé</Text>
-          <Text style={{marginBottom: 4}}>• Thanh toán</Text>
-          <Text style={{marginBottom: 4}}>• Sử dụng voucher</Text>
-          <Text style={{marginBottom: 12}}>• Xem thống kê</Text>
-
-          <Text style={{fontStyle: 'italic', marginBottom: 16}}>
-            Ví dụ: "Cách mua vé?", "Thanh toán bằng Momo được không?", hoặc
-            "Đăng nhập thế nào?"
-          </Text>
-
-          <TouchableOpacity
-            style={{
-              backgroundColor: '#EA5A5A',
-              paddingVertical: 10,
-              borderRadius: 8,
-              alignItems: 'center',
-            }}
-            onPress={() => {
-              Linking.openURL('tel:0888610010').catch(() =>
-                Alert.alert('Lỗi', 'Không thể mở trình gọi điện thoại'),
-              );
-            }}>
-            <Text style={{color: '#fff', fontWeight: 'bold'}}>
-              📞 Liên hệ hỗ trợ: 0888 610 010
-            </Text>
-          </TouchableOpacity>
-        </View>
-      );
-    }
-
-    return (
-      '❓ Tôi chưa hiểu rõ câu hỏi của bạn.\n' +
-      'Hãy thử hỏi về một trong các chủ đề như: "mua vé", "voucher", "thanh toán", "xem phim","liên hệ, "thống kê", hoặc gõ "hỗ trợ" để xem danh sách đầy đủ.'
+  const handleSelectGhe = vi_tri => {
+    setGheSelected(prev =>
+      prev.includes(vi_tri)
+        ? prev.filter(g => g !== vi_tri)
+        : [...prev, vi_tri],
     );
   };
 
-  useEffect(() => {
-    // Tự động scroll xuống cuối khi có tin nhắn mới
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({animated: true});
-    }
-  }, [messages]);
+  const handleSelectFood = (food) => {
+    setFoodSelected(prev => {
+      if (prev.find(f => f.id === food.id)) {
+        return prev.filter(f => f.id !== food.id);
+      }
+      return [...prev, food];
+    });
+  };
 
-  const renderItem = ({item}) => (
-    <View
-      style={[styles.message, item.from === 'user' ? styles.user : styles.bot]}>
-      {item.from === 'bot' && (
-        <View style={styles.avatarBot}>
-          <Text style={{color: '#fff', fontWeight: 'bold'}}>M</Text>
-        </View>
-      )}
-      <Text style={styles.messageText}>{item.text}</Text>
-      {item.from === 'user' && (
-        <View style={styles.avatarUser}>
-          <Text style={{color: '#fff', fontWeight: 'bold'}}>U</Text>
-        </View>
-      )}
-    </View>
+  const phongchieu = listPhongChieu.find(
+    phong => phong.room_id == suatChieu.room_id,
   );
+  const rapchieu = phongchieu
+    ? listRapChieu.find(rap => rap.cinema_id == phongchieu.cinema_id)
+    : null;
+
+  if (loading || !phongchieu || !rapchieu) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>Đang tải thông tin vé...</Text>
+      </View>
+    );
+  }
+
+  const sortedGhe = [];
+  const seen = new Set();
+  [...listghe]
+    .filter(ghe => ghe.suat_chieu_id === suatChieu.suat_chieu_id)
+    .sort((a, b) => {
+      const numA = parseInt(a.vi_tri.replace('G', ''), 10);
+      const numB = parseInt(b.vi_tri.replace('G', ''), 10);
+      return numA - numB;
+    })
+    .forEach(ghe => {
+      const key = ghe.room_id + '-' + ghe.vi_tri;
+      if (!seen.has(key)) {
+        sortedGhe.push(ghe);
+        seen.add(key);
+      }
+    });
+
+  const thongTinVe = {
+    khach_hang_id: user.khach_hang_id,
+    ten_phim: phim.ten_phim,
+    ngay_chieu: suatChieu.ngay_chieu,
+    gio_chieu: `${suatChieu.thoi_gian_bat_dau}h - ${suatChieu.thoi_gian_ket_thuc}h`,
+    ten_phong: phongchieu?.ten_phong,
+    dia_chi_rap: rapchieu?.dia_chi,
+    vi_tri_ghe: gheSelected.join(','),
+    trang_thai: 'chưa sử dụng',
+  };
+  thongTinVe.ma_qr = JSON.stringify(thongTinVe);
+
+  // Thông tin chuyển khoản VietQR
+  const vietQRInfo = {
+    accountName: 'VU HOANG NAM',
+    accountNumber: '9961062156',
+    bankCode: 'VCB', 
+    so_tien: so_tien,
+    noiDung: `MOVIX_${user.khach_hang_id}_${Date.now()}`,
+  };
+
+  // Link ảnh QR từ vietqr.io (không cần tự tạo QR code)
+  const vietQRUrl = `https://img.vietqr.io/image/${vietQRInfo.bankCode}-${
+    vietQRInfo.accountNumber
+  }-compact2.png?amount=${vietQRInfo.so_tien}&addInfo=${encodeURIComponent(
+    vietQRInfo.noiDung,
+  )}&accountName=${encodeURIComponent(vietQRInfo.accountName)}`;
+
+  const handleDatVeAndThanhToan = async () => {
+    // 1. Đặt vé trước, lấy ve_id
+    const veRes = await dispatch(addVe(thongTinVe));
+    const ve_id = veRes.payload?.ve_id || veRes.payload?.id;
+
+    // 2. Tạo object thanh toán
+    const thanhToanData = {
+      khach_hang_id: user.khach_hang_id,
+      phuong_thuc: payment,
+      so_tien: so_tien,
+      ngay_mua: ngay_mua,
+      ve_id: ve_id,
+    };
+
+    // 3. Gọi action thêm thanh toán
+    await dispatch(addThanhToan(thanhToanData));
+
+    // 4. Các thao tác khác
+    dispatch(
+      updateNhieuGhe({
+        listghe,
+        gheSelected,
+        suat_chieu_id: suatChieu.suat_chieu_id,
+      }),
+    );
+    await dispatch(tangDiemUser({ user: user, soluong: gheSelected.length }));
+    ToastAndroid.show(`Tích điểm: ${gheSelected.length * 10} điểm`, ToastAndroid.SHORT);
+    dispatch(deleteVoucher(voucherSelected?.voucher_id));
+
+    // 5. Tạo lại dữ liệu QR với ve_id
+    const thongTinVeWithId = { ...thongTinVe, ve_id };
+    const qrData = JSON.stringify(thongTinVeWithId);
+
+    // 6. Truyền sang màn hình VeCuaBan
+    navigation.navigate('VeCuaBan', {
+      thongTinVe: thongTinVeWithId,
+      qrData: qrData,
+    });
+
+    // Cập nhật khach_hang_id cho từng đồ ăn đã chọn
+    for (const food of foodSelected) {
+      await fetch(`https://688253a466a7eb81224e3f86.mockapi.io/doan/food/${food.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          khach_hang_id: [
+            ...(Array.isArray(food.khach_hang_id) ? food.khach_hang_id : []),
+            { 
+              id: user.khach_hang_id, 
+              ngay_dat: ngay_mua,
+              gio_chieu: suatChieu.thoi_gian_bat_dau // truyền thêm giờ chiếu
+            }
+          ],
+        }),
+      });
+    }
+  };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>🤖 Movix Bot</Text>
-      </View>
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(_, index) => index.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={styles.chatArea}
-        showsVerticalScrollIndicator={false}
-      />
-      <View style={styles.suggestionWrapper}>
-  <FlatList
-    data={suggestions}
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    keyExtractor={(item, index) => index.toString()}
-    renderItem={({ item }) => (
-      <TouchableOpacity
-        style={styles.suggestionItem}
-        onPress={() => handleSuggestionPress(item)}
-      >
-        <Text style={styles.suggestionText}>{item}</Text>
-      </TouchableOpacity>
-    )}
-  />
-</View>
+    <View style={{flex: 1}}>
+      <ScrollView contentContainerStyle={{padding: 20, paddingBottom: 120}}>
+        <View style={styles.ticketCard}>
+          <Text style={styles.ticketTitle}>Thông tin vé</Text>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Tên phim:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.ten_phim}</Text>
+          </View>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Ngày chiếu:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.ngay_chieu}</Text>
+          </View>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Suất chiếu:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.gio_chieu}</Text>
+          </View>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Phòng chiếu:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.ten_phong}</Text>
+          </View>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Rạp:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.dia_chi_rap}</Text>
+          </View>
+          <View style={styles.ticketRow}>
+            <Text style={styles.ticketLabel}>Số ghế:</Text>
+            <Text style={styles.ticketValue}>{thongTinVe.vi_tri_ghe}</Text>
+          </View>
+        </View>
 
-      <View style={styles.inputArea}>
-        <TextInput
-          style={styles.input}
-          placeholder="Nhập câu hỏi cho Movix Bot..."
-          value={input}
-          onChangeText={setInput}
-          onSubmitEditing={handleSend}
-          returnKeyType="send"
-        />
-        <TouchableOpacity style={styles.sendBtn} onPress={handleSend}>
-          <Text style={styles.sendBtnText}>Gửi</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+        <View style={{flexDirection: 'row', marginRight: 20, marginTop: 10}}>
+          <Text style={{fontSize: 10}}>Đang chọn :</Text>
+          <View style={styles.boxRed} />
+          <Text style={{fontSize: 10}}> Trống :</Text>
+          <View style={styles.boxWhite} />
+          <Text style={{fontSize: 10}}>Đã hết :</Text>
+          <View style={styles.boxPurple} />
+        </View>
+
+        <View style={{marginVertical: 20}}>
+          <Text style={{fontWeight: 'bold', marginBottom: 8}}>Chọn đồ ăn:</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {foodList
+              .filter(food => food.status === true) // chỉ hiện đồ ăn còn hàng
+              .map(food => (
+                <TouchableOpacity
+                  key={food.id}
+                  onPress={() => handleSelectFood(food)}
+                  style={{
+                    borderWidth: 2,
+                    borderColor: foodSelected.find(f => f.id === food.id) ? 'red' : 'black',
+                    borderRadius: 10,
+                    padding: 10,
+                    marginRight: 10,
+                    alignItems: 'center',
+                    backgroundColor: foodSelected.find(f => f.id === food.id) ? '#ffeaea' : '#fff',
+                  }}>
+                  <Image source={{ uri: food.image }} style={{ width: 50, height: 50, marginBottom: 5, borderRadius: 8 }} />
+                  <Text style={{fontWeight: 'bold'}}>{food.name}</Text>
+                  <Text style={{color: '#EA5A5A'}}>{food.price}đ</Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
+        </View>
+
+        <View style={{marginVertical: 20}}>
+          <Text style={{fontWeight: 'bold'}}>Danh sách ghế:</Text>
+          <View style={styles.phongchieu}>
+            <Text style={{color: 'white', fontSize: 15, fontStyle: 'italic'}}>
+              Màn hình chiếu
+            </Text>
+            <Svg height="60" width="100%" viewBox="0 0 300 60">
+              {/* Lớp glow mờ ngoài cùng */}
+              <Path
+                d="M10 50 Q 150 0 290 50"
+                stroke="#A6A7E0"
+                strokeWidth="20"
+                strokeOpacity="0.2"
+                fill="none"
+                strokeLinecap="round"
+              />
+              {/* Lớp glow mờ bên trong */}
+              <Path
+                d="M10 50 Q 150 0 290 50"
+                stroke="#8889D6"
+                strokeWidth="14"
+                strokeOpacity="0.4"
+                fill="none"
+                strokeLinecap="round"
+              />
+              {/* Lớp glow đậm gần trong */}
+              <Path
+                d="M10 50 Q 150 0 290 50"
+                stroke="#6E70CC"
+                strokeWidth="10"
+                strokeOpacity="0.6"
+                fill="none"
+                strokeLinecap="round"
+              />
+              {/* Lớp chính sáng nhất */}
+              <Path
+                d="M10 50 Q 150 0 290 50"
+                stroke="#696ACD"
+                strokeWidth="6"
+                fill="none"
+                strokeLinecap="round"
+              />
+            </Svg>
+
+            <View style={{alignItems: 'center', marginTop: 40}}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                }}>
+                {sortedGhe.map((gheItem, index) => {
+                  const isSelected = gheSelected.includes(gheItem.vi_tri);
+                  const isBooked = gheItem.trang_thai !== 'trống';
+                  return (
+                    <TouchableOpacity
+                      key={gheItem.room_id + '-' + gheItem.vi_tri}
+                      onPress={() =>
+                        !isBooked && handleSelectGhe(gheItem.vi_tri)
+                      }
+                      disabled={isBooked}
+                      activeOpacity={isBooked ? 1 : 0.7}>
+                      <View
+                        style={{
+                          borderWidth: 2,
+                          borderRadius: 10,
+                          padding: 2,
+                          width: 80,
+                          height: 40,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          margin: 4,
+                          backgroundColor: isBooked
+                            ? '#4C4F90'
+                            : isSelected
+                            ? 'red'
+                            : 'transparent',
+                          borderColor: isBooked ? '#4C4F90' : 'red',
+                        }}>
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontWeight: isSelected ? 'bold' : 'normal',
+                          }}>
+                          {gheItem.vi_tri}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
+        </View>
+        {Array.isArray(listvoucherbyid) && listvoucherbyid.length > 0 && (
+          <View>
+            <Text>Giảm giá :</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {listvoucherbyid.map((voucher, index) => (
+                <TouchableOpacity
+                  onPress={() => setVoucherSelected(voucher)}
+                  key={index}
+                  style={{
+                    borderWidth: 2,
+                    padding: 10,
+                    marginRight: 10,
+                    borderColor:
+                      voucherSelected?.voucher_id?.toString() ===
+                      voucher?.voucher_id?.toString()
+                        ? 'red'
+                        : 'black',
+                  }}>
+                  <Text>{voucher.giam_gia}%</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+        <View
+          style={{borderWidth: 1, margin: 10, backgroundColor: 'black'}}></View>
+        <View>
+          <Text>Giá vé : {gheSelected.length * 80000}đ</Text>
+          <Text>Giảm giá : - {giamGia}đ</Text>
+          <Text>Đồ ăn : + {foodTotal}đ</Text>
+        </View>
+        <View
+          style={{borderWidth: 1, margin: 10, backgroundColor: 'black'}}></View>
+        <View style={{height: 300}}>
+          <TouchableOpacity
+            onPress={() => {
+              setPayment('Momo');
+            }}
+            style={[
+              styles.payment,
+              {
+                borderColor: payment === 'Momo' ? 'red' : 'black',
+                borderWidth: payment === 'Momo' ? 2 : 1,
+              },
+            ]}>
+            <Image
+              style={styles.imgpayment}
+              source={require('../img/momo.png')}
+            />
+            <Text>Momo</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setPayment('Thẻ tín dụng');
+            }}
+            style={[
+              styles.payment,
+              {
+                borderColor: payment === 'Thẻ tín dụng' ? 'red' : 'black',
+                borderWidth: payment === 'Thẻ tín dụng' ? 2 : 1,
+              },
+            ]}>
+            <Image
+              style={styles.imgpayment}
+              source={require('../img/card.png')}
+            />
+            <Text>Thẻ tín dụng</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setPayment('VietQR')}
+            style={[
+              styles.payment,
+              {
+                borderColor: payment === 'VietQR' ? 'red' : 'black',
+                borderWidth: payment === 'VietQR' ? 2 : 1,
+              },
+            ]}>
+            <Image
+              style={styles.imgpayment}
+              source={require('../img/vietqr.png')}
+            />
+            <Text>VietQR</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+
+      <TouchableOpacity
+        style={{
+          backgroundColor:
+            gheSelected.length === 0 || !payment ? 'gray' : '#8B0000',
+          padding: 20,
+          borderRadius: 15,
+          position: 'absolute',
+          bottom: 10,
+          alignSelf: 'center',
+        }}
+        disabled={gheSelected.length === 0 || !payment}
+        onPress={async () => {
+          if (payment === 'VietQR') {
+            setShowVietQR(true);
+            return;
+          }
+          await handleDatVeAndThanhToan();
+        }}>
+        <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>
+          Thanh toán: {so_tien}đ
+        </Text>
+      </TouchableOpacity>
+
+      {/* Modal hiển thị QR VietQR */}
+      <Modal isVisible={showVietQR}>
+        <View style={{ backgroundColor: 'white', borderRadius: 12, padding: 20, alignItems: 'center' }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 10 }}>Quét mã VietQR để thanh toán</Text>
+          <Image
+            source={{ uri: vietQRUrl }}
+            style={{ width: 220, height: 220, marginBottom: 10 }}
+            resizeMode="contain"
+          />
+          <Text style={{ fontSize: 16, marginBottom: 6 }}>Số tiền: <Text style={{ fontWeight: 'bold' }}>{so_tien}đ</Text></Text>
+          <Text style={{ fontSize: 14, marginBottom: 6 }}>Nội dung: <Text style={{ fontWeight: 'bold' }}>{vietQRInfo.noiDung}</Text></Text>
+          <TouchableOpacity
+            style={{ backgroundColor: 'red', padding: 12, borderRadius: 8, marginTop: 10, width: 180, alignItems: 'center' }}
+            onPress={async () => {
+              setShowVietQR(false);
+              await handleDatVeAndThanhToan();
+            }}
+          >
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>Tôi đã chuyển khoản</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ marginTop: 10 }}
+            onPress={() => setShowVietQR(false)}
+          >
+            <Text style={{ color: 'gray' }}>Hủy</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
-export default Chatbot;
+export default ThongTinVe;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f7f8fa',
-  },
-  header: {
-    paddingTop: 38,
-    paddingBottom: 16,
-    backgroundColor: '#8B0000',
-    alignItems: 'center',
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18,
-    marginBottom: 4,
-    elevation: 2,
-    shadowColor: '#EA5A5A',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  headerTitle: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 22,
-    letterSpacing: 1,
-  },
-  chatArea: {
-    padding: 16,
-    paddingBottom: 30,
-  },
-  message: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginVertical: 6,
-    maxWidth: '90%',
-  },
-  user: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#dcf8c6',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 4,
-    padding: 12,
-    marginLeft: 40,
-  },
-  bot: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderBottomRightRadius: 16,
-    borderBottomLeftRadius: 4,
-    padding: 12,
-    marginRight: 40,
-    borderWidth: 1,
-    borderColor: '#EA5A5A22',
-  },
-  messageText: {
-    fontSize: 15,
-    color: '#222',
-    flexShrink: 1,
-  },
-  avatarBot: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#EA5A5A',
+  phongchieu: {
+    backgroundColor: '#2A2A38',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
-  },
-  avatarUser: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#8889D6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
-  },
-  inputArea: {
-    flexDirection: 'row',
-    alignItems: 'center',
     padding: 10,
-    borderTopWidth: 1,
-    borderColor: '#eee',
-    backgroundColor: '#fff',
+    borderRadius: 10,
   },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#EA5A5A',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    fontSize: 15,
-    backgroundColor: '#fafafa',
-    marginRight: 8,
-  },
-  sendBtn: {
-    backgroundColor: '#8B0000',
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    alignItems: 'center',
+  boxRed: {
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 2,
+    width: 30,
+    height: 30,
     justifyContent: 'center',
+    alignItems: 'center',
+    margin: 4,
+    backgroundColor: 'red',
+    borderColor: 'red',
   },
-  sendBtnText: {
-    color: '#fff',
+  boxWhite: {
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 2,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 4,
+    borderColor: 'red',
+    backgroundColor: '#4C4F90',
+  },
+  boxPurple: {
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 2,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 4,
+    backgroundColor: '#4C4F90',
+    borderColor: '#4C4F90',
+  },
+  payment: {
+    width: '100%',
+    borderRadius: 10,
+    backgroundColor: 'white',
+    height: 60,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 5,
+    marginBottom: 20,
+    borderWidth: 1,
+    backgroundColor: '#fff',
+  borderRadius: 16,
+  padding: 18,
+  marginBottom: 18,
+  // Đổ bóng cho cả iOS và Android
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.15,
+  shadowRadius: 8,
+  elevation: 6, // Android
+  },
+  imgpayment: {width: 50, height: 50, marginRight: 10},
+  modal: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '90%',
+    elevation: 5,
+  },
+  modalTitle: {
     fontWeight: 'bold',
-    fontSize: 15,
-    letterSpacing: 1,
+    fontSize: 18,
+    marginBottom: 10,
   },
-  suggestionWrapper: {
-  paddingHorizontal: 12,
-  paddingBottom: 6,
+  qrImage: {
+    width: '100%',
+    height: 200,
+    marginVertical: 10,
+  },
+  closeButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  ticketCard: {
+  backgroundColor: '#fff',
+  borderRadius: 16,
+  padding: 18,
+  marginBottom: 18,
+  // Đổ bóng cho cả iOS và Android
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.15,
+  shadowRadius: 8,
+  elevation: 6, // Android
 },
-suggestionItem: {
-  backgroundColor: '#8B0000',
-  paddingHorizontal: 14,
-  paddingVertical: 8,
-  borderRadius: 20,
-  marginRight: 8,
-},
-suggestionText: {
-  color: '#fff',
-  fontWeight: '500',
-  fontSize: 14,
-},
+  ticketTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#EA5A5A',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  ticketRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  ticketLabel: {
+    fontWeight: 'bold',
+    color: '#333',
+    width: 110,
+  },
+  ticketValue: {
+    color: '#b42e2eff',
+    flex: 1,
+  },
 });
