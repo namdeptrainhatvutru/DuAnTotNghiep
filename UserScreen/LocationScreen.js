@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   },
   duration: {
     fontSize: 12,
-    color: "#888",
+    color: "#7a7878ff",
     fontWeight: "500",
   },
 })
