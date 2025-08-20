@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
     width: 110,
   },
   ticketValue: {
-    color: '#b42e2eff',
+    color: '#444',
     flex: 1,
   },
 });
