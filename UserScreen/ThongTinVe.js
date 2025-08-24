@@ -138,6 +138,19 @@ const ThongTinVe = ({ route }) => {
 
   const vietQRUrl = `https://img.vietqr.io/image/${vietQRInfo.bankCode}-${vietQRInfo.accountNumber}-compact2.png?amount=${vietQRInfo.so_tien}&addInfo=${encodeURIComponent(vietQRInfo.noiDung)}&accountName=${encodeURIComponent(vietQRInfo.accountName)}`
 
+  const momoInfo = {
+    accountName: "VU HOANG NAM",
+    accountNumber: "0961234567", // Số điện thoại Momo
+    so_tien: so_tien,
+    noiDung: `MOVIX_${user.khach_hang_id}_${Date.now()}`,
+  }
+
+  // Tạo nội dung QR cho Momo (thường là số điện thoại + số tiền + nội dung)
+  const momoQRContent = `MOMO|${momoInfo.accountNumber}|${momoInfo.so_tien}|${momoInfo.noiDung}`
+
+  // Tạo link ảnh QR cho Momo
+  const momoQRUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(momoQRContent)}`
+
   const handleDatVeAndThanhToan = async () => {
     const veRes = await dispatch(addVe(thongTinVe))
     const ve_id = veRes.payload?.ve_id || veRes.payload?.id
@@ -475,7 +488,7 @@ const ThongTinVe = ({ route }) => {
         style={[styles.bookingBtn, (gheSelected.length === 0 || !payment) && styles.bookingBtnDisabled]}
         disabled={gheSelected.length === 0 || !payment}
         onPress={async () => {
-          if (payment === "VietQR") {
+          if (payment === "VietQR" || payment === "Momo") {
             setShowVietQR(true)
             return
           }
@@ -517,6 +530,38 @@ const ThongTinVe = ({ route }) => {
             </Text>
             <Text style={styles.qrInfoText}>
               Nội dung: <Text style={styles.qrInfoValue}>{vietQRInfo.noiDung}</Text>
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.confirmPaymentBtn}
+            onPress={async () => {
+              setShowVietQR(false)
+              await handleDatVeAndThanhToan()
+            }}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.confirmPaymentText}>✅ Tôi đã chuyển khoản</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.cancelPaymentBtn} onPress={() => setShowVietQR(false)}>
+            <Text style={styles.cancelPaymentText}>Hủy</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      {/* Momo Modal */}
+      <Modal isVisible={payment === "Momo" && showVietQR} style={styles.modal}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>🏦 Quét mã Momo để thanh toán</Text>
+          <Image source={{ uri: momoQRUrl }} style={styles.qrImage} resizeMode="contain" />
+          <View style={styles.qrInfo}>
+            <Text style={styles.qrInfoText}>
+              Số tiền: <Text style={styles.qrInfoValue}>{so_tien.toLocaleString()}đ</Text>
+            </Text>
+            <Text style={styles.qrInfoText}>
+              Nội dung: <Text style={styles.qrInfoValue}>{momoInfo.noiDung}</Text>
+            </Text>
+            <Text style={styles.qrInfoText}>
+              Số điện thoại Momo: <Text style={styles.qrInfoValue}>{momoInfo.accountNumber}</Text>
             </Text>
           </View>
           <TouchableOpacity
