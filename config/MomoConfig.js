@@ -1,4 +1,4 @@
-// Momo payment configuration
+// Momo payment configuration - Official API v2
 export const MOMO_CONFIG = {
   partnerCode: 'MOMO',
   accessKey: 'F8BBA842ECF85',
@@ -14,4 +14,6 @@ export const MOMO_CONFIG = {
   orderGroupId: '',
   storeId: 'MomoTestStore',
   partnerName: 'MOVIX Cinema',
+  // Query endpoint for checking transaction status
+  queryEndpoint: 'https://test-payment.momo.vn/v2/gateway/api/query'
 };

@@ -24,6 +24,8 @@ import Svg, { Path } from "react-native-svg"
 import { deleteVoucher, fetchVoucher } from "../redux/actions/VoucherAction"
 import { addThanhToan } from "../redux/actions/ThanhToanAction"
 import Modal from "react-native-modal"
+import QRCode from "react-native-qrcode-svg"
+import { generateMomoPayment, checkMomoTransactionStatus } from "../utils/momoHelper"
 
 const { width } = Dimensions.get("window")
 
@@ -45,6 +47,12 @@ const ThongTinVe = ({ route }) => {
   const [showVietQR, setShowVietQR] = useState(false)
   const [foodList, setFoodList] = useState([])
   const [foodSelected, setFoodSelected] = useState([])
+  const [momoOrderId, setMomoOrderId] = useState(null)
+  const [momoRequestId, setMomoRequestId] = useState(null)
+  const [momoQRData, setMomoQRData] = useState(null)
+  const [momoLoading, setMomoLoading] = useState(false)
+  const [momoPaymentStatus, setMomoPaymentStatus] = useState(null)
+  const [momoPaymentProcessed, setMomoPaymentProcessed] = useState(false)
 
   const listvoucherbyid = listvoucher.filter((item) => item.khach_hang_id === user_id.toString())
   const giamGia = voucherSelected?.giam_gia || 0
@@ -73,6 +81,20 @@ const ThongTinVe = ({ route }) => {
       .then((data) => setFoodList(data))
   }, [])
 
+  useEffect(() => {
+    if (showVietQR && payment === "Momo" && momoOrderId && momoRequestId) {
+      const intervalId = startMomoPaymentPolling()
+      
+      // Cleanup function to stop polling when component unmounts or dependencies change
+      return () => {
+        if (intervalId) {
+          clearInterval(intervalId)
+          console.log('Momo polling cleaned up')
+        }
+      }
+    }
+  }, [showVietQR, payment, momoOrderId, momoRequestId])
+
   const handleSelectGhe = (vi_tri) => {
     setGheSelected((prev) => (prev.includes(vi_tri) ? prev.filter((g) => g !== vi_tri) : [...prev, vi_tri]))
   }
@@ -84,6 +106,61 @@ const ThongTinVe = ({ route }) => {
       }
       return [...prev, food]
     })
+  }
+
+  const checkMomoPaymentStatus = async () => {
+    if (!momoOrderId || !momoRequestId || momoPaymentProcessed) return
+
+    try {
+      console.log('Checking Momo payment status...')
+      const status = await checkMomoTransactionStatus(momoOrderId, momoRequestId)
+      console.log('Momo status:', status)
+      
+      if (status.success) {
+        // Mark as processed to prevent duplicate calls
+        setMomoPaymentProcessed(true)
+        
+        ToastAndroid.show("Thanh toán Momo thành công!", ToastAndroid.SHORT)
+        setShowVietQR(false)
+        // Stop polling immediately
+        setMomoOrderId(null)
+        setMomoRequestId(null)
+        setMomoQRData(null)
+        // Process payment
+        await handleDatVeAndThanhToan()
+      } else {
+        // resultCode 1000 means "waiting for user confirmation"
+        if (status.resultCode === 1000) {
+          console.log('Waiting for user to confirm payment...')
+        } else {
+          console.log('Payment status:', status.message)
+        }
+      }
+    } catch (error) {
+      console.error('Status check error:', error)
+    }
+  }
+
+  const startMomoPaymentPolling = () => {
+    // Poll every 3 seconds to check payment status
+    const interval = setInterval(async () => {
+      if (momoOrderId && momoRequestId) {
+        await checkMomoPaymentStatus()
+      } else {
+        // Stop polling if orderId or requestId is null
+        clearInterval(interval)
+        console.log('Momo polling stopped')
+      }
+    }, 3000)
+
+    // Stop polling after 5 minutes
+    setTimeout(() => {
+      clearInterval(interval)
+      console.log('Momo polling timeout after 5 minutes')
+    }, 300000)
+
+    // Return interval ID for manual cleanup if needed
+    return interval
   }
 
   const phongchieu = listPhongChieu.find((phong) => phong.room_id == suatChieu.room_id)
@@ -451,19 +528,7 @@ const ThongTinVe = ({ route }) => {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => setPayment("Thẻ tín dụng")}
-          style={[styles.paymentMethod, payment === "Thẻ tín dụng" && styles.selectedPayment]}
-          activeOpacity={0.8}
-        >
-          <Image style={styles.paymentIcon} source={require("../img/card.png")} />
-          <Text style={styles.paymentText}>Thẻ tín dụng</Text>
-          {payment === "Thẻ tín dụng" && (
-            <View style={styles.selectedPaymentBadge}>
-              <Text style={styles.selectedPaymentIcon}>✓</Text>
-            </View>
-          )}
-        </TouchableOpacity>
+       
 
         <TouchableOpacity
           onPress={() => setPayment("VietQR")}
@@ -488,8 +553,39 @@ const ThongTinVe = ({ route }) => {
         style={[styles.bookingBtn, (gheSelected.length === 0 || !payment) && styles.bookingBtnDisabled]}
         disabled={gheSelected.length === 0 || !payment}
         onPress={async () => {
-          if (payment === "VietQR" || payment === "Momo") {
+          if (payment === "VietQR") {
             setShowVietQR(true)
+            return
+          }
+          if (payment === "Momo") {
+            // Create Momo payment when booking button is clicked
+            setMomoLoading(true)
+            // Reset processed state for new payment
+            setMomoPaymentProcessed(false)
+            try {
+              const orderInfo = `MOVIX_${user.khach_hang_id}_${Date.now()}`
+              console.log('Creating Momo payment for amount:', so_tien)
+              
+              const result = await generateMomoPayment(so_tien, orderInfo)
+              console.log('Momo payment result:', result)
+              
+              if (result.success && (result.qrCodeUrl || result.payUrl || result.shortLink)) {
+                setMomoOrderId(result.orderId)
+                setMomoRequestId(result.requestId)
+                // Use payUrl if qrCodeUrl is not available
+                setMomoQRData(result.qrCodeUrl || result.payUrl || result.shortLink)
+                setShowVietQR(true)
+                ToastAndroid.show("QR code Momo đã được tạo thành công", ToastAndroid.SHORT)
+              } else {
+                console.error('Momo payment failed:', result.message || 'Không có URL thanh toán')
+                ToastAndroid.show("Không thể tạo mã QR Momo - Vui lòng thử lại", ToastAndroid.SHORT)
+              }
+            } catch (error) {
+              console.error('Momo payment error:', error)
+              ToastAndroid.show("Lỗi khi tạo mã QR Momo", ToastAndroid.SHORT)
+            } finally {
+              setMomoLoading(false)
+            }
             return
           }
           await handleDatVeAndThanhToan()
@@ -552,28 +648,85 @@ const ThongTinVe = ({ route }) => {
       <Modal isVisible={payment === "Momo" && showVietQR} style={styles.modal}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>🏦 Quét mã Momo để thanh toán</Text>
-          <Image source={{ uri: momoQRUrl }} style={styles.qrImage} resizeMode="contain" />
-          <View style={styles.qrInfo}>
-            <Text style={styles.qrInfoText}>
-              Số tiền: <Text style={styles.qrInfoValue}>{so_tien.toLocaleString()}đ</Text>
-            </Text>
-            <Text style={styles.qrInfoText}>
-              Nội dung: <Text style={styles.qrInfoValue}>{momoInfo.noiDung}</Text>
-            </Text>
-            <Text style={styles.qrInfoText}>
-              Số điện thoại Momo: <Text style={styles.qrInfoValue}>{momoInfo.accountNumber}</Text>
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={styles.confirmPaymentBtn}
-            onPress={async () => {
-              setShowVietQR(false)
-              await handleDatVeAndThanhToan()
-            }}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.confirmPaymentText}>✅ Tôi đã chuyển khoản</Text>
-          </TouchableOpacity>
+          
+          {momoLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#6366f1" />
+              <Text style={styles.loadingText}>Đang tạo mã QR...</Text>
+            </View>
+          ) : momoQRData ? (
+            <>
+              <QRCode
+                value={momoQRData}
+                size={220}
+                color="black"
+                backgroundColor="white"
+                style={styles.qrImage}
+              />
+              
+              <View style={styles.qrInfo}>
+                <Text style={styles.qrInfoText}>
+                  Số tiền: <Text style={styles.qrInfoValue}>{so_tien.toLocaleString()}đ</Text>
+                </Text>
+                <Text style={styles.qrInfoText}>
+                  Mã giao dịch: <Text style={styles.qrInfoValue}>{momoOrderId}</Text>
+                </Text>
+                <Text style={styles.qrInfoText}>
+                  Nội dung: <Text style={styles.qrInfoValue}>MOVIX_{user.khach_hang_id}_{Date.now()}</Text>
+                </Text>
+                {momoQRData && momoQRData.includes('test-payment.momo.vn') && (
+                  <Text style={styles.qrInfoText}>
+                    📱 <Text style={styles.qrInfoValue}>Quét mã để mở Momo app</Text>
+                  </Text>
+                )}
+              </View>
+
+              <TouchableOpacity
+                style={styles.checkStatusBtn}
+                onPress={checkMomoPaymentStatus}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.checkStatusText}>🔄 Kiểm tra trạng thái</Text>
+              </TouchableOpacity>
+
+              {/* <TouchableOpacity
+                style={styles.confirmPaymentBtn}
+                onPress={async () => {
+                  setShowVietQR(false)
+                  await handleDatVeAndThanhToan()
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.confirmPaymentText}>✅ Tôi đã chuyển khoản</Text>
+              </TouchableOpacity> */}
+            </>
+          ) : (
+            <>
+              <Text style={styles.errorText}>Không thể tạo mã QR Momo</Text>
+              <Text style={styles.errorSubText}>Vui lòng thử lại hoặc chọn phương thức khác</Text>
+              
+              <TouchableOpacity
+                style={styles.retryBtn}
+                onPress={async () => {
+                  setShowVietQR(false)
+                  setPayment("")
+                  // Retry Momo payment
+                  const orderInfo = `MOVIX_${user.khach_hang_id}_${Date.now()}`
+                  const result = await generateMomoPayment(so_tien, orderInfo)
+                  if (result.success && (result.qrCodeUrl || result.payUrl || result.shortLink)) {
+                    setMomoOrderId(result.orderId)
+                    setMomoRequestId(result.requestId)
+                    setMomoQRData(result.qrCodeUrl || result.payUrl || result.shortLink)
+                    setShowVietQR(true)
+                  }
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.retryText}>🔄 Thử lại</Text>
+              </TouchableOpacity>
+            </>
+          )}
+          
           <TouchableOpacity style={styles.cancelPaymentBtn} onPress={() => setShowVietQR(false)}>
             <Text style={styles.cancelPaymentText}>Hủy</Text>
           </TouchableOpacity>
@@ -1088,5 +1241,40 @@ const styles = StyleSheet.create({
   cancelPaymentText: {
     color: "#6b7280",
     fontSize: 14,
+  },
+  checkStatusBtn: {
+    backgroundColor: "#6366f1",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  checkStatusText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#ef4444",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  errorSubText: {
+    fontSize: 14,
+    color: "#6b7280",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  retryBtn: {
+    backgroundColor: "#6366f1",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  retryText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 })
