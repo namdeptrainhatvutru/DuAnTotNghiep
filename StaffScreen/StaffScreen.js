@@ -14,7 +14,9 @@ const StaffScreen = () => {
   const [isScanning, setIsScanning] = useState(true);
   const [qrInfo, setQrInfo] = useState(null);
   const [foodOrdered, setFoodOrdered] = useState([]);
-  const dispatch = useDispatch();
+  console.log('qrInfo:', qrInfo);
+  console.log('foodOrdered:', foodOrdered);
+
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
@@ -24,6 +26,8 @@ const StaffScreen = () => {
         try {
           const qrData = JSON.parse(code.value);
           setQrInfo(qrData);
+          console.log('QR Data:', qrData);
+
           // Lấy thông tin đồ ăn sau khi quét QR
           fetchFoodByTicket(qrData);
         } catch (e) {
@@ -58,24 +62,28 @@ const StaffScreen = () => {
 
       console.log('Food Data:', foodData); // Debug food data
 
-      // 3. Lọc đồ ăn của khách hàng trong ngày xem phim
-      const todayFood = foodData.filter(food => {
-        if (!Array.isArray(food.khach_hang_id)) return false;
-        
-        return food.khach_hang_id.some(order => {
-          // Kiểm tra order.id có tồn tại không
-          if (!order || !order.id) return false;
-          
-          const customerMatch = String(order.id) === String(veData.khach_hang_id);
-          const dateMatch = order.ngay_dat === qrData.ngay_chieu;
-          
-          console.log(`Food ${food.name}: customer ${customerMatch}, date ${dateMatch}`);
-          
-          return customerMatch && dateMatch; // Bỏ timeMatch
-        });
-      });
+      // 3. Lọc đồ ăn của khách hàng đúng ngày và đúng giờ chiếu
+      const gioChieuVe = qrData.gio_chieu?.split('h')[0]?.trim(); // "22" từ "22h - 23h"
 
-      console.log('Today Food:', todayFood); // Debug filtered food
+      const todayFood = foodData
+        .map(food => {
+          if (!Array.isArray(food.khach_hang_id)) return null;
+          // Lọc các order đúng khách, đúng ngày, đúng giờ
+          const orders = food.khach_hang_id.filter(order =>
+            String(order.id) === String(veData.khach_hang_id) &&
+            order.ngay_dat === qrData.ngay_chieu &&
+            String(order.gio_chieu) === gioChieuVe
+          );
+          if (orders.length === 0) return null;
+          // Trả về object gồm info món ăn và mảng giờ chiếu
+          return {
+            ...food,
+            so_luong: orders.length,
+            gio_chieu_list: orders.map(o => o.gio_chieu)
+          };
+        })
+        .filter(Boolean);
+
       setFoodOrdered(todayFood);
     } catch (error) {
       console.error('Lỗi lấy thông tin đồ ăn:', error);
@@ -137,6 +145,10 @@ const StaffScreen = () => {
                 <View style={styles.foodInfo}>
                   <Text style={styles.foodName}>• {food.name}</Text>
                   <Text style={styles.foodPrice}>{food.price}đ</Text>
+                  <Text style={{color:'#fff'}}>Số lượng: {food.so_luong}</Text>
+                  <Text style={{color:'#fff'}}>
+                    Giờ chiếu: {food.gio_chieu_list.join(', ')}
+                  </Text>
                 </View>
                 <Image style={{width:100,height:100,borderRadius:8}} source={{uri:food.image}}/>
               </View>

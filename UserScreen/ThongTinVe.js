@@ -528,7 +528,7 @@ const ThongTinVe = ({ route }) => {
           )}
         </TouchableOpacity>
 
-       
+        
 
         <TouchableOpacity
           onPress={() => setPayment("VietQR")}

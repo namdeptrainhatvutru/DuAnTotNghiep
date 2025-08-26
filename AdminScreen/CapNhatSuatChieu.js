@@ -118,8 +118,8 @@ const CapNhatSuatChieu = ({ route, navigation }) => {
       return
     }
 
-    if (startTime < 0 || startTime > 23 || endTime < 0 || endTime > 23) {
-      Alert.alert("Lỗi", "Thời gian phải từ 0 đến 23")
+    if (startTime < 0 || startTime > 24 || endTime < 0 || endTime > 24) {
+      Alert.alert("Lỗi", "Thời gian phải từ 0 đến 24")
       return
     }
 

@@ -61,7 +61,6 @@ const Login = () => {
       }
       if (user) {
         dispatch(setUser(user))
-        Alert.alert('Thành công', 'Đăng nhập thành công!');
         nav.navigate('MyTabs');
       } else {
         Alert.alert('Lỗi', 'Email hoặc mật khẩu không đúng!');

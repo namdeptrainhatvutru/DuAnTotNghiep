@@ -159,10 +159,7 @@ const VoucherScreen = () => {
             {item.ten_voucher || "Voucher giảm giá"}
           </Text>
 
-          <View style={styles.discountContainer}>
-            <Text style={styles.discountIcon}>🎫</Text>
-            <Text style={styles.discountText}>Giảm {item.giam_gia}%</Text>
-          </View>
+          
 
           <View style={styles.expiryContainer}>
             <Text style={styles.expiryIcon}>📅</Text>
