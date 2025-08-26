@@ -56,7 +56,7 @@ const ThongTinVe = ({ route }) => {
 
   const listvoucherbyid = listvoucher.filter((item) => item.khach_hang_id === user_id.toString())
   const giamGia = voucherSelected?.giam_gia || 0
-  const foodTotal = foodSelected.reduce((sum, item) => sum + Number(item.price), 0)
+  const foodTotal = foodSelected.reduce((sum, item) => sum + Number(item.price) * (item.quantity || 1), 0)
   const so_tien = gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * giamGia + foodTotal
 
   const now = new Date()
@@ -101,12 +101,32 @@ const ThongTinVe = ({ route }) => {
 
   const handleSelectFood = (food) => {
     setFoodSelected((prev) => {
-      if (prev.find((f) => f.id === food.id)) {
-        return prev.filter((f) => f.id !== food.id)
+      const found = prev.find((f) => f.id === food.id);
+      if (found) {
+        // Nếu đã chọn, tăng số lượng
+        return prev.map((f) =>
+          f.id === food.id ? { ...f, quantity: (f.quantity || 1) + 1 } : f
+        );
       }
-      return [...prev, food]
-    })
-  }
+      // Nếu chưa chọn, thêm với quantity = 1
+      return [...prev, { ...food, quantity: 1 }];
+    });
+  };
+
+  const handleDecreaseFood = (food) => {
+    setFoodSelected((prev) => {
+      const found = prev.find((f) => f.id === food.id);
+      if (!found) return prev;
+      if ((found.quantity || 1) <= 1) {
+        // Nếu quantity = 1, xóa khỏi danh sách
+        return prev.filter((f) => f.id !== food.id);
+      }
+      // Giảm quantity
+      return prev.map((f) =>
+        f.id === food.id ? { ...f, quantity: (f.quantity || 1) - 1 } : f
+      );
+    });
+  };
 
   const checkMomoPaymentStatus = async () => {
     if (!momoOrderId || !momoRequestId || momoPaymentProcessed) return
@@ -273,10 +293,12 @@ const ThongTinVe = ({ route }) => {
               id: user.khach_hang_id,
               ngay_dat: ngay_mua,
               gio_chieu: suatChieu.thoi_gian_bat_dau,
+              so_luong: food.quantity || 1,
+              ve_id: ve_id, // Thêm trường ve_id để staff lọc đúng vé
             },
           ],
         }),
-      })
+      });
     }
   }
 
@@ -424,26 +446,32 @@ const ThongTinVe = ({ route }) => {
         {foodList
           .filter((food) => food.status === true)
           .map((food) => {
-            const isSelected = foodSelected.find((f) => f.id === food.id)
+            const selected = foodSelected.find((f) => f.id === food.id);
             return (
-              <TouchableOpacity
-                key={food.id}
-                onPress={() => handleSelectFood(food)}
-                style={[styles.foodItem, isSelected && styles.selectedFoodItem]}
-                activeOpacity={0.8}
-              >
+              <View key={food.id} style={[styles.foodItem, selected && styles.selectedFoodItem]}>
                 <Image source={{ uri: food.image }} style={styles.foodImage} />
-                <Text style={styles.foodName} numberOfLines={2}>
-                  {food.name}
-                </Text>
+                <Text style={styles.foodName} numberOfLines={2}>{food.name}</Text>
                 <Text style={styles.foodPrice}>{food.price}đ</Text>
-                {isSelected && (
-                  <View style={styles.selectedFoodBadge}>
-                    <Text style={styles.selectedFoodIcon}>✓</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            )
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+                  <TouchableOpacity
+                    onPress={() => handleDecreaseFood(food)}
+                    style={{ padding: 4, backgroundColor: '#eee', borderRadius: 8, marginRight: 4 }}
+                    disabled={!selected}
+                  >
+                    <Text style={{ fontSize: 16, color: selected ? '#ef4444' : '#ccc' }}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={{ minWidth: 20, textAlign: 'center', fontWeight: 'bold', color: '#374151' }}>
+                    {selected ? selected.quantity : 0}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => handleSelectFood(food)}
+                    style={{ padding: 4, backgroundColor: '#eee', borderRadius: 8, marginLeft: 4 }}
+                  >
+                    <Text style={{ fontSize: 16, color: '#10b981' }}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
           })}
       </ScrollView>
     </View>

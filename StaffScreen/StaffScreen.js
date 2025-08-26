@@ -68,17 +68,15 @@ const StaffScreen = () => {
       const todayFood = foodData
         .map(food => {
           if (!Array.isArray(food.khach_hang_id)) return null;
-          // Lọc các order đúng khách, đúng ngày, đúng giờ
+          // Lọc các order đúng ve_id
           const orders = food.khach_hang_id.filter(order =>
-            String(order.id) === String(veData.khach_hang_id) &&
-            order.ngay_dat === qrData.ngay_chieu &&
-            String(order.gio_chieu) === gioChieuVe
+            String(order.ve_id) === String(qrData.ve_id)
           );
           if (orders.length === 0) return null;
-          // Trả về object gồm info món ăn và mảng giờ chiếu
+          // Trả về object gồm info món ăn và tổng số lượng
           return {
             ...food,
-            so_luong: orders.length,
+            so_luong: orders.reduce((sum, o) => sum + (o.so_luong || 1), 0),
             gio_chieu_list: orders.map(o => o.gio_chieu)
           };
         })
@@ -145,9 +143,8 @@ const StaffScreen = () => {
                 <View style={styles.foodInfo}>
                   <Text style={styles.foodName}>• {food.name}</Text>
                   <Text style={styles.foodPrice}>{food.price}đ</Text>
-                  <Text style={{color:'#fff'}}>
-                    Giờ chiếu: {food.gio_chieu_list.join(', ')}h
-                  </Text>
+                  <Text style={{color:'#fff'}}>Số lượng: {food.so_luong}</Text>
+                  
                 </View>
                 <Image style={{width:100,height:100,borderRadius:8}} source={{uri:food.image}}/>
               </View>
