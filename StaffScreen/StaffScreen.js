@@ -145,9 +145,8 @@ const StaffScreen = () => {
                 <View style={styles.foodInfo}>
                   <Text style={styles.foodName}>• {food.name}</Text>
                   <Text style={styles.foodPrice}>{food.price}đ</Text>
-                  <Text style={{color:'#fff'}}>Số lượng: {food.so_luong}</Text>
                   <Text style={{color:'#fff'}}>
-                    Giờ chiếu: {food.gio_chieu_list.join(', ')}
+                    Giờ chiếu: {food.gio_chieu_list.join(', ')}h
                   </Text>
                 </View>
                 <Image style={{width:100,height:100,borderRadius:8}} source={{uri:food.image}}/>
