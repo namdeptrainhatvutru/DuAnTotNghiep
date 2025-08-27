@@ -1,23 +1,23 @@
-import { Button, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import {Button, StyleSheet, Text, View} from 'react-native';
+import React from 'react';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 const VeCuaBan = ({route}) => {
-  const {thongTinVe, qrData} = route.params
+  const {thongTinVe, qrData} = route.params;
   const navigation = useNavigation();
 
   const handleBackToHome = () => {
     navigation.reset({
       index: 0,
-      routes: [{ name: 'MyTabs' }],
+      routes: [{name: 'MyTabs'}],
     });
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Thông tin vé</Text>
+        <Text style={styles.title}>Thông tin vé của bạn</Text>
         <View style={styles.infoRow}>
           <Text style={styles.label}>Tên phim:</Text>
           <Text style={styles.value}>{thongTinVe.ten_phim}</Text>
@@ -50,13 +50,17 @@ const VeCuaBan = ({route}) => {
           <QRCode value={qrData} size={180} />
         </View>
         <Text style={styles.note}>Vui lòng lưu lại mã QR của bạn</Text>
-        <Button title='Quay về trang chủ' color="#EA5A5A" onPress={handleBackToHome} />
+        <Button
+          title="Quay về trang chủ"
+          color="#EA5A5A"
+          onPress={handleBackToHome}
+        />
       </View>
     </View>
-  )
-}
+  );
+};
 
-export default VeCuaBan
+export default VeCuaBan;
 
 const styles = StyleSheet.create({
   container: {
@@ -73,7 +77,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 350,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
