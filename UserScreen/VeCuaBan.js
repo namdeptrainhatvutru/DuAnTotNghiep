@@ -17,7 +17,7 @@ const VeCuaBan = ({route}) => {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Thông tin vé của bạn</Text>
+        <Text style={styles.title}>Thông tin vé</Text>
         <View style={styles.infoRow}>
           <Text style={styles.label}>Tên phim:</Text>
           <Text style={styles.value}>{thongTinVe.ten_phim}</Text>
