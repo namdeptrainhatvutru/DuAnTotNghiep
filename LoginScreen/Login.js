@@ -120,7 +120,7 @@ const Login = () => {
           }
         />
       </View>
-      <Text style={st.text}>Đăng nhập ứng dụng</Text>
+      <Text style={st.text}>Đăng nhập</Text>
       <View
         style={[st.textInput, {flexDirection: 'row', alignItems: 'center'}]}>
         <Icon size={30} style={{width: 30}} color="#666" name="user" />
