@@ -70,7 +70,7 @@ const Register = ({navigation}) => {
     <View style={styles.container}>
       <Text style={styles.title}>Đăng ký</Text>
       <Text style={{alignSelf: 'flex-start', marginLeft: 10, color: 'red'}}>
-        *Thông tin bắt buộc nhập
+        *Thông tin bắt buộc
       </Text>
 
       <View
