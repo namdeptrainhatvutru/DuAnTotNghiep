@@ -21,9 +21,13 @@ const Profile = () => {
   const [modalVisible, setModalVisible] = React.useState(false);
   const [hoTen, setHoTen] = React.useState(user.ho_ten || '');
   const [email, setEmail] = React.useState(user.email || '');
-  const [soDienThoai, setSoDienThoai] = React.useState(user.so_dien_thoai || '');
+  const [soDienThoai, setSoDienThoai] = React.useState(
+    user.so_dien_thoai || '',
+  );
   const [ngaySinh, setNgaySinh] = React.useState(user.ngay_sinh || '');
-  const [gioiTinh, setGioiTinh] = React.useState(user.gioi_tinh?.toString() || '');
+  const [gioiTinh, setGioiTinh] = React.useState(
+    user.gioi_tinh?.toString() || '',
+  );
 
   const openModal = () => {
     setHoTen(user.ho_ten || '');
@@ -58,10 +62,15 @@ const Profile = () => {
 
       <View style={styles.body}>
         <Text style={styles.hoten}>{user.ho_ten}</Text>
-        <Text style={{marginBottom: 10}}>Thẻ thành viên</Text>
+        <Text style={{marginBottom: 10}}>Thẻ thành viên của người dùng</Text>
         <Image source={require('../img/thanhvien.png')} />
         <View style={styles.divider} />
-        <View style={{flexDirection: 'row', justifyContent: 'space-around', width: '100%'}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            width: '100%',
+          }}>
           <View style={{alignItems: 'center'}}>
             <Text style={styles.label}>Tổng chỉ tiêu</Text>
             <Text>0đ</Text>
@@ -83,7 +92,9 @@ const Profile = () => {
           })
         }
         style={styles.logoutBtn}>
-        <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>Đăng xuất</Text>
+        <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>
+          Đăng xuất
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.editBtn} onPress={openModal}>
@@ -101,10 +112,19 @@ const Profile = () => {
               <Text style={styles.modalTitle}>Cập nhật thông tin</Text>
 
               <Text style={styles.inputLabel}>Họ tên</Text>
-              <TextInput style={styles.input} value={hoTen} onChangeText={setHoTen} />
+              <TextInput
+                style={styles.input}
+                value={hoTen}
+                onChangeText={setHoTen}
+              />
 
               <Text style={styles.inputLabel}>Email</Text>
-              <TextInput disable={true} style={styles.input} value={email} onChangeText={setEmail} />
+              <TextInput
+                disable={true}
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+              />
 
               <Text style={styles.inputLabel}>Số điện thoại</Text>
               <TextInput
@@ -115,7 +135,11 @@ const Profile = () => {
               />
 
               <Text style={styles.inputLabel}>Ngày sinh (dd/mm/yyyy)</Text>
-              <TextInput style={styles.input} value={ngaySinh} onChangeText={setNgaySinh} />
+              <TextInput
+                style={styles.input}
+                value={ngaySinh}
+                onChangeText={setNgaySinh}
+              />
 
               <Text style={styles.inputLabel}>Giới tính (1: Nam, 2: Nữ)</Text>
               <TextInput
