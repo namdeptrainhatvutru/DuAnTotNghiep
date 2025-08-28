@@ -62,7 +62,7 @@ const Profile = () => {
 
       <View style={styles.body}>
         <Text style={styles.hoten}>{user.ho_ten}</Text>
-        <Text style={{marginBottom: 10}}>Thẻ thành viên người dùng</Text>
+        <Text style={{marginBottom: 10}}>Thẻ thành viên</Text>
         <Image source={require('../img/thanhvien.png')} />
         <View style={styles.divider} />
         <View
