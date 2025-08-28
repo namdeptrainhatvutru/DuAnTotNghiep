@@ -1,10 +1,19 @@
-import {Alert, Button, StyleSheet, Text, TextInput, TouchableOpacity, View, Animated, Image, Linking} from 'react-native';
-import React, {useState, useRef} from 'react';
 import {useNavigation} from '@react-navigation/native';
+import React, {useRef, useState} from 'react';
+import {
+  Alert,
+  Animated,
+  Image,
+  Linking,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useDispatch } from 'react-redux';
-import { setUser } from '../redux/reducers/UserReducer';
-import BASE from '../config/BaseUrl';
+import {useDispatch} from 'react-redux';
+import {setUser} from '../redux/reducers/UserReducer';
 const api_khach_hang = 'https://67ac56315853dfff53da3fd1.mockapi.io/Khach_Hang';
 
 const Login = () => {
@@ -38,14 +47,14 @@ const Login = () => {
       //nếu vai_tro == 3 thì chuyển sang admin
       if (user && user.vai_tro == 3) {
         nav.navigate('AdminScreen');
-        return
+        return;
       }
       if (user && user.vai_tro == 2) {
         nav.navigate('StaffScreen');
-        return
+        return;
       }
       if (user) {
-        dispatch(setUser(user))
+        dispatch(setUser(user));
         Alert.alert('Thành công', 'Đăng nhập thành công!');
         nav.navigate('MyTabs');
       } else {
@@ -56,40 +65,64 @@ const Login = () => {
     }
   };
 
-
   return (
     <View style={st.khung}>
-       <View style={{width: 300, height: 400, alignItems: 'center', justifyContent: 'center'}}>
-      <Image style={{width: 300, height: 400, position: 'absolute'}} source={require('../img/loginavatar2.png')} />
-      {/* Kính trái */}
-      <Animated.View style={{
-        position: 'absolute',
-        top: 80,
-        left: 95,
-        width: 45,
-        height: 30,
-        backgroundColor: 'black',
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
-        opacity: handAnim, // opacity động
-      }} />
-      {/* Kính phải */}
-      <Animated.View style={{
-        position: 'absolute',
-       
-        top: 80,
-        left: 160,
-        width: 45,
-        height: 30,
-        backgroundColor: 'black',
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
-        opacity: handAnim, // opacity động
-      }} />
-      <Image style={{position:'absolute' , bottom:showPassword?'-130':'200',left:-55}} source={showPassword ? require('../img/mouth.png') : require('../img/mouth2.png')}/>
-    </View>
-      <Text style={st.text}>Đăng nhập</Text>
-      <View style={[st.textInput, {flexDirection: 'row', alignItems: 'center'}]}>
+      <View
+        style={{
+          width: 300,
+          height: 400,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Image
+          style={{width: 300, height: 400, position: 'absolute'}}
+          source={require('../img/loginavatar2.png')}
+        />
+        {/* Kính trái */}
+        <Animated.View
+          style={{
+            position: 'absolute',
+            top: 80,
+            left: 95,
+            width: 45,
+            height: 30,
+            backgroundColor: 'black',
+            borderBottomLeftRadius: 10,
+            borderBottomRightRadius: 10,
+            opacity: handAnim, // opacity động
+          }}
+        />
+        {/* Kính phải */}
+        <Animated.View
+          style={{
+            position: 'absolute',
+
+            top: 80,
+            left: 160,
+            width: 45,
+            height: 30,
+            backgroundColor: 'black',
+            borderBottomLeftRadius: 10,
+            borderBottomRightRadius: 10,
+            opacity: handAnim, // opacity động
+          }}
+        />
+        <Image
+          style={{
+            position: 'absolute',
+            bottom: showPassword ? '-130' : '200',
+            left: -55,
+          }}
+          source={
+            showPassword
+              ? require('../img/mouth.png')
+              : require('../img/mouth2.png')
+          }
+        />
+      </View>
+      <Text style={st.text}>Đăng nhập ứng dụng</Text>
+      <View
+        style={[st.textInput, {flexDirection: 'row', alignItems: 'center'}]}>
         <Icon size={30} style={{width: 30}} color="#666" name="user" />
         <TextInput
           style={{marginLeft: 10, width: '100%'}}
@@ -98,7 +131,8 @@ const Login = () => {
           placeholder="Email"
         />
       </View>
-      <View style={[st.textInput, {flexDirection: 'row', alignItems: 'center'}]}>
+      <View
+        style={[st.textInput, {flexDirection: 'row', alignItems: 'center'}]}>
         <Icon size={30} style={{width: 30}} color="#666" name="lock" />
         <TextInput
           style={{marginLeft: 10, width: '80%'}}
@@ -116,23 +150,55 @@ const Login = () => {
           />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => { Linking.openURL(`https://namdeptrainhatvutru.github.io/forgotpass/`) }}>
-        <Text style={{color: '#373FE2', margin: 20,textDecorationLine:'underline'}}>Quên mật khẩu?</Text>
+      <TouchableOpacity
+        onPress={() => {
+          Linking.openURL(`https://namdeptrainhatvutru.github.io/forgotpass/`);
+        }}>
+        <Text
+          style={{
+            color: '#373FE2',
+            margin: 20,
+            textDecorationLine: 'underline',
+          }}>
+          Quên mật khẩu?
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={handleLogin} style={{backgroundColor: '#BB0000', width: '85%', height: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 50}}>
+      <TouchableOpacity
+        onPress={handleLogin}
+        style={{
+          backgroundColor: '#BB0000',
+          width: '85%',
+          height: 50,
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: 50,
+        }}>
         <Text style={{color: 'white'}}>Đăng nhập</Text>
       </TouchableOpacity>
-      <View style={{flexDirection: 'row', alignItems: 'center', marginVertical: 20}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginVertical: 20,
+        }}>
         <View style={st.line} />
         <Text style={{}}>Hoặc đăng nhập với</Text>
         <View style={st.line} />
       </View>
-      <TouchableOpacity onPress={() => {
+      <TouchableOpacity
+        onPress={() => {
           nav.navigate('Register');
-        }} style={{backgroundColor: 'white', width: '85%', height: 60, justifyContent: 'center', alignItems: 'center', borderRadius: 50}}>
+        }}
+        style={{
+          backgroundColor: 'white',
+          width: '85%',
+          height: 60,
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: 50,
+        }}>
         <Text style={{color: 'black'}}>Đăng ký tài khoản Movix</Text>
       </TouchableOpacity>
-      
     </View>
   );
 };
@@ -158,7 +224,7 @@ const st = StyleSheet.create({
     margin: 10,
     paddingLeft: 10,
   },
-    line: {
+  line: {
     flex: 1,
     height: 1,
     backgroundColor: '#ccc',
