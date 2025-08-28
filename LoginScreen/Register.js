@@ -1,35 +1,46 @@
-import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Button,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
+import React, {useState} from 'react';
 import {CheckBox} from 'react-native-elements/dist/checkbox/CheckBox';
-import { useDispatch } from 'react-redux'
-import { addUser } from '../redux/actions/UserAction'
+import {useDispatch} from 'react-redux';
+import {addUser} from '../redux/actions/UserAction';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { Picker } from '@react-native-picker/picker';
+import {Picker} from '@react-native-picker/picker';
 
-const Register = ({ navigation }) => {
-  const dispatch = useDispatch()
-  const [ho_ten, setHoTen] = useState('')
-  const [email, setEmail] = useState('')
-  const [mat_khau, setMatKhau] = useState('')
-  const [mat_khau2, setMatKhau2] = useState('')
-  const [so_dien_thoai, setSoDienThoai] = useState('')
-  const [gioi_tinh, setGioi_tinh] = useState('')
-  const [ngay_sinh, setNgay_sinh] = useState('')
+const Register = ({navigation}) => {
+  const dispatch = useDispatch();
+  const [ho_ten, setHoTen] = useState('');
+  const [email, setEmail] = useState('');
+  const [mat_khau, setMatKhau] = useState('');
+  const [mat_khau2, setMatKhau2] = useState('');
+  const [so_dien_thoai, setSoDienThoai] = useState('');
+  const [gioi_tinh, setGioi_tinh] = useState('');
+  const [ngay_sinh, setNgay_sinh] = useState('');
   const [checked, setChecked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
 
   const handleRegister = async () => {
     if (!ho_ten || !email || !mat_khau || !so_dien_thoai) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin!')
-      return
+      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin!');
+      return;
     }
     if (mat_khau !== mat_khau2) {
-      Alert.alert('Lỗi', 'Mật khẩu không khớp!')
-      return
+      Alert.alert('Lỗi', 'Mật khẩu không khớp!');
+      return;
     }
     if (!checked) {
-      Alert.alert('Lỗi', 'Bạn phải đồng ý với chính sách bảo mật và điều khoản sử dụng!');
+      Alert.alert(
+        'Lỗi',
+        'Bạn phải đồng ý với chính sách bảo mật và điều khoản sử dụng!',
+      );
       return;
     }
     const user = {
@@ -41,48 +52,62 @@ const Register = ({ navigation }) => {
       gioi_tinh,
       vai_tro: 1,
       diem: 0,
-    }
+    };
     try {
-      const resultAction = await dispatch(addUser(user))
+      const resultAction = await dispatch(addUser(user));
       if (addUser.fulfilled.match(resultAction)) {
-        Alert.alert('Thành công', 'Đăng ký thành công!')
-        navigation.goBack()
+        Alert.alert('Thành công', 'Đăng ký thành công!');
+        navigation.goBack();
       } else {
-        Alert.alert('Lỗi', 'Đăng ký thất bại!')
+        Alert.alert('Lỗi', 'Đăng ký thất bại!');
       }
     } catch (error) {
-      Alert.alert('Lỗi', 'Có lỗi xảy ra!')
+      Alert.alert('Lỗi', 'Có lỗi xảy ra!');
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Đăng ký</Text>
-      <Text style={{ alignSelf: 'flex-start', marginLeft: 10, color: 'red' }}>*Thông tin bắt buộc</Text>
+      <Text style={styles.title}>Đăng ký ứng dụng</Text>
+      <Text style={{alignSelf: 'flex-start', marginLeft: 10, color: 'red'}}>
+        *Thông tin bắt buộc
+      </Text>
 
-      <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.textInput,
+          {flexDirection: 'row', alignItems: 'center'},
+        ]}>
         <Icon name="user" size={24} color="#666" />
         <TextInput
-          style={{ marginLeft: 10, flex: 1 }}
+          style={{marginLeft: 10, flex: 1}}
           placeholder="Họ tên"
           value={ho_ten}
           onChangeText={setHoTen}
         />
       </View>
-      <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.textInput,
+          {flexDirection: 'row', alignItems: 'center'},
+        ]}>
         <Icon name="envelope" size={24} color="#666" />
         <TextInput
-          style={{ marginLeft: 10, flex: 1 }}
+          style={{marginLeft: 10, flex: 1}}
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
         />
       </View>
-      <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.textInput,
+          {flexDirection: 'row', alignItems: 'center'},
+        ]}>
         <Icon name="lock" size={24} color="#666" />
         <TextInput
-          style={{ marginLeft: 10, flex: 1 }}
+          style={{marginLeft: 10, flex: 1}}
           placeholder="Mật khẩu"
           value={mat_khau}
           onChangeText={setMatKhau}
@@ -97,10 +122,14 @@ const Register = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
-      <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.textInput,
+          {flexDirection: 'row', alignItems: 'center'},
+        ]}>
         <Icon name="lock" size={24} color="#666" />
         <TextInput
-          style={{ marginLeft: 10, flex: 1 }}
+          style={{marginLeft: 10, flex: 1}}
           placeholder="Nhập lại mật khẩu"
           value={mat_khau2}
           onChangeText={setMatKhau2}
@@ -115,43 +144,68 @@ const Register = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
-      <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.textInput,
+          {flexDirection: 'row', alignItems: 'center'},
+        ]}>
         <Icon name="phone" size={24} color="#666" />
         <TextInput
-          style={{ marginLeft: 10, flex: 1 }}
+          style={{marginLeft: 10, flex: 1}}
           placeholder="Số điện thoại"
           value={so_dien_thoai}
           onChangeText={setSoDienThoai}
           keyboardType="phone-pad"
         />
       </View>
-      <Text style={{ alignSelf: 'flex-start', marginLeft: 10, color: 'blue',fontSize:10 }}>Thông tin bổ sung</Text>
-      <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
+      <Text
+        style={{
+          alignSelf: 'flex-start',
+          marginLeft: 10,
+          color: 'blue',
+          fontSize: 10,
+        }}>
+        Thông tin bổ sung
+      </Text>
+      <View
+        style={[
+          styles.textInput,
+          {flexDirection: 'row', alignItems: 'center'},
+        ]}>
         <Icon name="calendar" size={24} color="#666" />
         <TextInput
-          style={{ marginLeft: 10, flex: 1 }}
+          style={{marginLeft: 10, flex: 1}}
           placeholder="Ngày sinh"
           value={ngay_sinh}
           onChangeText={setNgay_sinh}
         />
       </View>
-      <View style={[styles.textInput, { flexDirection: 'row', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.textInput,
+          {flexDirection: 'row', alignItems: 'center'},
+        ]}>
         <Icon name="venus-mars" size={24} color="#666" />
         <Picker
           selectedValue={gioi_tinh}
-          style={{ marginLeft: 10, flex: 1, height: 50 }}
-          onValueChange={(itemValue) => setGioi_tinh(itemValue)}
-        >
+          style={{marginLeft: 10, flex: 1, height: 50}}
+          onValueChange={itemValue => setGioi_tinh(itemValue)}>
           <Picker.Item label="Nam" value="Nam" />
           <Picker.Item label="Nữ" value="Nữ" />
         </Picker>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10, alignSelf: 'flex-start' }}>
-        <CheckBox
-          checked={checked}
-          onPress={() => setChecked(!checked)}
-        />
-        <Text style={{ marginRight:40 }}>Tôi cam kết tuân theo chính sách bảo mật và điều khoản sử dụng của Movix</Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginVertical: 10,
+          alignSelf: 'flex-start',
+        }}>
+        <CheckBox checked={checked} onPress={() => setChecked(!checked)} />
+        <Text style={{marginRight: 40}}>
+          Tôi cam kết tuân theo chính sách bảo mật và điều khoản sử dụng của
+          Movix
+        </Text>
       </View>
       <TouchableOpacity
         onPress={handleRegister}
@@ -164,15 +218,14 @@ const Register = ({ navigation }) => {
           borderRadius: 50,
           marginTop: 20,
         }}
-        disabled={!checked}
-      >
-        <Text style={{ color: 'white' }}>Đăng ký</Text>
+        disabled={!checked}>
+        <Text style={{color: 'white'}}>Đăng ký</Text>
       </TouchableOpacity>
     </View>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
 
 const styles = StyleSheet.create({
   container: {
@@ -180,7 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
@@ -197,7 +250,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontSize: 16,
   },
-   textInput: {
+  textInput: {
     width: 450,
     height: 65,
     borderWidth: 1,
@@ -206,4 +259,4 @@ const styles = StyleSheet.create({
     margin: 10,
     paddingLeft: 10,
   },
-})
+});
