@@ -1,4 +1,2 @@
-
-
-const BASE = '192.168.1.3';
-export default BASE
+const BASE = 'http://192.168.1.31:3000';
+export default BASE;
