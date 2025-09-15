@@ -1,6 +1,14 @@
-import { Button, Image, Linking, StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native'
-import React from 'react'
-import { useNavigation } from '@react-navigation/native'
+import {useNavigation} from '@react-navigation/native';
+import React from 'react';
+import {
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 const ADMIN_BUTTONS = [
   [
@@ -36,7 +44,10 @@ const ADMIN_BUTTONS = [
     {
       label: 'Thống kê',
       icon: require('../img/static.png'),
-      onPress: () => Linking.openURL('https://namdeptrainhatvutru.github.io/webmovixver2/'),
+      onPress: () =>
+        Linking.openURL(
+          'https://khadai126205.github.io/MD22_Movix/phim/phim.html',
+        ),
     },
   ],
 ];
@@ -46,7 +57,9 @@ const AdminScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Trang quản trị hệ thống</Text>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}>
         {ADMIN_BUTTONS.map((row, rowIdx) => (
           <View key={rowIdx} style={styles.row}>
             {row.map((btn, idx) => (
@@ -54,8 +67,7 @@ const AdminScreen = () => {
                 key={btn.label}
                 style={styles.card}
                 activeOpacity={0.85}
-                onPress={() => btn.onPress(nav)}
-              >
+                onPress={() => btn.onPress(nav)}>
                 <View style={styles.iconWrapper}>
                   <Image source={btn.icon} style={styles.icon} />
                 </View>
@@ -66,10 +78,10 @@ const AdminScreen = () => {
         ))}
       </ScrollView>
     </View>
-  )
-}
+  );
+};
 
-export default AdminScreen
+export default AdminScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -106,8 +118,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     padding: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 7,
     borderWidth: 1,
@@ -119,8 +131,8 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     shadowColor: '#EA5A5A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 2,
   },
