@@ -1,4 +1,2 @@
-
-
-const BASE = '192.168.1.5';
-export default BASE
+const BASE = '192.168.1.11';
+export default BASE;
