@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { fetchVoucher, addVoucher, deleteVoucher, updateVoucher } from "../redux/actions/VoucherAction"
+import BASE from "../config/BaseUrl"
 
 const { width } = Dimensions.get("window")
 
@@ -32,6 +33,8 @@ const QuanLyVoucher = () => {
   const [loading, setLoading] = useState(false)
   const [soLuong, setSoLuong] = useState("1")
   const [selectedTab, setSelectedTab] = useState("chuaSoHuu")
+  console.log(BASE);
+  
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const chuaSoHuu = listvoucher.filter((v) => !v.khach_hang_id)
@@ -50,7 +53,7 @@ const QuanLyVoucher = () => {
 
     const parts = formatted.split("/")
     const day = Number.parseInt(parts[0], 10)
-    const month = Number.parseInt(parts[1], 10)
+    const month = Number.parseInt(parts[1], 10) 
     if (day > 31) parts[0] = "31"
     if (month > 12) parts[1] = "12"
 

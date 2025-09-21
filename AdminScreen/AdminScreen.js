@@ -36,7 +36,7 @@ const ADMIN_BUTTONS = [
     {
       label: 'Thống kê',
       icon: require('../img/static.png'),
-      onPress: () => Linking.openURL('https://namdeptrainhatvutru.github.io/webmovixver2/'),
+      onPress: () => Linking.openURL('https://khadai126205.github.io/MD22_Movix/phim/phim.html'),
     },
   ],
 ];

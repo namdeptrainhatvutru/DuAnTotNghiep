@@ -20,7 +20,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { addSuatChieu, deleteSuatChieu, fetchSuatChieu } from "../redux/actions/SuatChieuAction"
 import { fetchPhim } from "../redux/actions/PhimAction"
 import { useNavigation } from "@react-navigation/native"
-import { addGhe, deleteGheBySuatChieuId } from "../redux/actions/GheAction"
+import { addGhe, deleteGheBySuatChieuId, fetchGheByRoomId } from "../redux/actions/GheAction"
 
 const { width } = Dimensions.get("window")
 
@@ -165,88 +165,96 @@ const SuatChieu = ({ route }) => {
     : []
 
   // Cập nhật hàm handleAddSuatChieu để validate định dạng ngày
-  const handleAddSuatChieu = async () => {
-    // Validate ngày chiếu đúng định dạng dd/mm/yyyy
-    const dateRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/
+const handleAddSuatChieu = async () => {
+  // Validate ngày chiếu đúng định dạng dd/mm/yyyy
+  const dateRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+  if (!ngay_chieu || !dateRegex.test(ngay_chieu)) {
+    Alert.alert("Lỗi", "Vui lòng nhập đúng định dạng ngày chiếu DD/MM/YYYY");
+    return;
+  }
 
-    if (!ngay_chieu || !dateRegex.test(ngay_chieu)) {
-      Alert.alert("Lỗi", "Vui lòng nhập đúng định dạng ngày chiếu DD/MM/YYYY")
-      return
+  // Kiểm tra thời gian bắt đầu và kết thúc
+  if (!thoi_gian_bat_dau || !thoi_gian_ket_thuc) {
+    Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thời gian");
+    return;
+  }
+
+  const startTime = parseInt(thoi_gian_bat_dau);
+  const endTime = parseInt(thoi_gian_ket_thuc);
+  if (isNaN(startTime) || isNaN(endTime) || startTime < 0 || startTime > 23 || endTime < 0 || endTime > 23) {
+    Alert.alert("Lỗi", "Thời gian phải là số từ 0 đến 23");
+    return;
+  }
+  if (startTime >= endTime) {
+    Alert.alert("Lỗi", "Thời gian kết thúc phải sau thời gian bắt đầu");
+    return;
+  }
+
+  if (!phim_id) {
+    Alert.alert("Lỗi", "Vui lòng chọn phim");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  const suatchieu = {
+    room_id,
+    ngay_chieu,
+    thoi_gian_bat_dau,
+    thoi_gian_ket_thuc,
+    phim_id,
+  };
+
+  try {
+    const res = await dispatch(addSuatChieu(suatchieu));
+    const createdSuatChieu = res.payload;
+    const suatChieuId = createdSuatChieu?.suat_chieu_id;
+
+    if (!suatChieuId) {
+      Alert.alert("Lỗi", "Không lấy được ID suất chiếu!");
+      return;
     }
 
-    // Kiểm tra thời gian bắt đầu và kết thúc
-    if (!thoi_gian_bat_dau || !thoi_gian_ket_thuc) {
-      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thời gian")
-      return
-    }
+    // ---- Tạo ghế cho suất chiếu ----
+    const gheConfigs = [
+      { type: "vip", prefix: "V", count: 10 },
+      { type: "thuong", prefix: "G", count: 15 },
+      { type: "couple", prefix: "C", count: 5 },
+    ];
 
-    const startTime = parseInt(thoi_gian_bat_dau)
-    const endTime = parseInt(thoi_gian_ket_thuc)
-
-    if (isNaN(startTime) || isNaN(endTime)) {
-      Alert.alert("Lỗi", "Thời gian phải là số")
-      return
-    }
-
-    if (startTime < 0 || startTime > 23 || endTime < 0 || endTime > 23) {
-      Alert.alert("Lỗi", "Thời gian phải từ 0 đến 23")
-      return
-    }
-
-    if (startTime >= endTime) {
-      Alert.alert("Lỗi", "Thời gian kết thúc phải sau thời gian bắt đầu")
-      return
-    }
-
-    // Kiểm tra phim đã chọn chưa
-    if (!phim_id) {
-      Alert.alert("Lỗi", "Vui lòng chọn phim")
-      return
-    }
-
-    setIsSubmitting(true)
-    const suatchieu = {
-      room_id: room_id,
-      ngay_chieu: ngay_chieu,
-      thoi_gian_bat_dau: thoi_gian_bat_dau,
-      thoi_gian_ket_thuc: thoi_gian_ket_thuc,
-      phim_id: phim_id,
-    }
-
-    try {
-      const res = await dispatch(addSuatChieu(suatchieu))
-      const createdSuatChieu = res.payload
-      const suatChieuId = createdSuatChieu?.suat_chieu_id
-
-      if (!suatChieuId) {
-        Alert.alert("Lỗi", "Không lấy được ID suất chiếu!")
-        return
-      }
-
-      // Tạo 30 ghế cho suất chiếu này
-      for (let i = 1; i <= 30; i++) {
+    for (const config of gheConfigs) {
+      const { type, prefix, count } = config;
+      for (let i = 1; i <= count; i++) {
         const newGhe = {
-          vi_tri: `G${i}`,
+          vi_tri: `${prefix}${i}`,
           suat_chieu_id: suatChieuId,
           trang_thai: "trống",
-        }
-        await dispatch(addGhe(newGhe))
+          loai_ghe: type, // chắc chắn có
+        };
+        const createdGhe = await dispatch(addGhe(newGhe));
+        console.log("DEBUG createdGhe:", createdGhe);
       }
-
-      await dispatch(fetchSuatChieu(room_id))
-      Alert.alert("Thành công", "Đã thêm suất chiếu mới!")
-      setModal(false)
-      setngay_chieu("")
-      setthoi_gian_bat_dau("")
-      setthoi_gian_ket_thuc("")
-      setphim_id("")
-    } catch (err) {
-      Alert.alert("Lỗi", "Có lỗi xảy ra, vui lòng thử lại!")
-      console.log("Add suatchieu error:", err)
-    } finally {
-      setIsSubmitting(false)
     }
+
+    // Cập nhật lại danh sách ghế cho room
+    await dispatch(fetchGheByRoomId(suatChieuId));
+
+    Alert.alert("Thành công", "Đã thêm suất chiếu mới!");
+    setModal(false);
+    setngay_chieu("");
+    setthoi_gian_bat_dau("");
+    setthoi_gian_ket_thuc("");
+    setphim_id("");
+  } catch (err) {
+    Alert.alert("Lỗi", "Có lỗi xảy ra, vui lòng thử lại!");
+    console.log("Add suatchieu error:", err);
+  } finally {
+    setIsSubmitting(false);
   }
+};
+
+
+
 
   const handleDeleteShowtime = (item) => {
     Alert.alert("Xác nhận", "Bạn có chắc chắn muốn xóa suất chiếu này?", [

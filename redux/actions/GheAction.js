@@ -30,16 +30,16 @@ export const fetchGheByRoomId = (room_id) => {
 
 // Thêm ghế
 export const addGhe = createAsyncThunk(
-    'ghe/addGhe',
-    async (ghe) => {
-        const response = await fetch(link_ghe, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(ghe)
-        });
-        const data = await response.json();
-        if (response.ok) return data;
-    }
+  'ghe/addGhe',
+  async (ghe) => {
+    const response = await fetch(link_ghe, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ghe)
+    });
+    const data = await response.json();
+    if (response.ok) return data;
+  }
 );
 
 // Xóa ghế

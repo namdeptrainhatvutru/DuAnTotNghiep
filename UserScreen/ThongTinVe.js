@@ -54,10 +54,45 @@ const ThongTinVe = ({ route }) => {
   const [momoPaymentStatus, setMomoPaymentStatus] = useState(null)
   const [momoPaymentProcessed, setMomoPaymentProcessed] = useState(false)
 
-  const listvoucherbyid = listvoucher.filter((item) => item.khach_hang_id === user_id.toString())
+  // ...existing code...
+  const listvoucherbyid = listvoucher.filter((item) => item.khach_hang_id === user_id?.toString())
   const giamGia = voucherSelected?.giam_gia || 0
   const foodTotal = foodSelected.reduce((sum, item) => sum + Number(item.price) * (item.quantity || 1), 0)
-  const so_tien = gheSelected.length * 80000 - ((gheSelected.length * 80000) / 100) * giamGia + foodTotal
+
+  // Bảng giá theo loại ghế
+  const seatPriceMap = {
+    thuong: 80000,
+    vip: 120000,
+    couple: 150000,
+  }
+
+  // DEBUG: in mẫu listghe để kiểm tra cấu trúc (xóa khi đã ổn)
+  console.log('DEBUG listghe sample (first 10):', listghe.slice(0, 10))
+
+  // normalize helper
+  const norm = v => (v === undefined || v === null ? '' : String(v).trim().toUpperCase())
+
+  const seatTotal = gheSelected.reduce((sum, vi_tri) => {
+  const viTriNorm = norm(vi_tri);
+  
+  let gheObj = listghe.find(
+    g => norm(g.vi_tri) === viTriNorm && norm(g.suat_chieu_id) === norm(suatChieu?.suat_chieu_id)
+  );
+  if (!gheObj) {
+    gheObj = listghe.find(g => norm(g.vi_tri) === viTriNorm);
+  }
+
+  const loai = gheObj?.loai_ghe ?? 'thuong';
+  const price = seatPriceMap[loai.toLowerCase()] ?? seatPriceMap.thuong;
+
+  console.log('DEBUG matchSeat', { vi_tri, viTriNorm, found: !!gheObj, loai, price });
+  
+  return sum + price;
+}, 0);
+
+  const so_tien = seatTotal - (seatTotal / 100) * giamGia + foodTotal
+  console.log('DEBUG seatTotal, giamGia, foodTotal, so_tien', seatTotal, giamGia, foodTotal, so_tien)
+// ...existing code...
 
   const now = new Date()
   const ngay_mua =
@@ -514,13 +549,13 @@ const ThongTinVe = ({ route }) => {
       <Text style={styles.priceTitle}>💰 Chi Tiết Thanh Toán</Text>
       <View style={styles.priceRow}>
         <Text style={styles.priceLabel}>Giá vé ({gheSelected.length} ghế):</Text>
-        <Text style={styles.priceValue}>{(gheSelected.length * 80000).toLocaleString()}đ</Text>
+        <Text style={styles.priceValue}>{seatTotal.toLocaleString()}đ</Text>
       </View>
       {giamGia > 0 && (
         <View style={styles.priceRow}>
           <Text style={styles.priceLabel}>Giảm giá ({giamGia}%):</Text>
           <Text style={[styles.priceValue, styles.discountValue]}>
-            -{(((gheSelected.length * 80000) / 100) * giamGia).toLocaleString()}đ
+            -{((seatTotal / 100) * giamGia).toLocaleString()}đ
           </Text>
         </View>
       )}
