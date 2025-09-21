@@ -76,3 +76,18 @@ yarn-error.log
 
 # Local config (ignore only on developer machine)
 config/BaseUrl.js
+
+# Android local settings (chỉ riêng máy dev, không cần push)
+local.properties
+android/.settings/
+*.prefs
+
+# Android build (tự sinh, không cần push)
+android/.gradle/
+android/build/
+android/app/build/
+
+# Android Studio/IntelliJ
+.idea/
+*.iml
+
