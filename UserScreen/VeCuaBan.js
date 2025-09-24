@@ -98,6 +98,24 @@ const VeCuaBan = ({ route }) => {
         </View>
       </View>
 
+      {/* Food Section */}
+{thongTinVe.foodSelected && thongTinVe.foodSelected.length > 0 && (
+  <View style={styles.foodSection}>
+    <Text style={styles.foodTitle}>🍿 Đồ ăn đã đặt</Text>
+    {thongTinVe.foodSelected.map((food) => (
+      <View key={food.id} style={styles.foodItem}>
+        <Text style={styles.foodName}>{food.name} x {food.quantity}</Text>
+        <Text style={styles.foodPrice}>{(food.price * food.quantity).toLocaleString()}đ</Text>
+      </View>
+    ))}
+    <View style={styles.foodTotal}>
+      <Text style={styles.foodTotalText}>Tổng tiền:</Text>
+      <Text style={styles.foodTotalPrice}>{thongTinVe.so_tien.toLocaleString()}đ</Text>
+    </View>
+  </View>
+)}
+
+
       {/* Perforated Line */}
       <View style={styles.perforatedLine}>
         <View style={styles.leftCircle} />
@@ -110,7 +128,7 @@ const VeCuaBan = ({ route }) => {
         <Text style={styles.qrTitle}>Mã QR vé của bạn</Text>
         <View style={styles.qrContainer}>
           <View style={styles.qrBackground}>
-            <QRCode value={qrData} size={160} backgroundColor="#fff" color="#1f2937" />
+            <QRCode value={thongTinVe.ve_id.toString()} size={160} backgroundColor="#fff" color="#1f2937" />
           </View>
         </View>
         <Text style={styles.qrNote}>Vui lòng xuất trình mã QR này tại rạp</Text>
@@ -488,4 +506,49 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  foodSection: {
+  paddingHorizontal: 20,
+  paddingVertical: 15,
+  borderBottomWidth: 1,
+  borderBottomColor: "#f3f4f6",
+  backgroundColor: "#f9fafb",
+},
+foodTitle: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#1f2937",
+  marginBottom: 10,
+},
+foodItem: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginBottom: 6,
+},
+foodName: {
+  fontSize: 14,
+  color: "#374151",
+},
+foodPrice: {
+  fontSize: 14,
+  color: "#374151",
+  fontWeight: "500",
+},
+foodTotal: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginTop: 10,
+  borderTopWidth: 1,
+  borderTopColor: "#e5e7eb",
+  paddingTop: 8,
+},
+foodTotalText: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#1f2937",
+},
+foodTotalPrice: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#6366f1",
+},
 })

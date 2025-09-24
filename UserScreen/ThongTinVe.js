@@ -342,7 +342,7 @@ const ThongTinVe = ({ route }) => {
     ToastAndroid.show(`Tích điểm: ${gheSelected.length * 10} điểm`, ToastAndroid.SHORT)
     dispatch(deleteVoucher(voucherSelected?.voucher_id))
 
-    const thongTinVeWithId = { ...thongTinVe, ve_id }
+    const thongTinVeWithId = { ...thongTinVe, ve_id, foodSelected, so_tien: so_tien }
     const qrData = JSON.stringify(thongTinVeWithId)
 
     navigation.navigate("VeCuaBan", {

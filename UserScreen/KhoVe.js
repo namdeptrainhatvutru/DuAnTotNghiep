@@ -128,6 +128,7 @@ const handleDelete = ve_id => {
         <Text>Ngày chiếu: {item.ngay_chieu}</Text>
         <Text>Giờ chiếu: {item.gio_chieu}</Text>
         <Text>Trạng thái: {item.trang_thai === 'chưa sử dụng' ? 'Chưa sử dụng' : 'Đã sử dụng'}</Text>
+        <Text>Giá vé: {item.gia_ve?.toLocaleString()} ₫</Text>
           </ImageBackground>
       </TouchableOpacity>
     </Swipeable>
