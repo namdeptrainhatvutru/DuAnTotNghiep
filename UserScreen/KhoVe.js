@@ -107,7 +107,13 @@ const handleDelete = ve_id => {
     </TouchableOpacity>
   );
 
-  const renderItem = ({item}) => (
+  const renderItem = ({item}) => {
+  // Debug - in ra console để kiểm tra dữ liệu
+  console.log('Item data:', item);
+  console.log('Food Selected:', item.foodSelected);
+  console.log('Gia ve:', item.gia_ve);
+
+  return (
     <Swipeable
       renderRightActions={(progress, dragX) =>
         renderRightActions(progress, dragX, () => handleDelete(item.ve_id))
@@ -119,20 +125,97 @@ const handleDelete = ve_id => {
           setModalVisible(true);
         }}
         activeOpacity={0.7}>
-          <ImageBackground 
+        
+        <ImageBackground 
           source={require('../img/ticketpng.png')}
-          style={{width: '100%', height: 150, justifyContent: 'center', alignItems: 'center'}}
+          style={{width: '100%', minHeight: 180, justifyContent: 'center', padding: 16}}
           imageStyle={{borderRadius: 14}}
-          >
-            <Text style={styles.itemTitle}>{item.ten_phim}</Text>
-        <Text>Ngày chiếu: {item.ngay_chieu}</Text>
-        <Text>Giờ chiếu: {item.gio_chieu}</Text>
-        <Text>Trạng thái: {item.trang_thai === 'chưa sử dụng' ? 'Chưa sử dụng' : 'Đã sử dụng'}</Text>
-        <Text>Giá vé: {item.gia_ve?.toLocaleString()} ₫</Text>
-          </ImageBackground>
+          resizeMode="cover">
+          
+          <View style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+            borderRadius: 8, 
+            padding: 12,
+            margin: 4
+          }}>
+            <Text style={[styles.itemTitle, {color: '#EA5A5A', textAlign: 'center'}]}>
+              {item.ten_phim}
+            </Text>
+            
+            <Text style={{color: '#333', fontSize: 14, marginVertical: 2}}>
+              📅 Ngày chiếu: {item.ngay_chieu}
+            </Text>
+            
+            <Text style={{color: '#333', fontSize: 14, marginVertical: 2}}>
+              🕐 Giờ chiếu: {item.gio_chieu}
+            </Text>
+            
+            <Text style={{color: '#333', fontSize: 14, marginVertical: 2}}>
+              📊 Trạng thái: {item.trang_thai === 'chưa sử dụng' ? 'Chưa sử dụng' : 'Đã sử dụng'}
+            </Text>
+            
+            <Text style={{color: '#333', fontSize: 14, marginVertical: 2, fontWeight: 'bold'}}>
+              💰 Giá vé: {item.gia_ve ? item.gia_ve.toLocaleString() : '0'} ₫
+            </Text>
+
+            {/* Phần hiển thị đồ ăn - với debugging tốt hơn */}
+            {item.foodSelected && Array.isArray(item.foodSelected) && item.foodSelected.length > 0 ? (
+              <View style={{
+                marginTop: 8, 
+                backgroundColor: 'rgba(249, 250, 251, 0.95)', 
+                padding: 8, 
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: '#ddd'
+              }}>
+                <Text style={{fontWeight: 'bold', marginBottom: 6, color: '#333'}}>
+                  🍿 Đồ ăn đã đặt:
+                </Text>
+                {item.foodSelected.map((food, index) => (
+                  <View key={index} style={{
+                    flexDirection: 'row', 
+                    justifyContent: 'space-between',
+                    marginVertical: 2
+                  }}>
+                    <Text style={{color: '#333', fontSize: 13}}>
+                      {food.name} x {food.quantity}
+                    </Text>
+                    <Text style={{color: '#333', fontSize: 13, fontWeight: '500'}}>
+                      {((food.price || 0) * (food.quantity || 0)).toLocaleString()} ₫
+                    </Text>
+                  </View>
+                ))}
+                
+                <View style={{
+                  flexDirection: 'row', 
+                  justifyContent: 'space-between', 
+                  marginTop: 6, 
+                  borderTopWidth: 1, 
+                  borderTopColor: '#ddd', 
+                  paddingTop: 4
+                }}>
+                  <Text style={{fontWeight: 'bold', color: '#333'}}>Tổng tiền:</Text>
+                  <Text style={{fontWeight: 'bold', color: '#EA5A5A'}}>
+                    {(
+                      (item.gia_ve || 0) + 
+                      (item.foodSelected?.reduce((sum, f) => sum + ((f.price || 0) * (f.quantity || 0)), 0) || 0)
+                    ).toLocaleString()} ₫
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              // Hiển thị message debug khi không có đồ ăn
+              <Text style={{color: '#999', fontSize: 12, fontStyle: 'italic', marginTop: 4}}>
+                Không có đồ ăn kèm theo
+              </Text>
+            )}
+          </View>
+          
+        </ImageBackground>
       </TouchableOpacity>
     </Swipeable>
   );
+};
 
   const renderEmpty = () => (
     <View style={{alignItems: 'center', marginTop: 60}}>
@@ -322,14 +405,24 @@ const styles = StyleSheet.create({
   itemContainer: {
     backgroundColor: 'transparent',
     borderRadius: 14,
-    padding: 16,
+    padding: 0, // Thay đổi từ 16 thành 0
     marginBottom: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
+  
   itemTitle: {
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#EA5A5A',
-    marginBottom: 6,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,
@@ -375,5 +468,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontWeight: 'bold',
   },
+  
 });
 
