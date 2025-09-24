@@ -131,8 +131,41 @@ const ThongTinVe = ({ route }) => {
   }, [showVietQR, payment, momoOrderId, momoRequestId])
 
   const handleSelectGhe = (vi_tri) => {
-    setGheSelected((prev) => (prev.includes(vi_tri) ? prev.filter((g) => g !== vi_tri) : [...prev, vi_tri]))
+  // Nếu ghế đã chọn, bỏ chọn
+  if (gheSelected.includes(vi_tri)) {
+    setGheSelected((prev) => prev.filter((g) => g !== vi_tri));
+    return;
   }
+
+  // Kiểm tra số ghế tối đa
+  if (gheSelected.length >= 8) {
+    ToastAndroid.show("Bạn chỉ có thể chọn tối đa 8 ghế!", ToastAndroid.SHORT);
+    return;
+  }
+
+  // Kiểm tra ghế xen kẽ
+  const allSeatsInRow = sortedGhe
+    .filter(g => g.room_id === sortedGhe.find(s => s.vi_tri === vi_tri)?.room_id)
+    .map(g => g.vi_tri);
+
+  const selectedPlusNew = [...gheSelected, vi_tri].sort((a, b) => {
+    // Sắp xếp số ghế theo số sau chữ G
+    return parseInt(a.replace("G", ""), 10) - parseInt(b.replace("G", ""), 10);
+  });
+
+  for (let i = 0; i < selectedPlusNew.length - 1; i++) {
+    const curr = parseInt(selectedPlusNew[i].replace("G", ""), 10);
+    const next = parseInt(selectedPlusNew[i + 1].replace("G", ""), 10);
+    if (next - curr > 1) {
+      ToastAndroid.show("Không được để ghế trống xen kẽ!", ToastAndroid.SHORT);
+      return;
+    }
+  }
+
+  // Nếu hợp lệ, thêm ghế
+  setGheSelected((prev) => [...prev, vi_tri]);
+};
+
 
   const handleSelectFood = (food) => {
     setFoodSelected((prev) => {
